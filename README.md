@@ -1,14 +1,24 @@
 # Painel de Indicadores de Saúde Materna e Infantil — QualiPréNeo
 
-Protótipo funcional de um site de indicadores em saúde, no estilo do
-[IMAPI](https://www.imapi.org), construído com **Streamlit** (Python).
+Site de indicadores em saúde, no estilo do [IMAPI](https://www.imapi.org),
+com duas partes:
+
+- **Frontend** — [`teste_not_streamlit/`](teste_not_streamlit/), em React
+  (TanStack Start), é o site oficial do projeto.
+- **Pipeline de dados** — scripts Python na raiz (`scripts/`, `utils/`)
+  que transformam as planilhas do DataSUS em arquivos que o frontend
+  consome.
+
+> Havia um protótipo anterior em Streamlit — foi descontinuado como site
+> oficial e fica arquivado em [`_legacy_streamlit/`](_legacy_streamlit/)
+> como referência (tem 4 páginas funcionais — Ranking, Buscar Município,
+> Comparar, Mapa — que ainda não têm equivalente completo no React). Ver
+> [docs/07-decisoes-tecnicas.md](docs/07-decisoes-tecnicas.md#adr-004).
 
 Já vem com 3 indicadores reais carregados:
 - Indicador Composto
 - Proporção de Apgar Adequado
 - Coeficiente de Mortalidade Neonatal
-
-E 4 páginas: Início, Ranking, Buscar Município, Comparar e Mapa.
 
 > 📖 Este README é o guia rápido de instalação. Para visão geral do
 > projeto, metodologia dos indicadores, arquitetura, decisões técnicas e
@@ -16,16 +26,44 @@ E 4 páginas: Início, Ranking, Buscar Município, Comparar e Mapa.
 
 ---
 
-## 1. Rodando o site no seu computador
+## 1. Rodando o site (frontend React)
 
 ### 1.1 Pré-requisitos
-- Python 3.10 ou mais recente instalado ([python.org/downloads](https://www.python.org/downloads/))
-- Ao instalar no Windows, marque a caixa **"Add Python to PATH"**
+- [Node.js](https://nodejs.org) 20 ou mais recente (o projeto usa
+  [Bun](https://bun.sh) como gerenciador de pacotes, mas `npm` também
+  funciona)
 
 ### 1.2 Passo a passo
 
-Abra o terminal (Prompt de Comando / PowerShell no Windows, Terminal no Mac) dentro
-da pasta `painel-saude` e rode, uma linha de cada vez:
+```bash
+cd teste_not_streamlit
+npm install       # ou: bun install
+npm run dev       # ou: bun run dev
+```
+
+Abre em `http://localhost:3000` (porta padrão do Vite/TanStack Start — o
+terminal mostra o endereço exato). Para parar, use `Ctrl+C`.
+
+Esse frontend está conectado ao [Lovable](https://lovable.dev) — ver
+[`teste_not_streamlit/AGENTS.md`](teste_not_streamlit/AGENTS.md) antes de
+mexer em histórico de commits daquela pasta.
+
+---
+
+## 2. Rodando o pipeline de dados (Python)
+
+O frontend lê arquivos estáticos (JSON) gerados a partir dos dados do
+DataSUS por um pipeline em Python. Só é preciso rodar isso quando um
+indicador novo entra ou os dados são atualizados.
+
+### 2.1 Pré-requisitos
+- Python 3.10 ou mais recente ([python.org/downloads](https://www.python.org/downloads/))
+- Ao instalar no Windows, marque a caixa **"Add Python to PATH"**
+
+### 2.2 Passo a passo
+
+Abra o terminal dentro da pasta `painel-saude` (raiz do projeto) e rode,
+uma linha de cada vez:
 
 ```bash
 # 1. Criar um ambiente virtual (isola as bibliotecas deste projeto)
@@ -40,132 +78,90 @@ source .venv/bin/activate
 # 3. Instalar as bibliotecas necessárias
 pip install -r requirements.txt
 
-# 4. Rodar o site
-streamlit run app.py
+# 4. Gerar a base consolidada (star schema em data/processed/)
+python scripts/build_dataset.py
+
+# 5. Exportar os dados que o frontend React consome
+python scripts/export_ranking_frontend.py
 ```
 
-O navegador vai abrir automaticamente em `http://localhost:8501` com o site
-rodando. Para parar, use `Ctrl+C` no terminal.
-
-Sempre que for trabalhar no projeto de novo, você só precisa repetir os
-passos 2 e 4 (não precisa recriar o ambiente virtual nem reinstalar tudo).
+O passo 5 grava em
+`teste_not_streamlit/public/data/ranking-composto-2023.json`. Depois é só
+rodar o frontend (seção 1) normalmente.
 
 ---
 
-## 2. Estrutura do projeto
+## 3. Estrutura do projeto
 
 ```
 painel-saude/
-├── app.py                          # página inicial
-├── pages/                          # cada arquivo = uma página do menu lateral
-│   ├── 1_🏆_Ranking.py
-│   ├── 2_🔍_Buscar_Município.py
-│   ├── 3_📊_Comparar.py
-│   └── 4_🗺️_Mapa.py
+├── teste_not_streamlit/            # frontend oficial (React / TanStack Start)
+│   ├── src/routes/                 # páginas
+│   ├── src/components/             # componentes de UI
+│   └── public/data/                # JSON gerado pelo pipeline (seção 2)
+├── _legacy_streamlit/              # protótipo Streamlit arquivado (ver aviso acima)
 ├── utils/
-│   └── data.py                     # funções de carregamento e cálculo, usadas por todas as páginas
+│   └── data.py                     # funções de carregamento e cálculo (usadas pelo pipeline de exportação)
 ├── scripts/
-│   └── importar_indicadores.py     # pipeline que gera a base consolidada (ver seção 3)
+│   ├── build_dataset.py            # pipeline atual: gera o modelo dimensional (star schema)
+│   ├── importar_indicadores.py     # pipeline legado (ver docs/02-arquitetura.md)
+│   └── export_ranking_frontend.py  # exporta o ranking em JSON para o frontend
 ├── data/
 │   ├── raw/                        # arquivos .xlsx originais de cada indicador (entram aqui)
-│   ├── catalogo_indicadores.csv    # "de-para" de cada indicador (editar para adicionar um novo)
-│   └── indicadores_long.csv        # base consolidada gerada pelo script — o site lê só este arquivo
-├── .streamlit/config.toml          # cores/tema do site
-└── requirements.txt
+│   ├── processed/                  # saída do pipeline atual (parquet + qualipreneo.db)
+│   ├── catalogo_indicadores.csv    # "de-para" de cada indicador (pipeline legado)
+│   └── indicadores_long.csv        # saída do pipeline legado
+├── docs/                           # documentação completa do projeto
+└── requirements.txt                # dependências do pipeline de dados (Python)
 ```
 
 ---
 
-## 3. Como adicionar um indicador novo (o fluxo do dia a dia)
+## 4. Como adicionar um indicador novo (o fluxo do dia a dia)
 
 Isso é o que muda **a cada novo indicador que vocês tiverem pronto** — o
-resto do código não precisa ser tocado.
+resto do código não precisa ser tocado. Detalhes de metodologia (fórmula,
+fonte, direção) devem ser registrados em
+[docs/03-catalogo-e-metodologia-indicadores.md](docs/03-catalogo-e-metodologia-indicadores.md).
 
 1. Copie o arquivo `.xlsx` do indicador (formato `..._munic_ano.xlsx`, com
    colunas `year`, `codibge`, `cod_mapa`, `NOME DO MUNICÍPIO` e a coluna do
    valor) para dentro de `data/raw/`.
 
-2. Abra `data/catalogo_indicadores.csv` (dá pra editar no Excel também) e
-   adicione uma linha, por exemplo:
+2. Cadastre o indicador no pipeline (ver
+   [docs/04-pipeline-de-dados.md](docs/04-pipeline-de-dados.md) para o
+   formato exato — hoje o cadastro fica no manifesto interno de
+   `scripts/build_dataset.py`).
 
-   ```
-   chave,arquivo,coluna_valor,nome_amigavel,grupo,direcao,formato
-   taxa_cesarea,taxa_cesarea_munic_ano.xlsx,proporcao,Proporção de Cesáreas,Grupo 2 - Parto,menor_melhor,{:.1f}%
-   ```
-
-   - `chave`: identificador interno, sem espaços/acentos
-   - `arquivo`: nome do arquivo dentro de `data/raw/`
-   - `coluna_valor`: nome exato da coluna com o valor do indicador na planilha
-   - `nome_amigavel`: como vai aparecer nos menus do site
-   - `grupo`: um dos 5 grupos da proposta (pré-natal, parto, neonatal, puerpério, perinatal) — só organizacional por enquanto
-   - `direcao`: `menor_melhor` ou `maior_melhor` — **confiram isso com a
-     metodologia de cada indicador**, é o que define quem aparece no topo do ranking
-   - `formato`: como o número aparece na tela (`{:.1f}%`, `{:.2f}`, etc.)
-
-3. Rode o script de importação:
+3. Rode o pipeline e a exportação:
 
    ```bash
-   python scripts/importar_indicadores.py
+   python scripts/build_dataset.py
+   python scripts/export_ranking_frontend.py
    ```
 
-   Ele vai avisar quantas linhas leu de cada indicador e regravar
-   `data/indicadores_long.csv`.
-
-4. Rode `streamlit run app.py` de novo (ou aperte "Rerun" se o site já
-   estiver aberto) — o novo indicador já aparece em todos os seletores,
-   rankings, buscas, comparações e no mapa, automaticamente.
+4. Rode o frontend (`npm run dev` dentro de `teste_not_streamlit/`) — o
+   indicador novo aparece nos dados exportados. Se ele precisa aparecer em
+   telas específicas do React, isso ainda exige código no frontend (o
+   React, diferente do Streamlit antigo, não é 100% orientado a catálogo
+   ainda — ver [docs/09-roadmap-e-perguntas-abertas.md](docs/09-roadmap-e-perguntas-abertas.md)).
 
 > **Nota sobre os arquivos `_munic.xlsx` (sem `_ano`)**: eles trazem só o
 > total do período inteiro por município, sem separar por ano. O pipeline
-> atual usa as versões `_munic_ano.xlsx` (série temporal). Se vocês quiserem
-> mostrar também um "resumo do período completo" em algum lugar do site
-> (não obrigatório para o funcionamento atual), me avisem que adiciono essa
-> visão.
+> atual usa as versões `_munic_ano.xlsx` (série temporal).
 
 ---
 
-## 4. Colocando no ar (GitHub + Streamlit Community Cloud, de graça)
+## 5. Colocando no ar
 
-### 4.1 Criar o repositório no GitHub
-1. Crie uma conta em [github.com](https://github.com) se ainda não tiver.
-2. Crie um novo repositório (pode ser privado), ex.: `painel-qualipreneo`.
-3. Dentro da pasta `painel-saude`, no terminal:
-
-   ```bash
-   git init
-   git add .
-   git commit -m "Primeira versão do painel"
-   git branch -M main
-   git remote add origin https://github.com/SEU-USUARIO/painel-qualipreneo.git
-   git push -u origin main
-   ```
-
-### 4.2 Publicar no Streamlit Community Cloud
-1. Acesse [share.streamlit.io](https://share.streamlit.io) e entre com sua conta do GitHub.
-2. Clique em **"New app"**.
-3. Selecione o repositório `painel-qualipreneo`, branch `main`, e o arquivo
-   principal `app.py`.
-4. Clique em **Deploy**. Em poucos minutos o site fica no ar num endereço
-   tipo `https://painel-qualipreneo.streamlit.app`, gratuito.
-5. Qualquer novo `git push` no repositório atualiza o site automaticamente.
-
-> Atenção: o plano gratuito é público na internet (mesmo que o repositório
-> seja privado, o link do app não exige login). Se os dados só puderem ser
-> divulgados depois de validação institucional, mantenham em execução local
-> até estarem prontos para publicar.
+`[A DEFINIR]` — hospedagem do frontend React (Vercel, Netlify, publicação
+direta pelo Lovable, etc.) ainda precisa ser decidida pela equipe. Ver
+[docs/06-deploy-e-operacao.md](docs/06-deploy-e-operacao.md).
 
 ---
 
-## 5. Próximos passos sugeridos (conforme a proposta)
+## 6. Próximos passos
 
-- [ ] Trazer os 40 indicadores restantes (repetindo a seção 3 para cada um)
-- [ ] Mapa por município (instruções detalhadas na página "Mapa" do site,
-      dentro do expansor "Como evoluir para o mapa municipal")
-- [ ] Tooltips explicando metodologia de cálculo de cada indicador (dá pra
-      usar a coluna `descricao` do catálogo com `st.help`/`help=` nos widgets)
-- [ ] Filtro por "região de saúde" (a proposta cita esse nível — precisamos
-      de uma tabela de-para código do município → região de saúde para isso)
-- [ ] Geração automática de relatório em PDF/Word por município
-- [ ] Comparação por perfil semelhante (tamanho populacional, IDH etc.) —
-      precisa de uma base auxiliar com essas variáveis por município
-- [ ] Página "Sobre" com a metodologia do QualiPréNeo e créditos institucionais
+Ver o roadmap completo, com o que já foi decidido e o que ainda está em
+aberto, em
+[docs/09-roadmap-e-perguntas-abertas.md](docs/09-roadmap-e-perguntas-abertas.md).

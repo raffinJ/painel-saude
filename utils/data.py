@@ -1,15 +1,22 @@
 """
 Funções centrais de carregamento e manipulação de dados do painel.
 
-O painel inteiro é orientado pelo catálogo (data/catalogo_indicadores.csv)
-e pela base longa gerada por scripts/importar_indicadores.py
+Camada de dados compartilhada por scripts/export_ranking_frontend.py (que
+alimenta o frontend em teste_not_streamlit/) e, historicamente, pelo
+protótipo Streamlit arquivado em _legacy_streamlit/ (ver
+docs/02-arquitetura.md). Não depende de nenhum framework de UI — o cache
+usa functools.lru_cache em vez de st.cache_data para não exigir Streamlit
+instalado neste caminho.
+
+O painel é orientado pelo catálogo (data/catalogo_indicadores.csv) e pela
+base longa gerada por scripts/importar_indicadores.py
 (data/indicadores_long.csv). Para adicionar um indicador novo, veja as
-instruções no topo de scripts/importar_indicadores.py — nenhuma página
-do site precisa ser alterada.
+instruções no topo de scripts/importar_indicadores.py.
 """
 
+from functools import lru_cache
+
 import pandas as pd
-import streamlit as st
 
 LONG_DATA_PATH = "data/indicadores_long.csv"
 CATALOGO_PATH = "data/catalogo_indicadores.csv"
@@ -17,12 +24,12 @@ CATALOGO_PATH = "data/catalogo_indicadores.csv"
 REGIOES_ORDEM = ["Norte", "Nordeste", "Centro-Oeste", "Sudeste", "Sul"]
 
 
-@st.cache_data
+@lru_cache(maxsize=1)
 def load_catalogo() -> pd.DataFrame:
     return pd.read_csv(CATALOGO_PATH).set_index("chave")
 
 
-@st.cache_data
+@lru_cache(maxsize=1)
 def load_long_data() -> pd.DataFrame:
     return pd.read_csv(
         LONG_DATA_PATH,
@@ -98,22 +105,22 @@ def filter_geo(df: pd.DataFrame, regioes=None, ufs=None) -> pd.DataFrame:
 PROCESSED_DIR = "data/processed"
 
 
-@st.cache_data
+@lru_cache(maxsize=1)
 def load_fato_indicadores() -> pd.DataFrame:
     return pd.read_parquet(f"{PROCESSED_DIR}/fato_indicadores.parquet").astype({"codibge": str})
 
 
-@st.cache_data
+@lru_cache(maxsize=1)
 def load_dim_municipios() -> pd.DataFrame:
     return pd.read_parquet(f"{PROCESSED_DIR}/dim_municipios.parquet").astype({"codibge": str})
 
 
-@st.cache_data
+@lru_cache(maxsize=1)
 def load_dim_indicadores_parquet() -> pd.DataFrame:
     return pd.read_parquet(f"{PROCESSED_DIR}/dim_indicadores.parquet").set_index("indicador_chave")
 
 
-@st.cache_data
+@lru_cache(maxsize=1)
 def load_dim_populacao() -> pd.DataFrame:
     return pd.read_parquet(f"{PROCESSED_DIR}/dim_populacao.parquet").astype({"codibge": str})
 

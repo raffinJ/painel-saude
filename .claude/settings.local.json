@@ -55,7 +55,13 @@
       "Bash(mkdir unpacked *)",
       "Bash(unzip -q \"C:\\\\Users\\\\julia\\\\OneDrive\\\\Área de Trabalho\\\\painel-saude\\\\docs\\\\Documentacao_QualiPreNeo.docx\" -d unpacked)",
       "Bash(python3 -c ' *)",
-      "Bash(cd \"/c/Users/julia/AppData/Local/Temp/claude/C--Users-julia-OneDrive--rea-de-Trabalho-painel-saude/fcb8405a-07be-49b4-9223-89e8d7bf9a97/scratchpad/docxgen/unpacked/word\" *)"
+      "Bash(cd \"/c/Users/julia/AppData/Local/Temp/claude/C--Users-julia-OneDrive--rea-de-Trabalho-painel-saude/fcb8405a-07be-49b4-9223-89e8d7bf9a97/scratchpad/docxgen/unpacked/word\" *)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(.venv/Scripts/python -c \"import ast; ast.parse\\(open\\('utils/data.py', encoding='utf-8'\\).read\\(\\)\\)\")",
+      "Bash(python -c ' *)",
+      "Bash(.venv/Scripts/python -c ' *)",
+      "Bash(../.venv/Scripts/python -c ' *)",
+      "Bash(\".venv/Scripts/python\" scripts/export_ranking_frontend.py)"
     ]
   }
 }

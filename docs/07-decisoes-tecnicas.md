@@ -33,11 +33,12 @@ substitui a anterior e linkem as duas.
 
 - **Contexto**: o pipeline gera tanto arquivos `.parquet` quanto um banco
   `qualipreneo.db` (SQLite) a partir do mesmo modelo dimensional.
-- **Decisão**: o Streamlit lê os `.parquet` (colunar, rápido para
+- **Decisão**: o pipeline de exportação (`scripts/export_ranking_frontend.py`,
+  que alimenta o frontend React) lê os `.parquet` (colunar, rápido para
   agregação em pandas, ~14,5 MB). O SQLite é mantido pensando numa futura
-  API/frontend separado (ex.: Next.js), não é consumido pelo site atual.
+  API separada, não é consumido pelo frontend atual.
 - **Alternativas consideradas**: usar só SQLite (descartado por
-  performance inferior em memória para o padrão de leitura do Streamlit).
+  performance inferior em memória para agregação em pandas).
 - **Consequências**: qualquer mudança no modelo de dados precisa
   regenerar os dois formatos; se o SQLite ficar sem uso real por muito
   tempo, avaliar se vale manter a manutenção dele.
@@ -52,6 +53,38 @@ substitui a anterior e linkem as duas.
   excluídos do ranking daquele ano, em vez de exibidos com valor nulo.
 - **Consequências**: o ranking pode ter poucos municípios em indicadores
   raros — a UI deve deixar claro quantos municípios entraram no cálculo.
+
+## ADR-004 — Frontend oficial passa a ser o React, Streamlit fica arquivado como protótipo
+
+- **Contexto**: o projeto tinha dois frontends em paralelo — o site
+  Streamlit original (`app.py` + `pages/`, com 4 páginas e dados reais) e
+  um protótipo React em `teste_not_streamlit/` (via Lovable), que na
+  época tinha só a página de Ranking, majoritariamente com dados
+  mockados. Isso estava registrado como pergunta em aberto (ver histórico
+  deste documento e do roadmap).
+- **Decisão**: o time optou por seguir com o **React como frontend
+  oficial**. O código Streamlit foi movido para
+  `_legacy_streamlit/` (arquivado, não apagado) para servir de referência
+  enquanto as páginas que faltam (Buscar Município, Comparar, Mapa, e a
+  própria página de Ranking com dados reais em vez de mockados) são
+  portadas para o React.
+- **Alternativas consideradas**: apagar o código Streamlit imediatamente
+  (descartada — o React ainda não tem paridade de funcionalidades, então
+  o Streamlit continua útil como referência de UX/lógica até a migração
+  terminar); manter os dois frontends ativos indefinidamente (descartada
+  — duplicaria manutenção sem necessidade, já que a decisão de qual é o
+  site oficial já foi tomada).
+- **Consequências**:
+  - `utils/data.py` (camada de dados) deixou de depender do Streamlit
+    (`@st.cache_data` → `functools.lru_cache`) para poder ser usado só
+    pelo pipeline de exportação, sem exigir Streamlit instalado.
+  - `requirements.txt` na raiz do projeto não inclui mais `streamlit`
+    nem `plotly` — essas dependências ficaram isoladas em
+    `_legacy_streamlit/requirements.txt`.
+  - Enquanto durar a migração, o `_legacy_streamlit/` pode ficar
+    temporariamente com dados mais "à frente" que o React nas páginas
+    ainda não portadas — ver checklist de portabilidade em
+    [09-roadmap-e-perguntas-abertas.md](09-roadmap-e-perguntas-abertas.md).
 
 ---
 

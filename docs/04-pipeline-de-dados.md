@@ -8,7 +8,7 @@ Para o modelo de dados resultante, ver
 
 ## 4.1 Pré-requisitos
 
-Mesmo ambiente virtual do site (ver [README.md](../README.md#1-rodando-o-site-no-seu-computador)):
+Mesmo ambiente virtual do pipeline (ver [README.md §2](../README.md#2-rodando-o-pipeline-de-dados-python)):
 
 ```bash
 .venv\Scripts\activate   # Windows
@@ -39,7 +39,8 @@ python scripts/importar_indicadores.py
 ```
 
 Lê `data/catalogo_indicadores.csv` + `data/raw/*.xlsx` e gera
-`data/indicadores_long.csv`. Formato do catálogo:
+`data/indicadores_long.csv` — hoje usado só pelo protótipo Streamlit
+arquivado em [`_legacy_streamlit/`](../_legacy_streamlit/). Formato do catálogo:
 
 ```
 chave,arquivo,coluna_valor,nome_amigavel,grupo,direcao,formato
@@ -51,7 +52,7 @@ taxa_cesarea,taxa_cesarea_munic_ano.xlsx,proporcao,Proporção de Cesáreas,Grup
 | `chave` | identificador interno, sem espaços/acentos |
 | `arquivo` | nome do arquivo dentro de `data/raw/` |
 | `coluna_valor` | nome exato da coluna com o valor na planilha original |
-| `nome_amigavel` | como aparece nos menus do site |
+| `nome_amigavel` | como aparece nos menus do protótipo arquivado |
 | `grupo` | um dos 5 grupos (ver [03-catalogo-e-metodologia-indicadores.md §3.2](03-catalogo-e-metodologia-indicadores.md#32-os-5-grupos-da-proposta)) |
 | `direcao` | `menor_melhor` ou `maior_melhor` — confirmar com a metodologia do indicador |
 | `formato` | máscara de exibição (`{:.1f}%`, `{:.2f}`, etc.) |
@@ -66,9 +67,9 @@ Convenção de nome: `..._munic_ano.xlsx` (série temporal por
 município/ano), com colunas mínimas `year`, `codibge`, `cod_mapa`,
 `NOME DO MUNICÍPIO` + a(s) coluna(s) de valor.
 
-`[A DEFINIR]` — nota do README sobre arquivos `_munic.xlsx` (sem `_ano`,
-só total do período): decidir se/quando o site vai exibir também esse
-"resumo do período completo".
+`[A DEFINIR]` — arquivos `_munic.xlsx` (sem `_ano`, só total do período):
+decidir se/quando o frontend vai exibir também esse "resumo do período
+completo".
 
 ## 4.5 Logs e validação após rodar o pipeline
 
@@ -80,13 +81,20 @@ O que checar depois de cada `build_dataset.py`:
 - `[A DEFINIR]` — checklist formal de validação antes de "homologar" um
   indicador novo (quem revisa, o que revisa).
 
-## 4.6 Exportando para o frontend experimental
+## 4.6 Exportando para o frontend (React)
 
 ```bash
 python scripts/export_ranking_frontend.py
 ```
 
 Gera `teste_not_streamlit/public/data/ranking-composto-2023.json` a
-partir de `montar_ranking()` em `utils/data.py`. `[A DEFINIR]` — se/quando
-isso deve rodar automaticamente (ex.: como parte do build do frontend) em
-vez de manualmente.
+partir de `montar_ranking()` em `utils/data.py`. Esse script não depende
+mais de Streamlit (usa `functools.lru_cache`, não `@st.cache_data` — ver
+[ADR-004](07-decisoes-tecnicas.md#adr-004--frontend-oficial-passa-a-ser-o-react-streamlit-fica-arquivado-como-protótipo)),
+então basta o `requirements.txt` da raiz para rodá-lo.
+
+`[A DEFINIR]` — se/quando isso deve rodar automaticamente (ex.: como
+parte do build do frontend, ou de um CI) em vez de manualmente. Também
+está em aberto expandir este script para exportar os dados que faltam
+para as páginas ainda não portadas (Buscar Município, Comparar, Mapa) —
+ver [09-roadmap-e-perguntas-abertas.md](09-roadmap-e-perguntas-abertas.md).
