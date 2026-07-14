@@ -94,7 +94,48 @@ mais de Streamlit (usa `functools.lru_cache`, não `@st.cache_data` — ver
 então basta o `requirements.txt` da raiz para rodá-lo.
 
 `[A DEFINIR]` — se/quando isso deve rodar automaticamente (ex.: como
-parte do build do frontend, ou de um CI) em vez de manualmente. Também
-está em aberto expandir este script para exportar os dados que faltam
-para as páginas ainda não portadas (Buscar Município, Comparar, Mapa) —
-ver [09-roadmap-e-perguntas-abertas.md](09-roadmap-e-perguntas-abertas.md).
+parte do build do frontend, ou de um CI) em vez de manualmente.
+
+## 4.7 Exportando para a aba Indicadores (React)
+
+```bash
+python scripts/export_indicadores_frontend.py
+```
+
+Para cada um dos 26 indicadores em `dim_indicadores`, gera:
+- `teste_not_streamlit/public/data/indicadores/_index.json` — metadados
+  dos 26 indicadores (chave, nome, grupo, direção, formato), para popular
+  o seletor sem baixar as séries inteiras.
+- `teste_not_streamlit/public/data/indicadores/<chave>.json` — série por
+  ano em Brasil, cada Região, cada UF (via
+  `utils.data.calcular_taxa_agregada`, mesma regra do
+  [ADR-001](07-decisoes-tecnicas.md#adr-001--agregação-por-média-ponderada-numeradordenominador-não-média-simples-das-taxas-municipais))
+  e por Município (direto de `fato_indicadores`, já é o grão nativo).
+
+**Demora**: por indicador, o script faz uma chamada a
+`calcular_taxa_agregada` para cada combinação ano × (Brasil + 5 regiões +
+27 UFs) — na ordem de 13.700 chamadas no total para os 26 indicadores.
+Rodar leva **~15 minutos**. É um script de pipeline, não é executado em
+runtime pelo site, então esse tempo é aceitável — mas rodem uma vez e
+reaproveitem o resultado em vez de rodar a cada teste pequeno.
+
+**Indicadores com categoria** (`proporcao_parto_vaginal_profissional`,
+`coef_obito_neonatal_causa`): têm mais de uma linha por município/ano no
+`fato_indicadores` (uma por categoria — profissional que assistiu o
+parto, causa do óbito). O script combina as categorias num único valor
+por ano via soma de numerador/denominador (mesma regra do ADR-001), e
+marca o indicador com `"multi_categoria": true` no JSON exportado — a
+aba Indicadores mostra um aviso quando isso acontece. **A quebra por
+categoria em si ainda não tem visualização própria** — ver
+[09-roadmap-e-perguntas-abertas.md](09-roadmap-e-perguntas-abertas.md).
+
+## 4.8 Malha geográfica (UF)
+
+`teste_not_streamlit/public/data/geo/brazil-uf.geojson` é uma cópia local
+(vendorizada) de um GeoJSON público das 27 UFs
+(`codeforgermany/click_that_hood`, a mesma fonte que o Streamlit arquivado
+usava via URL). Foi simplificado de 3,4 MB para ~120 KB com
+[mapshaper](https://github.com/mbloch/mapshaper) (`npx mapshaper -i
+brazil-uf.geojson -simplify 5% -o brazil-uf.geojson force`) — se precisar
+regenerar (ex.: trocar a fonte), rodar essa mesma simplificação antes de
+commitar, senão o mapa fica pesado.

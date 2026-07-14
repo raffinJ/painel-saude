@@ -122,13 +122,32 @@ sincronizado via Lovable (ver `teste_not_streamlit/AGENTS.md` — **não
 fazer force-push nem reescrever histórico da branch conectada ao
 Lovable**, senão o histórico no editor do Lovable quebra).
 
-Estado atual: uma única rota (`src/routes/index.tsx`) com a página de
-Ranking. Consome hoje um JSON estático
-(`public/data/ranking-composto-2023.json`) exportado por
-[scripts/export_ranking_frontend.py](../scripts/export_ranking_frontend.py),
-mas a página ainda usa principalmente os dados mockados de
-`src/lib/ranking-data.ts` — integrar o componente ao JSON real é um dos
-itens do roadmap.
+Rotas hoje:
+
+- `src/routes/index.tsx` (`/`) — página de Ranking. Consome um JSON
+  estático (`public/data/ranking-composto-2023.json`) exportado por
+  [scripts/export_ranking_frontend.py](../scripts/export_ranking_frontend.py),
+  mas a página ainda usa principalmente os dados mockados de
+  `src/lib/ranking-data.ts` — integrar o componente ao JSON real é um dos
+  itens do roadmap.
+- `src/routes/indicadores.tsx` (`/indicadores`) — aba "Indicadores":
+  escolhe qualquer um dos 26 indicadores e mostra o valor em
+  Brasil/Região/UF/Município, com série histórica (line chart), mapa
+  coroplético por UF, heatmap UF×Ano e tabela com download em CSV. Consome
+  `public/data/indicadores/_index.json` (metadados) e
+  `public/data/indicadores/<chave>.json` (série completa por indicador),
+  exportados por
+  [scripts/export_indicadores_frontend.py](../scripts/export_indicadores_frontend.py).
+  Usa `d3-geo` (sem wrapper React — `react-simple-maps` tem peer-dependency
+  presa em React ≤18, incompatível com o React 19 deste projeto) para
+  projetar o GeoJSON vendorizado em
+  `public/data/geo/brazil-uf.geojson` (27 UFs, simplificado com
+  `mapshaper` de 3,4 MB para ~120 KB). Mapa por município fica para uma
+  próxima etapa (ver
+  [09-roadmap-e-perguntas-abertas.md](09-roadmap-e-perguntas-abertas.md)).
+  `SiteHeader`/`SiteFooter` foram extraídos para
+  `src/components/SiteHeader.tsx`/`SiteFooter.tsx` (antes viviam dentro de
+  `index.tsx`) para serem reaproveitados pelas duas rotas.
 
 `[A DEFINIR]` — nome final do projeto: o frontend usa a marca
 "CuidadoPreNeo" no header/footer, enquanto o resto do projeto (dados,
@@ -142,11 +161,12 @@ data/raw/*.xlsx (DataSUS, por indicador)
         ▼
 scripts/build_dataset.py ────► data/processed/*.parquet + qualipreneo.db
         │                              │
-        │                              ▼
-        │                     scripts/export_ranking_frontend.py
-        │                              │
-        │                              ▼
-        │              teste_not_streamlit/public/data/*.json
+        │                    ┌─────────┴─────────┐
+        │                    ▼                    ▼
+        │      export_ranking_frontend.py   export_indicadores_frontend.py
+        │                    │                    │
+        │                    ▼                    ▼
+        │       public/data/ranking-*.json  public/data/indicadores/*.json
         │                              │
         │                              ▼
         │                 teste_not_streamlit/ (React, site oficial)

@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import logo from "@/assets/logo_qualipreneo.jpeg";
 import {
   TOP_15,
   BOTTOM_15,
@@ -9,6 +8,8 @@ import {
 } from "@/lib/ranking-data";
 import { RouletteRanking } from "@/components/RouletteRanking";
 import { MunicipalityDetail } from "@/components/MunicipalityDetail";
+import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -108,52 +109,6 @@ function RankingHome() {
   );
 }
 
-function SiteHeader() {
-  return (
-    <header className="border-b border-border bg-background/80 backdrop-blur sticky top-0 z-40">
-      <div className="max-w-[1440px] mx-auto px-6 md:px-10 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <img
-            src={logo}
-            alt="CuidadoPreNeo"
-            className="h-10 w-auto object-contain"
-          />
-          <div className="hidden md:flex flex-col leading-none">
-            <span className="font-display italic text-xl text-brand-dark">
-              CuidadoPreNeo
-            </span>
-            <span className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground mt-0.5">
-              Observatório perinatal
-            </span>
-          </div>
-        </div>
-        <nav className="hidden md:flex items-center gap-7 font-mono text-[11px] uppercase tracking-widest">
-          <a href="#" className="text-foreground">
-            Ranking
-          </a>
-          <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
-            Mapa
-          </a>
-          <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
-            Município
-          </a>
-          <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
-            Comparar
-          </a>
-          <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
-            Metodologia
-          </a>
-        </nav>
-        <div className="flex items-center gap-2">
-          <button className="px-3 py-1.5 border border-border font-mono text-[10px] uppercase tracking-widest hover:bg-brand-soft transition-colors">
-            Baixar dados
-          </button>
-        </div>
-      </div>
-    </header>
-  );
-}
-
 function FilterBar() {
   return (
     <div className="flex flex-wrap gap-2 items-center">
@@ -244,24 +199,3 @@ function MethodologyStrip() {
   );
 }
 
-function SiteFooter() {
-  return (
-    <footer className="border-t border-border mt-12">
-      <div className="max-w-[1440px] mx-auto px-6 md:px-10 py-10 flex flex-col md:flex-row justify-between gap-6">
-        <div className="max-w-md">
-          <img src={logo} alt="" className="h-10 w-auto object-contain mb-3" />
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            Projeto Cuidado Pré e Neonatal · Chamada 46/2022 Decit/CNPq ·
-            Coordenação: Profa. Aline M. Toledo.
-          </p>
-        </div>
-        <div className="flex gap-10 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-          <a href="#" className="hover:text-foreground">Metodologia</a>
-          <a href="#" className="hover:text-foreground">Microdados</a>
-          <a href="#" className="hover:text-foreground">Equipe</a>
-          <a href="#" className="hover:text-foreground">Contato</a>
-        </div>
-      </div>
-    </footer>
-  );
-}

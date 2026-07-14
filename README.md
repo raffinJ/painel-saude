@@ -83,10 +83,16 @@ python scripts/build_dataset.py
 
 # 5. Exportar os dados que o frontend React consome
 python scripts/export_ranking_frontend.py
+
+# 6. Exportar os 26 indicadores para a aba "Indicadores" (demora ~15 min)
+python scripts/export_indicadores_frontend.py
 ```
 
 O passo 5 grava em
-`teste_not_streamlit/public/data/ranking-composto-2023.json`. Depois é só
+`teste_not_streamlit/public/data/ranking-composto-2023.json`; o passo 6
+grava em `teste_not_streamlit/public/data/indicadores/` (um JSON por
+indicador — ver [docs/04-pipeline-de-dados.md §4.7](docs/04-pipeline-de-dados.md#47-exportando-para-a-aba-indicadores-react)).
+Depois é só
 rodar o frontend (seção 1) normalmente.
 
 ---
@@ -105,7 +111,8 @@ painel-saude/
 ├── scripts/
 │   ├── build_dataset.py            # pipeline atual: gera o modelo dimensional (star schema)
 │   ├── importar_indicadores.py     # pipeline legado (ver docs/02-arquitetura.md)
-│   └── export_ranking_frontend.py  # exporta o ranking em JSON para o frontend
+│   ├── export_ranking_frontend.py  # exporta o ranking em JSON para o frontend
+│   └── export_indicadores_frontend.py # exporta os 26 indicadores (aba Indicadores)
 ├── data/
 │   ├── raw/                        # arquivos .xlsx originais de cada indicador (entram aqui)
 │   ├── processed/                  # saída do pipeline atual (parquet + qualipreneo.db)
@@ -138,13 +145,16 @@ fonte, direção) devem ser registrados em
    ```bash
    python scripts/build_dataset.py
    python scripts/export_ranking_frontend.py
+   python scripts/export_indicadores_frontend.py   # demora ~15 min, ver docs/04 §4.7
    ```
 
-4. Rode o frontend (`npm run dev` dentro de `teste_not_streamlit/`) — o
-   indicador novo aparece nos dados exportados. Se ele precisa aparecer em
-   telas específicas do React, isso ainda exige código no frontend (o
-   React, diferente do Streamlit antigo, não é 100% orientado a catálogo
-   ainda — ver [docs/09-roadmap-e-perguntas-abertas.md](docs/09-roadmap-e-perguntas-abertas.md)).
+4. Rode o frontend (`npm run dev` dentro de `teste_not_streamlit/`). A
+   aba **Indicadores** (`/indicadores`) é orientada a catálogo — o
+   indicador novo já aparece sozinho no seletor, agrupado pelo `grupo`
+   cadastrado no manifesto, sem precisar mexer em código do frontend. Já
+   a página de **Ranking** (`/`) ainda usa dados majoritariamente
+   mockados — ver checklist em
+   [docs/09-roadmap-e-perguntas-abertas.md](docs/09-roadmap-e-perguntas-abertas.md).
 
 > **Nota sobre os arquivos `_munic.xlsx` (sem `_ano`)**: eles trazem só o
 > total do período inteiro por município, sem separar por ano. O pipeline

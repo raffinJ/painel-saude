@@ -7,15 +7,51 @@ inferir olhando só o código.
 
 ## 3.1 Indicadores já carregados
 
+**26 indicadores** já estão processados em `data/processed/` (pipeline
+atual, `scripts/build_dataset.py` — ver
+[02-arquitetura.md §2.3](02-arquitetura.md#23-modelo-de-dados-star-schema))
+e disponíveis na aba Indicadores do frontend. O pipeline legado
+([data/catalogo_indicadores.csv](../data/catalogo_indicadores.csv), usado
+só pelo protótipo Streamlit arquivado) tem apenas 3 desses cadastrados —
+não é a lista completa, não usem esse CSV como referência do que existe.
+
 | Chave | Nome amigável | Grupo | Direção | Formato |
 |---|---|---|---|---|
-| `indicador_composto` | Indicador Composto | Geral | menor é melhor | `{:.2f}` |
+| `cobertura_estabelecimentos_saude` | Coeficiente de Estabelecimentos de Saúde (Atenção Primária) | Grupo 1 - Pré-natal | maior é melhor | `{:.2f}` |
+| `taxa_hiv_gestantes` | Taxa de HIV Positivo em Gestantes | Grupo 1 - Pré-natal | menor é melhor | `{:.2f}` |
+| `coef_obitos_fetais` | Coeficiente de Óbitos Fetais | Grupo 1 - Pré-natal | menor é melhor | `{:.2f}` |
+| `proporcao_pre_natal_adequado` | Proporção de Gestantes com Pré-natal Adequado | Grupo 1 - Pré-natal | maior é melhor | `{:.1f}%` |
+| `taxa_deteccao_sifilis_gestantes` | Taxa de Detecção de Sífilis em Gestantes | Grupo 1 - Pré-natal | menor é melhor | `{:.2f}` |
+| `proporcao_enfermeiros_obstetricos` | Proporção de Enfermeiros Obstétricos | Grupo 2 - Parto | maior é melhor | `{:.2f}` |
+| `proporcao_cesareas` | Proporção de Cesáreas | Grupo 2 - Parto | neutro | `{:.1f}%` |
+| `proporcao_parto_vaginal_profissional` * | Proporção de Partos Vaginais por Profissional que Assistiu | Grupo 2 - Parto | maior é melhor | `{:.1f}%` |
 | `apgar_adequado` | Proporção de Apgar Adequado (1º/5º min) | Grupo 3 - Neonatal | maior é melhor | `{:.1f}%` |
+| `proporcao_asfixia_perinatal` | Proporção de Asfixia Perinatal | Grupo 3 - Neonatal | menor é melhor | `{:.2f}` |
 | `coef_mortalidade_neonatal` | Coeficiente de Mortalidade Neonatal | Grupo 3 - Neonatal | menor é melhor | `{:.2f}` |
+| `coef_obito_neonatal_causa` * | Coeficiente de Óbito Neonatal por Causa | Grupo 3 - Neonatal | menor é melhor | `{:.2f}` |
+| `proporcao_hiv_vertical` | Proporção de Transmissão Vertical de HIV | Grupo 3 - Neonatal | menor é melhor | `{:.2f}` |
+| `taxa_infeccoes_sistemicas_neonatais` | Proporção de Infecções Sistêmicas Neonatais | Grupo 3 - Neonatal | menor é melhor | `{:.2f}` |
+| `taxa_baixo_peso_nascer` | Taxa de Baixo Peso ao Nascer | Grupo 3 - Neonatal | menor é melhor | `{:.1f}%` |
+| `taxa_leitos_neonatais` | Taxa Total de Leitos Neonatais | Grupo 3 - Neonatal | maior é melhor | `{:.2f}` |
+| `taxa_incidencia_sifilis_congenita` | Taxa de Incidência de Sífilis Congênita | Grupo 3 - Neonatal | menor é melhor | `{:.2f}` |
+| `taxa_bruta_natalidade` | Taxa Bruta de Natalidade | Grupo 3 - Neonatal | neutro | `{:.2f}` |
+| `proporcao_obitos_neonatais_24h` | Proporção de Óbitos Neonatais nas Primeiras 24h | Grupo 3 - Neonatal | menor é melhor | `{:.2f}` |
+| `taxa_leitos_uti_adulto` | Taxa de Leitos em UTI Adulto | Grupo 4 - Puerpério | maior é melhor | `{:.2f}` |
+| `taxa_leitos_obstetricos` | Taxa de Leitos Obstétricos | Grupo 4 - Puerpério | maior é melhor | `{:.2f}` |
+| `razao_desfecho_materno_grave` | Razão de Desfecho Materno Grave | Grupo 4 - Puerpério | menor é melhor | `{:.2f}` |
+| `razao_mortalidade_materna` | Razão de Mortalidade Materna | Grupo 4 - Puerpério | menor é melhor | `{:.2f}` |
+| `proporcao_obitos_maternos_evitaveis` | Proporção de Óbitos Maternos Evitáveis | Grupo 4 - Puerpério | menor é melhor | `{:.1f}%` |
+| `coef_mortalidade_perinatal` | Coeficiente de Mortalidade Perinatal | Grupo 5 - Perinatal | menor é melhor | `{:.2f}` |
+| `indicador_composto` | Indicador Composto | Indicador Composto | menor é melhor | `{:.2f}` |
 
-(fonte: [data/catalogo_indicadores.csv](../data/catalogo_indicadores.csv) —
-mantenha esta tabela sincronizada quando o catálogo mudar, ou considere
-gerar este trecho automaticamente a partir do CSV.)
+\* Tem quebra por categoria (mais de uma linha por município/ano — ver
+[04-pipeline-de-dados.md §4.7](04-pipeline-de-dados.md#47-exportando-para-a-aba-indicadores-react)
+e o item correspondente em
+[09-roadmap-e-perguntas-abertas.md](09-roadmap-e-perguntas-abertas.md)).
+
+(fonte: `data/processed/dim_indicadores.parquet`, gerado pelo manifesto em
+[scripts/build_dataset.py](../scripts/build_dataset.py) — mantenha esta
+tabela sincronizada quando o manifesto mudar.)
 
 ## 3.2 Os 5 grupos da proposta
 
@@ -31,7 +67,7 @@ gerar este trecho automaticamente a partir do CSV.)
 
 ## 3.3 Ficha por indicador (preencher uma por indicador)
 
-Copiem este bloco para cada indicador do catálogo — inclusive os 3 já
+Copiem este bloco para cada indicador do catálogo — inclusive os 26 já
 carregados, que ainda não têm ficha completa.
 
 ### `[chave_do_indicador]`

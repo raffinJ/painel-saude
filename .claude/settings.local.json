@@ -61,7 +61,8 @@
       "Bash(python -c ' *)",
       "Bash(.venv/Scripts/python -c ' *)",
       "Bash(../.venv/Scripts/python -c ' *)",
-      "Bash(\".venv/Scripts/python\" scripts/export_ranking_frontend.py)"
+      "Bash(\".venv/Scripts/python\" scripts/export_ranking_frontend.py)",
+      "Bash(/c/WINDOWS/py -3 -c ' *)"
     ]
   }
 }

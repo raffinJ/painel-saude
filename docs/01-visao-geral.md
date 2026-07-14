@@ -33,10 +33,11 @@ qual problema de saúde pública ele ajuda a resolver, e para quem
 
 ## 1.4 Escopo atual x escopo futuro
 
-- **Hoje**: frontend oficial em React (pasta `teste_not_streamlit/`),
-  ainda com só a página de Ranking (dados majoritariamente mockados);
-  pipeline de dados em Python pronto com 3 indicadores reais e capaz de
-  receber os demais. Ver checklist de portabilidade em
+- **Hoje**: frontend oficial em React (pasta `teste_not_streamlit/`), com
+  duas rotas — Ranking (`/`, ainda com dados majoritariamente mockados) e
+  Indicadores (`/indicadores`, já ligada aos 26 indicadores reais
+  processados pelo pipeline, com drill-down Brasil/Região/UF/Município,
+  mapa, heatmap e download em CSV). Ver checklist de portabilidade em
   [09-roadmap-e-perguntas-abertas.md §9.1](09-roadmap-e-perguntas-abertas.md#91-portabilidade-streamlit-arquivado--react-oficial).
 - **Arquivado**: o protótipo original em Streamlit (4 páginas com dados
   reais) fica em `_legacy_streamlit/` como referência enquanto o React
