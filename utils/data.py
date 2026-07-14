@@ -144,6 +144,7 @@ def calcular_taxa_agregada(
     nivel: str = "brasil",
     uf_sigla: str | None = None,
     regiao: str | None = None,
+    categoria: str | None = None,
 ) -> float | None:
     """Calcula o valor do indicador para Brasil, uma Regiao ou uma UF, no
     ano dado, agregando corretamente os municipios (nunca por media simples
@@ -157,6 +158,15 @@ def calcular_taxa_agregada(
 
     nivel: "brasil" | "regiao" | "uf". Para "regiao"/"uf" informe o
     respectivo filtro (regiao=... ou uf_sigla=...).
+
+    categoria: para indicadores com quebra por categoria (ex.:
+    proporcao_parto_vaginal_profissional, coef_obito_neonatal_causa - ver
+    coluna 'categoria' em fato_indicadores), filtra para uma categoria
+    especifica antes de agregar. Sem isso, indicadores com categoria
+    ficam com numerador/denominador somados por cima de todas as
+    categorias, o que da um resultado sem sentido para indicadores de
+    composicao (ex.: soma das proporcoes por profissional bate ~100% em
+    qualquer municipio/ano, nao e' "a" taxa do indicador).
     """
     fato = load_fato_indicadores()
     dim_mun = load_dim_municipios()
@@ -164,6 +174,11 @@ def calcular_taxa_agregada(
     df = fato[(fato["indicador_chave"] == indicador_chave) & (fato["ano"] == ano)].copy()
     if df.empty:
         return None
+
+    if categoria is not None:
+        df = df[df["categoria"] == categoria]
+        if df.empty:
+            return None
 
     df = df.merge(dim_mun[["codibge", "uf_sigla", "regiao"]], on="codibge", how="left")
 
@@ -199,6 +214,15 @@ def calcular_taxa_agregada(
     if df.empty or not soma_peso:
         return None
     return (df["valor"] * df["nascidos_vivos"]).sum() / soma_peso
+
+
+def listar_categorias(indicador_chave: str) -> list[str]:
+    """Categorias distintas de um indicador (coluna 'categoria' em
+    fato_indicadores), na ordem em que aparecem nos dados. Lista vazia
+    para indicadores sem quebra por categoria."""
+    fato = load_fato_indicadores()
+    cats = fato.loc[fato["indicador_chave"] == indicador_chave, "categoria"].dropna().unique()
+    return list(cats)
 
 
 def montar_ranking(

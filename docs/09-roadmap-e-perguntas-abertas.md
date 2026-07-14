@@ -20,14 +20,15 @@ falta portar (ver comparação detalhada em
       municipal do IBGE, simplificar com `mapshaper` como já foi feito
       para a malha de UF em `public/data/geo/brazil-uf.geojson`, e trocar
       `IndicatorUFMap` por um equivalente municipal)
-- [ ] **Visualização por categoria** para os indicadores que têm quebra
+- [x] **Visualização por categoria** para os indicadores que têm quebra
       por categoria (`proporcao_parto_vaginal_profissional` — por
       profissional que assistiu o parto; `coef_obito_neonatal_causa` —
-      por causa do óbito). Hoje `export_indicadores_frontend.py` combina
-      as categorias num único valor por ano (soma de
-      numerador/denominador) e a aba Indicadores só avisa que isso
-      aconteceu (`multi_categoria: true`) — decidir como mostrar a
-      quebra (ex.: stacked bar por categoria, seletor de categoria)
+      por causa do óbito). Feito em 2026-07-14: `export_indicadores_frontend.py`
+      exporta série por categoria (não mais combinada — combinar dava um
+      resultado sem sentido, ex. ~100% sempre para o indicador de
+      profissional); a aba Indicadores mostra gráfico de barras
+      empilhadas + tabela pivotada com todas as categorias, e um seletor
+      de categoria para o mapa/heatmap (que só mostram um valor por UF).
 - [ ] Ligar a página de Ranking do React aos dados reais exportados
       (`public/data/ranking-composto-2023.json`), substituindo os dados
       mockados de `src/lib/ranking-data.ts`

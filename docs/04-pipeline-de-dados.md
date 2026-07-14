@@ -122,12 +122,22 @@ reaproveitem o resultado em vez de rodar a cada teste pequeno.
 **Indicadores com categoria** (`proporcao_parto_vaginal_profissional`,
 `coef_obito_neonatal_causa`): têm mais de uma linha por município/ano no
 `fato_indicadores` (uma por categoria — profissional que assistiu o
-parto, causa do óbito). O script combina as categorias num único valor
-por ano via soma de numerador/denominador (mesma regra do ADR-001), e
-marca o indicador com `"multi_categoria": true` no JSON exportado — a
-aba Indicadores mostra um aviso quando isso acontece. **A quebra por
-categoria em si ainda não tem visualização própria** — ver
-[09-roadmap-e-perguntas-abertas.md](09-roadmap-e-perguntas-abertas.md).
+parto, causa do óbito). O script **não combina** essas linhas — soma
+numerador/denominador por cima de categorias dá um resultado sem
+sentido para indicadores de composição (ex.: as proporções por
+profissional somam ~100% em qualquer município/ano; "juntar tudo" só
+confirma isso, não é "a" taxa do indicador). Em vez disso, o JSON exporta
+uma série **por categoria**, aninhada em cada nível geográfico
+(`brasil`/`regioes`/`ufs` viram `Record<categoria, série>`, e cada
+município ganha `series: Record<categoria, série>` em vez de `serie`) —
+usa `utils.data.calcular_taxa_agregada(..., categoria=...)` para agregar
+dentro de cada categoria separadamente. O indicador vem marcado com
+`"multi_categoria": true` e `"categorias": [...]` no JSON.
+
+Na aba Indicadores, esses dois indicadores mostram um gráfico de barras
+empilhadas e uma tabela pivotada (ano × categoria) com todas as
+categorias visíveis; o mapa e o heatmap (que só conseguem colorir um
+valor por UF) têm um seletor de categoria à parte.
 
 ## 4.8 Malha geográfica (UF)
 

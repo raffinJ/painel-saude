@@ -1,42 +1,45 @@
 import { Fragment, useMemo, useState } from "react";
 import { colorForValue, extentOf, type Direcao } from "@/lib/color-scale";
-import { formatValor, type IndicadorData } from "@/lib/indicadores-data";
+import { formatValor, type SeriePonto } from "@/lib/indicadores-data";
 
 type Props = {
-  data: IndicadorData;
+  ufs: Record<string, SeriePonto[]>;
+  anos: number[];
+  direcao: Direcao;
+  formato: string;
   selectedUf?: string;
   onSelectUf: (uf: string) => void;
 };
 
-export function IndicatorHeatmap({ data, selectedUf, onSelectUf }: Props) {
+export function IndicatorHeatmap({ ufs: ufsSeries, anos, direcao, formato, selectedUf, onSelectUf }: Props) {
   const [hover, setHover] = useState<{ uf: string; ano: number; valor?: number } | null>(null);
 
-  const ufs = useMemo(() => Object.keys(data.ufs).sort(), [data.ufs]);
+  const ufs = useMemo(() => Object.keys(ufsSeries).sort(), [ufsSeries]);
 
   const grid = useMemo(() => {
     const byUf: Record<string, Record<number, number>> = {};
     for (const uf of ufs) {
       byUf[uf] = {};
-      for (const p of data.ufs[uf] ?? []) byUf[uf][p.ano] = p.valor;
+      for (const p of ufsSeries[uf] ?? []) byUf[uf][p.ano] = p.valor;
     }
     return byUf;
-  }, [ufs, data.ufs]);
+  }, [ufs, ufsSeries]);
 
   const [min, max] = useMemo(() => {
-    const todos = ufs.flatMap((uf) => (data.ufs[uf] ?? []).map((p) => p.valor));
+    const todos = ufs.flatMap((uf) => (ufsSeries[uf] ?? []).map((p) => p.valor));
     return extentOf(todos);
-  }, [ufs, data.ufs]);
+  }, [ufs, ufsSeries]);
 
   return (
     <div className="overflow-x-auto">
       <div
         className="grid gap-[2px] text-[10px]"
         style={{
-          gridTemplateColumns: `56px repeat(${data.anos.length}, minmax(28px, 1fr))`,
+          gridTemplateColumns: `56px repeat(${anos.length}, minmax(28px, 1fr))`,
         }}
       >
         <div />
-        {data.anos.map((ano) => (
+        {anos.map((ano) => (
           <div key={ano} className="text-center font-mono text-muted-foreground">
             {String(ano).slice(2)}
           </div>
@@ -51,7 +54,7 @@ export function IndicatorHeatmap({ data, selectedUf, onSelectUf }: Props) {
             >
               {uf}
             </button>
-            {data.anos.map((ano) => {
+            {anos.map((ano) => {
               const valor = grid[uf]?.[ano];
               return (
                 <div
@@ -59,7 +62,7 @@ export function IndicatorHeatmap({ data, selectedUf, onSelectUf }: Props) {
                   className="aspect-square cursor-pointer rounded-[2px]"
                   style={{
                     backgroundColor:
-                      valor !== undefined ? colorForValue(valor, min, max, data.direcao) : "var(--color-muted)",
+                      valor !== undefined ? colorForValue(valor, min, max, direcao) : "var(--color-muted)",
                   }}
                   onClick={() => onSelectUf(uf)}
                   onMouseEnter={() => setHover({ uf, ano, valor })}
@@ -72,7 +75,7 @@ export function IndicatorHeatmap({ data, selectedUf, onSelectUf }: Props) {
       </div>
       <div className="mt-2 h-5 text-xs text-muted-foreground">
         {hover
-          ? `${hover.uf} · ${hover.ano} · ${formatValor(hover.valor, data.formato)}`
+          ? `${hover.uf} · ${hover.ano} · ${formatValor(hover.valor, formato)}`
           : "Passe o mouse sobre uma célula para ver o valor"}
       </div>
     </div>

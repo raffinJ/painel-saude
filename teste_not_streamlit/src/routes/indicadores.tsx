@@ -7,10 +7,14 @@ import { IndicatorLineChart } from "@/components/indicadores/IndicatorLineChart"
 import { IndicatorUFMap } from "@/components/indicadores/IndicatorUFMap";
 import { IndicatorHeatmap } from "@/components/indicadores/IndicatorHeatmap";
 import { IndicatorTable } from "@/components/indicadores/IndicatorTable";
+import { IndicatorCategoryChart } from "@/components/indicadores/IndicatorCategoryChart";
+import { IndicatorCategoryTable } from "@/components/indicadores/IndicatorCategoryTable";
 import {
   formatValor,
   scopeLabel,
   serieForScope,
+  seriesPorCategoriaForScope,
+  ufsSeriesParaCategoria,
   type GeoScope,
   type IndicadorData,
   type IndicadorMeta,
@@ -37,6 +41,7 @@ function IndicadoresPage() {
   const [loadingData, setLoadingData] = useState(false);
   const [scope, setScope] = useState<GeoScope>({ nivel: "brasil" });
   const [ano, setAno] = useState<number | null>(null);
+  const [categoria, setCategoria] = useState<string | null>(null);
 
   // Carrega o índice de indicadores uma vez.
   useEffect(() => {
@@ -69,6 +74,7 @@ function IndicadoresPage() {
         setData(d);
         setAno(d.anos[d.anos.length - 1] ?? null);
         setScope({ nivel: "brasil" });
+        setCategoria(d.multi_categoria ? d.categorias[0] ?? null : null);
       })
       .catch(() => {
         if (!cancelled) setData(null);
@@ -103,17 +109,30 @@ function IndicadoresPage() {
     return data.municipios.filter((m) => m.uf === uf).sort((a, b) => a.nome.localeCompare(b.nome));
   }, [data, scope]);
 
+  // Ufs reduzidas a um valor único (categoria selecionada, se houver) —
+  // formato que o mapa e o heatmap entendem independente de o indicador
+  // ter categoria ou não.
+  const ufsSeriesUnica = useMemo(
+    () => (data ? ufsSeriesParaCategoria(data, categoria ?? undefined) : {}),
+    [data, categoria],
+  );
+
   const valoresPorUfNoAno = useMemo(() => {
     const out: Record<string, number | undefined> = {};
-    if (!data || ano === null) return out;
-    for (const uf of Object.keys(data.ufs)) {
-      out[uf] = data.ufs[uf].find((p) => p.ano === ano)?.valor;
+    if (ano === null) return out;
+    for (const uf of Object.keys(ufsSeriesUnica)) {
+      out[uf] = ufsSeriesUnica[uf].find((p) => p.ano === ano)?.valor;
     }
     return out;
-  }, [data, ano]);
+  }, [ufsSeriesUnica, ano]);
 
-  const serieAtual = data ? serieForScope(data, scope) : [];
+  const serieAtual = data ? serieForScope(data, scope, categoria ?? undefined) : [];
   const labelAtual = scopeLabel(scope);
+
+  const seriesPorCategoriaAtual = useMemo(
+    () => (data?.multi_categoria ? seriesPorCategoriaForScope(data, scope) : {}),
+    [data, scope],
+  );
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -139,10 +158,10 @@ function IndicadoresPage() {
         {data && (
           <>
             {data.multi_categoria && (
-              <div className="mt-6 border border-accent-warm/50 bg-accent-warm-soft px-4 py-3 text-sm">
-                Este indicador é apurado por categoria (ex.: profissional ou causa). O valor exibido
-                combina todas as categorias em uma única taxa (soma de numerador/denominador) — a
-                quebra por categoria ainda não tem visualização própria nesta aba.
+              <div className="mt-6 border border-brand/40 bg-brand-soft px-4 py-3 text-sm">
+                Este indicador é apurado por categoria — os gráficos e a tabela "todas as categorias"
+                abaixo mostram a quebra completa. O mapa e o heatmap (que precisam de um valor só por
+                UF) mostram a categoria selecionada no seletor abaixo.
               </div>
             )}
 
@@ -196,6 +215,20 @@ function IndicadoresPage() {
               </select>
 
               <span className="ml-auto flex items-center gap-2 normal-case">
+                {data.multi_categoria && (
+                  <>
+                    <span className="text-muted-foreground">Categoria (mapa/heatmap):</span>
+                    <select
+                      value={categoria ?? ""}
+                      onChange={(e) => setCategoria(e.target.value)}
+                      className="border border-border bg-card px-2 py-1.5"
+                    >
+                      {data.categorias.map((c) => (
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                    </select>
+                  </>
+                )}
                 <span className="text-muted-foreground">Ano do mapa/heatmap:</span>
                 <select
                   value={ano ?? ""}
@@ -213,7 +246,7 @@ function IndicadoresPage() {
             <section className="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
               <div className="lg:col-span-4">
                 <span className="font-mono text-[10px] uppercase tracking-widest text-brand-dark">
-                  {labelAtual}
+                  {labelAtual}{data.multi_categoria && categoria ? ` · ${categoria}` : ""}
                 </span>
                 <div className="font-display text-5xl mt-2 tabular-nums">
                   {formatValor(serieAtual.find((p) => p.ano === ano)?.valor, data.formato)}
@@ -223,15 +256,35 @@ function IndicadoresPage() {
                 </div>
               </div>
               <div className="lg:col-span-8 border border-border bg-card p-4">
-                <IndicatorLineChart serie={serieAtual} label={labelAtual} formato={data.formato} />
+                <IndicatorLineChart
+                  serie={serieAtual}
+                  label={data.multi_categoria ? `${labelAtual} · ${categoria}` : labelAtual}
+                  formato={data.formato}
+                />
               </div>
             </section>
+
+            {data.multi_categoria && (
+              <section className="mt-12">
+                <div className="mb-3 font-mono text-[10px] uppercase tracking-widest text-brand-dark">
+                  {labelAtual} · todas as categorias
+                </div>
+                <div className="border border-border bg-card p-4">
+                  <IndicatorCategoryChart
+                    seriesPorCategoria={seriesPorCategoriaAtual}
+                    categorias={data.categorias}
+                    anos={data.anos}
+                    formato={data.formato}
+                  />
+                </div>
+              </section>
+            )}
 
             {/* Mapa + heatmap */}
             <section className="mt-12 grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
               <div className="lg:col-span-5">
                 <div className="mb-3 font-mono text-[10px] uppercase tracking-widest text-brand-dark">
-                  Mapa por UF · {ano}
+                  Mapa por UF · {ano}{data.multi_categoria && categoria ? ` · ${categoria}` : ""}
                 </div>
                 <div className="border border-border bg-card p-4">
                   <IndicatorUFMap
@@ -245,11 +298,14 @@ function IndicadoresPage() {
               </div>
               <div className="lg:col-span-7">
                 <div className="mb-3 font-mono text-[10px] uppercase tracking-widest text-brand-dark">
-                  Heatmap · UF × Ano
+                  Heatmap · UF × Ano{data.multi_categoria && categoria ? ` · ${categoria}` : ""}
                 </div>
                 <div className="border border-border bg-card p-4">
                   <IndicatorHeatmap
-                    data={data}
+                    ufs={ufsSeriesUnica}
+                    anos={data.anos}
+                    direcao={data.direcao}
+                    formato={data.formato}
                     selectedUf={scope.nivel === "uf" || scope.nivel === "municipio" ? scope.uf : undefined}
                     onSelectUf={(uf) => setScope({ nivel: "uf", uf })}
                   />
@@ -259,7 +315,18 @@ function IndicadoresPage() {
 
             {/* Tabela / download */}
             <section className="mt-12">
-              <IndicatorTable serie={serieAtual} label={labelAtual} chave={data.chave} formato={data.formato} />
+              {data.multi_categoria ? (
+                <IndicatorCategoryTable
+                  seriesPorCategoria={seriesPorCategoriaAtual}
+                  categorias={data.categorias}
+                  anos={data.anos}
+                  label={labelAtual}
+                  chave={data.chave}
+                  formato={data.formato}
+                />
+              ) : (
+                <IndicatorTable serie={serieAtual} label={labelAtual} chave={data.chave} formato={data.formato} />
+              )}
             </section>
           </>
         )}

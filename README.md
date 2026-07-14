@@ -15,10 +15,10 @@ com duas partes:
 > Comparar, Mapa — que ainda não têm equivalente completo no React). Ver
 > [docs/07-decisoes-tecnicas.md](docs/07-decisoes-tecnicas.md#adr-004).
 
-Já vem com 3 indicadores reais carregados:
-- Indicador Composto
-- Proporção de Apgar Adequado
-- Coeficiente de Mortalidade Neonatal
+Já vem com **26 indicadores reais** processados (ver
+[docs/03-catalogo-e-metodologia-indicadores.md](docs/03-catalogo-e-metodologia-indicadores.md)
+para a lista completa), todos disponíveis na aba Indicadores do
+frontend. A página de Ranking, por enquanto, usa só o Indicador Composto.
 
 > 📖 Este README é o guia rápido de instalação. Para visão geral do
 > projeto, metodologia dos indicadores, arquitetura, decisões técnicas e

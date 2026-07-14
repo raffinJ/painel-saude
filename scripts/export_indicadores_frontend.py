@@ -3,6 +3,14 @@ JSON estatico para a aba "Indicadores" do frontend em teste_not_streamlit:
 serie anual por Brasil, Regiao, UF e Municipio, prontas para o line chart,
 o mapa por UF, o heatmap UF x Ano e a tabela/CSV.
 
+Indicadores com quebra por categoria (proporcao_parto_vaginal_profissional,
+coef_obito_neonatal_causa) exportam uma serie POR CATEGORIA em cada nivel
+geografico, em vez de combinar as categorias num unico valor - somar
+numerador/denominador por cima das categorias nao faz sentido para
+indicadores de composicao (ex.: as proporcoes por profissional somam
+~100% em qualquer municipio/ano, misturar tudo "confirma" um numero que
+nao significa nada).
+
 Nao substitui scripts/export_ranking_frontend.py (que continua alimentando
 especificamente a pagina de Ranking) - roda em paralelo a ele.
 """
@@ -17,6 +25,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from utils.data import (
     REGIOES_ORDEM,
     calcular_taxa_agregada,
+    listar_categorias,
     load_dim_indicadores_parquet,
     load_dim_municipios,
     load_fato_indicadores,
@@ -31,36 +40,25 @@ OUT_DIR = (
 )
 
 
-def serie_geral(chave: str, anos: list[int], nivel: str, **filtro) -> list[dict]:
+def serie_geral(chave: str, anos: list[int], nivel: str, categoria: str | None = None, **filtro) -> list[dict]:
     serie = []
     for ano in anos:
-        valor = calcular_taxa_agregada(chave, ano, nivel=nivel, **filtro)
+        valor = calcular_taxa_agregada(chave, ano, nivel=nivel, categoria=categoria, **filtro)
         if valor is not None:
             serie.append({"ano": int(ano), "valor": round(float(valor), 4)})
     return serie
 
 
-def serie_municipios(chave: str, dim_mun: pd.DataFrame) -> tuple[list[dict], bool]:
-    """Retorna (municipios, multi_categoria). Alguns indicadores (ex.:
-    proporcao_parto_vaginal_profissional, coef_obito_neonatal_causa) tem
-    mais de uma linha por municipio/ano (uma por categoria - profissional,
-    causa do obito, etc.). Ate a equipe decidir como exibir a quebra por
-    categoria no frontend (ver docs/09-roadmap-e-perguntas-abertas.md),
-    combinamos essas linhas em um unico valor por ano via
-    soma(numerador)/soma(denominador) - mesma regra de agregacao usada em
-    utils.data.calcular_taxa_agregada (ADR-001) - em vez de gerar pontos
-    duplicados no mesmo ano."""
+def serie_geral_por_categoria(
+    chave: str, anos: list[int], nivel: str, categorias: list[str], **filtro
+) -> dict[str, list[dict]]:
+    return {cat: serie_geral(chave, anos, nivel, categoria=cat, **filtro) for cat in categorias}
+
+
+def serie_municipios(chave: str, dim_mun: pd.DataFrame) -> list[dict]:
+    """Indicadores simples (sem categoria): uma serie por municipio."""
     fato = load_fato_indicadores()
     df = fato[fato["indicador_chave"] == chave].dropna(subset=["valor"])
-    multi_categoria = df.groupby(["codibge", "ano"]).size().max() > 1
-
-    if multi_categoria:
-        agregado = df.groupby(["codibge", "ano"], as_index=False).agg(
-            numerador=("numerador", "sum"), denominador=("denominador", "sum")
-        )
-        agregado["valor"] = agregado["numerador"] / agregado["denominador"]
-        df = agregado
-
     df = df.merge(
         dim_mun[["codibge", "nome_municipio_bruto", "uf_sigla", "regiao"]],
         on="codibge",
@@ -81,7 +79,75 @@ def serie_municipios(chave: str, dim_mun: pd.DataFrame) -> tuple[list[dict], boo
             "regiao": primeira["regiao"],
             "serie": serie,
         })
-    return municipios, multi_categoria
+    return municipios
+
+
+def serie_municipios_por_categoria(
+    chave: str, dim_mun: pd.DataFrame, categorias: list[str]
+) -> list[dict]:
+    """Indicadores com categoria: uma serie por categoria, dentro de cada
+    municipio (series[categoria] = [{ano, valor}, ...])."""
+    fato = load_fato_indicadores()
+    df = fato[fato["indicador_chave"] == chave].dropna(subset=["valor"])
+    df = df.merge(
+        dim_mun[["codibge", "nome_municipio_bruto", "uf_sigla", "regiao"]],
+        on="codibge",
+        how="left",
+    )
+
+    municipios = []
+    for codibge, grupo in df.groupby("codibge"):
+        primeira = grupo.iloc[0]
+        series = {}
+        for cat in categorias:
+            sub = grupo[grupo["categoria"] == cat].sort_values("ano")
+            series[cat] = [
+                {"ano": int(r.ano), "valor": round(float(r.valor), 4)} for r in sub.itertuples()
+            ]
+        municipios.append({
+            "codibge": codibge,
+            "nome": primeira["nome_municipio_bruto"],
+            "uf": primeira["uf_sigla"],
+            "regiao": primeira["regiao"],
+            "series": series,
+        })
+    return municipios
+
+
+def exportar_indicador(chave: str, row, anos: list[int], ufs: list[str], dim_mun: pd.DataFrame) -> dict:
+    categorias = listar_categorias(chave)
+    multi_categoria = bool(categorias)
+
+    if multi_categoria:
+        brasil = serie_geral_por_categoria(chave, anos, "brasil", categorias)
+        regioes = {
+            r: serie_geral_por_categoria(chave, anos, "regiao", categorias, regiao=r)
+            for r in REGIOES_ORDEM
+        }
+        ufs_series = {
+            uf: serie_geral_por_categoria(chave, anos, "uf", categorias, uf_sigla=uf) for uf in ufs
+        }
+        municipios = serie_municipios_por_categoria(chave, dim_mun, categorias)
+    else:
+        brasil = serie_geral(chave, anos, "brasil")
+        regioes = {r: serie_geral(chave, anos, "regiao", regiao=r) for r in REGIOES_ORDEM}
+        ufs_series = {uf: serie_geral(chave, anos, "uf", uf_sigla=uf) for uf in ufs}
+        municipios = serie_municipios(chave, dim_mun)
+
+    return {
+        "chave": chave,
+        "nome": row["indicador_nome"],
+        "grupo": row["grupo"],
+        "direcao": row["direcao"],
+        "formato": row["formato"],
+        "multi_categoria": multi_categoria,
+        "categorias": categorias,
+        "anos": anos,
+        "brasil": brasil,
+        "regioes": regioes,
+        "ufs": ufs_series,
+        "municipios": municipios,
+    }
 
 
 def main():
@@ -97,25 +163,7 @@ def main():
     indice = []
     for chave, row in dim_ind.iterrows():
         print(f"-> exportando '{chave}'...")
-
-        brasil = serie_geral(chave, anos, "brasil")
-        regioes = {r: serie_geral(chave, anos, "regiao", regiao=r) for r in REGIOES_ORDEM}
-        ufs_series = {uf: serie_geral(chave, anos, "uf", uf_sigla=uf) for uf in ufs}
-        municipios, multi_categoria = serie_municipios(chave, dim_mun)
-
-        payload = {
-            "chave": chave,
-            "nome": row["indicador_nome"],
-            "grupo": row["grupo"],
-            "direcao": row["direcao"],
-            "formato": row["formato"],
-            "multi_categoria": bool(multi_categoria),
-            "anos": anos,
-            "brasil": brasil,
-            "regioes": regioes,
-            "ufs": ufs_series,
-            "municipios": municipios,
-        }
+        payload = exportar_indicador(chave, row, anos, ufs, dim_mun)
 
         (OUT_DIR / f"{chave}.json").write_text(
             json.dumps(payload, ensure_ascii=False), encoding="utf-8"
@@ -126,6 +174,7 @@ def main():
             "grupo": row["grupo"],
             "direcao": row["direcao"],
             "formato": row["formato"],
+            "multi_categoria": payload["multi_categoria"],
         })
 
     (OUT_DIR / "_index.json").write_text(
