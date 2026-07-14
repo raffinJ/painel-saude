@@ -1,0 +1,4 @@
+chave,arquivo,coluna_valor,nome_amigavel,grupo,direcao,formato
+indicador_composto,indicador_composto_munic_ano.xlsx,indicador_composto,Indicador Composto,Geral,menor_melhor,{:.2f}
+apgar_adequado,apgar_munic_ano.xlsx,proporcao_pct,Proporção de Apgar Adequado (1º/5º min),Grupo 3 - Neonatal,maior_melhor,{:.1f}%
+coef_mortalidade_neonatal,coef_mortalidade_neo_munic_ano.xlsx,coeficiente,Coeficiente de Mortalidade Neonatal,Grupo 3 - Neonatal,menor_melhor,{:.2f}

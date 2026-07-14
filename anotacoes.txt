@@ -1,0 +1,56 @@
+source .venv/scripts/activate # ativar ambiente virtual python
+
+# Para 09/07/2026
+
+
+Análise objetiva e crítica dos resultados da consolidação dos seus dados:
+
+### 1. Premissas
+
+* O pipeline de dados funcionou com sucesso, transformando um volume caótico de 87,5 MB de planilhas Excel em uma modelagem analítica otimizada (Star Schema) de 14,5 MB em formato Parquet e uma réplica em SQLite (`qualipreneo.db`).
+* Assume-se que as linhas descartadas no processo (774.335 linhas) representam redundâncias (como dados mensais ou por estabelecimento) ou registros corrompidos, e que a base analítica final de 1,5 milhão de linhas está metodologicamente correta para o cálculo dos indicadores.
+
+### 2. Pontos fortes
+
+* **Preservação de numeradores e denominadores:** A amostra indica que o script preservou os campos `numerador` e `denominador` (ex: 329 nascidos em 17.411 habitantes para taxa de natalidade). Isso resolve o principal problema matemático de dashboards de saúde: agora o site poderá calcular taxas exatas para Estados (UF), Regiões e Brasil por meio de **média ponderada** (somando os numeradores e dividindo pela soma dos denominadores), eliminando o erro grave de tirar médias simples de taxas municipais.
+* **Alta performance em disco e memória:** A redução da base fato para 14,5 MB em Parquet garante que o Streamlit consiga ler e filtrar 1,5 milhão de linhas em milissegundos na memória RAM do servidor local.
+
+### 3. Fragilidades (Pontos de Atenção nos Logs)
+
+* **Descarte massivo em indicadores específicos:** O arquivo `munic_ano_leitos_neonatais.xlsx` perdeu 98,4% das linhas (de 562.858 para 9.014). O arquivo `munic_ano_hiv_positivo.xlsx` perdeu 74% das linhas.
+* *Explicação provável:* Dados do CNES (leitos) costumam vir abertos por estabelecimento de saúde e por mês. O script provavelmente consolidou esses dados em uma única linha anual por município (o que é correto para o escopo do seu site), mas você deve validar com o Claude se o critério foi de soma ou média antes de homologar os valores.
+
+
+* **Códigos IBGE com 6 dígitos:** O log aponta `codibge` com tamanho fixo de 6 dígitos. O padrão do mapa do Brasil (GeoJSON) costuma utilizar o código do IBGE com 7 dígitos (o dígito verificador final). O script gerou a coluna `cod_mapa` com 7 dígitos baseado em um mapeamento mestre, mas há 2 municípios que ficaram sem `cod_mapa` (valores ausentes). É preciso identificar quais são esses 2 municípios para evitar buracos cinzas no mapa interativo.
+
+### 4. Contrapontos
+
+* Embora o banco SQLite (`qualipreneo.db`) com 357 MB tenha sido gerado, o Streamlit apresentará uma performance muito superior se consumir diretamente os arquivos `.parquet` (`fato_indicadores.parquet`, `dim_municipios.parquet`). Arquivos Parquet são colunares e ideais para operações de agregação rápida em Pandas, tornando o banco SQLite redundante para a execução local do site.
+
+### 5. Riscos
+
+* **Inconsistência de Rankings por falta de dados:** Indicadores com muitas linhas descartadas ou notificações raras (como HIV vertical, com apenas 3.850 linhas consolidadas para todo o Brasil em 15 anos) deixarão a maioria dos 5.570 municípios sem dados para determinados anos. Se o motor de ranking do site não tratar os valores nulos (`<NA>`), municípios sem dados podem aparecer erroneamente no topo ou no fundo dos rankings de melhores e piores.
+
+### 6. Conclusão
+
+A engenharia de dados está concluída e a base de dados está em estado de maturidade excelente. O próximo passo exato é **escrever a lógica de consultas e agregação matemática dentro do arquivo `utils/data.py**`, ensinando o sistema a ler essa estrutura de dimensões e fatos de forma eficiente para abastecer as páginas visuais.
+
+---
+
+### Comando para enviar ao Claude Code no seu terminal Bash
+
+Copie o prompt abaixo e execute no terminal do Claude para construir o motor de busca baseado no seu novo banco de dados consolidado:
+
+```text
+A consolidação dos dados foi um sucesso. Temos a fato_indicadores com 1,5 milhão de linhas prontas. Vamos agora para o próximo passo: Configurar o motor de consultas analíticas em 'utils/data.py' para consumir os arquivos .parquet processados.
+
+Não crie ou altere telas visuais ainda. Foque estritamente em escrever as funções de manipulação de dados com Pandas que atendam às seguintes regras de negócio:
+
+1. Carregamento Otimizado: Use '@st.cache_data' para carregar na memória 'dim_municipios.parquet', 'dim_indicadores.parquet' e 'fato_indicadores.parquet'.
+2. Agregação Hierárquica Correta (Média Ponderada): Crie uma função que filtre os dados por Ano e Indicador e calcule o valor da taxa para qualquer nível geográfico escolhido (Brasil, Região ou UF). Se o nível for macro (UF, Região ou Brasil) e o indicador possuir as colunas 'numerador' e 'denominador' válidas, a taxa deve ser recalculada como (soma(numerador) / soma(denominador)) * fator_escala, e NÃO por média simples das taxas dos municípios.
+3. Função de Ranking Robusta: Crie a função que gere o ranking dos municípios (melhores e piores). Ela deve ler a regra de direção do indicador ('maior é melhor' ou 'menor é melhor') na tabela de dimensões. Municípios que não possuem dados para o ano selecionado (valores nulos/<NA>) devem ser explicitamente removidos do ranking daquele ano, em vez de serem jogados para as pontas. Trate empates ordenando por população ou ordem alfabética.
+4. Identificação de Erros: Descubra quais são os 2 municípios que ficaram com 'cod_mapa' ausente no log anterior e me informe os códigos IBGE deles no terminal para avaliarmos o impacto.
+
+Rode um teste interno desse arquivo utilitário e me mostre no terminal o resultado do cálculo da taxa do 'Indicador Composto' a nível Brasil para o ano de 2023.
+
+```

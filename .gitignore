@@ -1,0 +1,22 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.DS_Store
+
+# dados (grandes, gerados pelo pipeline — ver docs/04-pipeline-de-dados.md)
+data/raw/
+data/processed/
+
+# frontend (teste_not_streamlit/) — a pasta tem seu proprio arquivo
+# "gitignore" (sem o ponto, por isso o git nao le sozinho); replicado aqui
+node_modules/
+dist/
+dist-ssr/
+.output/
+.vinxi/
+.tanstack/
+.nitro/
+*.local
+.wrangler/
+.dev.vars
