@@ -1,7 +1,6 @@
 # Painel de Indicadores de Saúde Materna e Infantil — QualiPréNeo
 
-Site de indicadores em saúde, no estilo do [IMAPI](https://www.imapi.org),
-com duas partes:
+Site de indicadores em saúde com duas partes:
 
 - **Frontend** — [`teste_not_streamlit/`](teste_not_streamlit/), em React
   (TanStack Start), é o site oficial do projeto.
