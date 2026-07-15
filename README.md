@@ -2,7 +2,7 @@
 
 Site de indicadores em saúde com duas partes:
 
-- **Frontend** — [`teste_not_streamlit/`](teste_not_streamlit/), em React
+- **Frontend** — [`web/`](web/), em React
   (TanStack Start), é o site oficial do projeto.
 - **Pipeline de dados** — scripts Python na raiz (`scripts/`, `utils/`)
   que transformam as planilhas do DataSUS em arquivos que o frontend
@@ -35,7 +35,7 @@ frontend. A página de Ranking, por enquanto, usa só o Indicador Composto.
 ### 1.2 Passo a passo
 
 ```bash
-cd teste_not_streamlit
+cd web
 npm install       # ou: bun install
 npm run dev       # ou: bun run dev
 ```
@@ -44,7 +44,7 @@ Abre em `http://localhost:3000` (porta padrão do Vite/TanStack Start — o
 terminal mostra o endereço exato). Para parar, use `Ctrl+C`.
 
 Esse frontend está conectado ao [Lovable](https://lovable.dev) — ver
-[`teste_not_streamlit/AGENTS.md`](teste_not_streamlit/AGENTS.md) antes de
+[`web/AGENTS.md`](web/AGENTS.md) antes de
 mexer em histórico de commits daquela pasta.
 
 ---
@@ -88,8 +88,8 @@ python scripts/export_indicadores_frontend.py
 ```
 
 O passo 5 grava em
-`teste_not_streamlit/public/data/ranking-composto-2023.json`; o passo 6
-grava em `teste_not_streamlit/public/data/indicadores/` (um JSON por
+`web/public/data/ranking-composto-2023.json`; o passo 6
+grava em `web/public/data/indicadores/` (um JSON por
 indicador — ver [docs/04-pipeline-de-dados.md §4.7](docs/04-pipeline-de-dados.md#47-exportando-para-a-aba-indicadores-react)).
 Depois é só
 rodar o frontend (seção 1) normalmente.
@@ -100,7 +100,7 @@ rodar o frontend (seção 1) normalmente.
 
 ```
 painel-saude/
-├── teste_not_streamlit/            # frontend oficial (React / TanStack Start)
+├── web/            # frontend oficial (React / TanStack Start)
 │   ├── src/routes/                 # páginas
 │   ├── src/components/             # componentes de UI
 │   └── public/data/                # JSON gerado pelo pipeline (seção 2)
@@ -147,7 +147,7 @@ fonte, direção) devem ser registrados em
    python scripts/export_indicadores_frontend.py   # demora ~15 min, ver docs/04 §4.7
    ```
 
-4. Rode o frontend (`npm run dev` dentro de `teste_not_streamlit/`). A
+4. Rode o frontend (`npm run dev` dentro de `web/`). A
    aba **Indicadores** (`/indicadores`) é orientada a catálogo — o
    indicador novo já aparece sozinho no seletor, agrupado pelo `grupo`
    cadastrado no manifesto, sem precisar mexer em código do frontend. Já

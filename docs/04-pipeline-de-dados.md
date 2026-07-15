@@ -87,7 +87,7 @@ O que checar depois de cada `build_dataset.py`:
 python scripts/export_ranking_frontend.py
 ```
 
-Gera `teste_not_streamlit/public/data/ranking-composto-2023.json` a
+Gera `web/public/data/ranking-composto-2023.json` a
 partir de `montar_ranking()` em `utils/data.py`. Esse script não depende
 mais de Streamlit (usa `functools.lru_cache`, não `@st.cache_data` — ver
 [ADR-004](07-decisoes-tecnicas.md#adr-004--frontend-oficial-passa-a-ser-o-react-streamlit-fica-arquivado-como-protótipo)),
@@ -103,10 +103,10 @@ python scripts/export_indicadores_frontend.py
 ```
 
 Para cada um dos 26 indicadores em `dim_indicadores`, gera:
-- `teste_not_streamlit/public/data/indicadores/_index.json` — metadados
+- `web/public/data/indicadores/_index.json` — metadados
   dos 26 indicadores (chave, nome, grupo, direção, formato), para popular
   o seletor sem baixar as séries inteiras.
-- `teste_not_streamlit/public/data/indicadores/<chave>.json` — série por
+- `web/public/data/indicadores/<chave>.json` — série por
   ano em Brasil, cada Região, cada UF (via
   `utils.data.calcular_taxa_agregada`, mesma regra do
   [ADR-001](07-decisoes-tecnicas.md#adr-001--agregação-por-média-ponderada-numeradordenominador-não-média-simples-das-taxas-municipais))
@@ -141,7 +141,7 @@ valor por UF) têm um seletor de categoria à parte.
 
 ## 4.8 Malha geográfica (UF)
 
-`teste_not_streamlit/public/data/geo/brazil-uf.geojson` é uma cópia local
+`web/public/data/geo/brazil-uf.geojson` é uma cópia local
 (vendorizada) de um GeoJSON público das 27 UFs
 (`codeforgermany/click_that_hood`, a mesma fonte que o Streamlit arquivado
 usava via URL). Foi simplificado de 3,4 MB para ~120 KB com

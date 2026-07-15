@@ -33,7 +33,7 @@ qual problema de saúde pública ele ajuda a resolver, e para quem
 
 ## 1.4 Escopo atual x escopo futuro
 
-- **Hoje**: frontend oficial em React (pasta `teste_not_streamlit/`), com
+- **Hoje**: frontend oficial em React (pasta `web/`), com
   duas rotas — Ranking (`/`, ainda com dados majoritariamente mockados) e
   Indicadores (`/indicadores`, já ligada aos 26 indicadores reais
   processados pelo pipeline, com drill-down Brasil/Região/UF/Município,
@@ -56,7 +56,7 @@ cada autor do projeto. Sugestão de tabela:
 |---|---|---|
 | | Coordenação / metodologia em saúde | Validar direção e fórmula de cada indicador |
 | | Desenvolvimento (dados) | Pipeline (`scripts/`, `data/`) |
-| | Desenvolvimento (frontend) | React (`teste_not_streamlit/`) |
+| | Desenvolvimento (frontend) | React (`web/`) |
 
 ## 1.6 Instituição e créditos
 

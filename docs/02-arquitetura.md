@@ -4,7 +4,7 @@
 
 | Camada | Tecnologia |
 |---|---|
-| Frontend (site oficial) | React + [TanStack Start](https://tanstack.com/start) + Vite + TypeScript, em `teste_not_streamlit/` (via [Lovable](https://lovable.dev)) |
+| Frontend (site oficial) | React + [TanStack Start](https://tanstack.com/start) + Vite + TypeScript, em `web/` (via [Lovable](https://lovable.dev)) |
 | UI / componentes | Tailwind CSS + Radix UI (shadcn) |
 | Gráficos (frontend) | Recharts |
 | Pipeline de dados | Python + pandas |
@@ -14,13 +14,13 @@
 
 Dependências do pipeline em [requirements.txt](../requirements.txt);
 dependências do frontend em
-[teste_not_streamlit/package.json](../teste_not_streamlit/package.json).
+[web/package.json](../web/package.json).
 
 ## 2.2 Estrutura de pastas
 
 ```
 painel-saude/
-├── teste_not_streamlit/       # frontend oficial (React / TanStack Start)
+├── web/       # frontend oficial (React / TanStack Start)
 │   ├── src/routes/            # páginas (roteamento por arquivo)
 │   ├── src/components/        # componentes de UI (inclui shadcn em components/ui/)
 │   ├── src/lib/                # dados mockados, utilitários
@@ -115,10 +115,10 @@ Ver checklist de portabilidade em
 Para rodar o protótipo arquivado, ver
 [_legacy_streamlit/README.md](../_legacy_streamlit/README.md).
 
-## 2.6 Frontend React (`teste_not_streamlit/`)
+## 2.6 Frontend React (`web/`)
 
 Site oficial, em React + TanStack Start + Vite + TypeScript, gerado/
-sincronizado via Lovable (ver `teste_not_streamlit/AGENTS.md` — **não
+sincronizado via Lovable (ver `web/AGENTS.md` — **não
 fazer force-push nem reescrever histórico da branch conectada ao
 Lovable**, senão o histórico no editor do Lovable quebra).
 
@@ -169,7 +169,7 @@ scripts/build_dataset.py ────► data/processed/*.parquet + qualipreneo.
         │       public/data/ranking-*.json  public/data/indicadores/*.json
         │                              │
         │                              ▼
-        │                 teste_not_streamlit/ (React, site oficial)
+        │                 web/ (React, site oficial)
         │
         ▼ (legado, ver 2.4)
 scripts/importar_indicadores.py
@@ -181,7 +181,7 @@ data/indicadores_long.csv ────► _legacy_streamlit/ (Streamlit, arquiva
 ## 2.8 Tema visual
 
 O frontend React define sua própria paleta em Tailwind
-(`teste_not_streamlit/src/styles.css`). O tema do protótipo arquivado
+(`web/src/styles.css`). O tema do protótipo arquivado
 está em
 [_legacy_streamlit/.streamlit/config.toml](../_legacy_streamlit/.streamlit/config.toml)
 (cor primária `#0E7C7B`) — só relevante se alguém rodar o Streamlit

@@ -2,7 +2,7 @@
 
 ## 6.1 Publicação (frontend React)
 
-`[A DEFINIR]` — onde publicar `teste_not_streamlit/` (TanStack Start).
+`[A DEFINIR]` — onde publicar `web/` (TanStack Start).
 Opções mais comuns para esse stack: publicação direta pelo Lovable,
 Vercel ou Netlify — todas com deploy automático a cada `git push`, de
 forma parecida com o antigo Streamlit Community Cloud. Decidir:
@@ -22,7 +22,7 @@ forma parecida com o antigo Streamlit Community Cloud. Decidir:
 para o ambiente publicado:
 - Precisa de validação institucional antes de publicar? De quem?
 - Como isso se aplica ao fluxo atual: os dados do frontend vêm de um JSON
-  estático (`teste_not_streamlit/public/data/`) gerado por
+  estático (`web/public/data/`) gerado por
   `scripts/export_ranking_frontend.py` — um indicador só fica público
   quando alguém decide rodar a exportação e commitar o JSON atualizado
   (ver [05-guia-de-contribuicao.md §5.5](05-guia-de-contribuicao.md#55-dados-sensíveis)).
@@ -45,7 +45,7 @@ acesso.
 serviço de hospedagem escolhido, responsável pelo registro/DNS. Ver
 também a pendência sobre o nome oficial do projeto ("QualiPréNeo" vs.
 "CuidadoPreNeo", usado hoje no frontend) em
-[02-arquitetura.md §2.6](02-arquitetura.md#26-frontend-react-teste_not_streamlit).
+[02-arquitetura.md §2.6](02-arquitetura.md#26-frontend-react-web).
 
 ## 6.5 Monitoramento
 

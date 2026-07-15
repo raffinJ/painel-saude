@@ -3,7 +3,7 @@
 ## 9.1 Portabilidade: Streamlit (arquivado) → React (oficial)
 
 Decisão tomada em [ADR-004](07-decisoes-tecnicas.md#adr-004--frontend-oficial-passa-a-ser-o-react-streamlit-fica-arquivado-como-protótipo):
-o React (`teste_not_streamlit/`) é o site oficial; o Streamlit
+o React (`web/`) é o site oficial; o Streamlit
 (`_legacy_streamlit/`) fica só como referência. Checklist do que ainda
 falta portar (ver comparação detalhada em
 [02-arquitetura.md §2.5](02-arquitetura.md#25-protótipo-arquivado-_legacy_streamlit)):
@@ -44,7 +44,7 @@ falta portar (ver comparação detalhada em
       região lado a lado que a home do Streamlit tinha)
 - [ ] Alinhar o nome do projeto no frontend ("CuidadoPreNeo") com o resto
       da documentação ("QualiPréNeo") — ver
-      [02-arquitetura.md §2.6](02-arquitetura.md#26-frontend-react-teste_not_streamlit)
+      [02-arquitetura.md §2.6](02-arquitetura.md#26-frontend-react-web)
 - [ ] Decidir se/quando `_legacy_streamlit/` pode ser removido de vez
       (só depois que os itens acima estiverem cobertos)
 

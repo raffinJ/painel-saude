@@ -58,7 +58,7 @@ substitui a anterior e linkem as duas.
 
 - **Contexto**: o projeto tinha dois frontends em paralelo — o site
   Streamlit original (`app.py` + `pages/`, com 4 páginas e dados reais) e
-  um protótipo React em `teste_not_streamlit/` (via Lovable), que na
+  um protótipo React em `web/` (via Lovable), que na
   época tinha só a página de Ranking, majoritariamente com dados
   mockados. Isso estava registrado como pergunta em aberto (ver histórico
   deste documento e do roadmap).

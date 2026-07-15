@@ -4,7 +4,7 @@
     {
       "name": "cuidadopreneo-frontend",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev", "--prefix", "teste_not_streamlit"],
+      "runtimeArgs": ["run", "dev", "--prefix", "web"],
       "port": 8080
     }
   ]

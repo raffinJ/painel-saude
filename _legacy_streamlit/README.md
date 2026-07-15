@@ -2,7 +2,7 @@
 
 Esta pasta guarda o protótipo original do painel, feito em Streamlit. O
 projeto decidiu seguir com o **frontend em React** (pasta
-[`teste_not_streamlit/`](../teste_not_streamlit) na raiz do repositório)
+[`web/`](../web) na raiz do repositório)
 como site oficial — ver
 [docs/07-decisoes-tecnicas.md](../docs/07-decisoes-tecnicas.md#adr-004).
 

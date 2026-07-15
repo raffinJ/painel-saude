@@ -9,7 +9,7 @@ dia (depois do primeiro setup):
 
 ```bash
 # Frontend (o que a maioria do time vai rodar no dia a dia)
-cd teste_not_streamlit
+cd web
 npm run dev
 
 # Pipeline de dados (só quando um indicador novo entra ou os dados mudam)
@@ -33,14 +33,14 @@ equipe antes de publicar em algum lugar (ver
 - **Revisão de código**: todo mundo revisa tudo, ou há um responsável
   técnico que aprova antes do merge em `main`?
 
-**Atenção com `teste_not_streamlit/`**: essa pasta está conectada ao
+**Atenção com `web/`**: essa pasta está conectada ao
 Lovable — **não fazer force-push nem reescrever histórico** dessa branch
-(ver `teste_not_streamlit/AGENTS.md`), senão o histórico no editor do
+(ver `web/AGENTS.md`), senão o histórico no editor do
 Lovable quebra. Isso vale mesmo depois de publicar no GitHub.
 
 ## 5.3 Padrões de código
 
-### Frontend (`teste_not_streamlit/`, React + TypeScript)
+### Frontend (`web/`, React + TypeScript)
 
 - Segue a estrutura padrão do TanStack Start: páginas em `src/routes/`,
   componentes reutilizáveis em `src/components/`, componentes de UI base
@@ -94,7 +94,7 @@ Planilhas em `data/raw/` e os arquivos gerados em `data/processed/`
 **não são versionados** (estão no `.gitignore`, por serem grandes e/ou
 não terem sido validados para publicação — ver
 [06-deploy-e-operacao.md](06-deploy-e-operacao.md)). O JSON exportado em
-`teste_not_streamlit/public/data/` **é** versionado, porque é o que o
+`web/public/data/` **é** versionado, porque é o que o
 frontend publicado precisa para funcionar — cuidado para só exportar
 indicadores já validados para publicação.
 
