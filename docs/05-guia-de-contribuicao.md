@@ -33,11 +33,6 @@ equipe antes de publicar em algum lugar (ver
 - **Revisão de código**: todo mundo revisa tudo, ou há um responsável
   técnico que aprova antes do merge em `main`?
 
-**Atenção com `web/`**: essa pasta está conectada ao
-Lovable — **não fazer force-push nem reescrever histórico** dessa branch
-(ver `web/AGENTS.md`), senão o histórico no editor do
-Lovable quebra. Isso vale mesmo depois de publicar no GitHub.
-
 ## 5.3 Padrões de código
 
 ### Frontend (`web/`, React + TypeScript)
@@ -51,9 +46,6 @@ Lovable quebra. Isso vale mesmo depois de publicar no GitHub.
 - Texto visível ao usuário em **português**; nomes de componentes/variáveis
   podem ficar em inglês (padrão do ecossistema React), mantendo o que já
   existe no projeto.
-- Alterações feitas por aqui sincronizam com o editor do Lovable — commits
-  com mensagens claras ajudam a equipe a entender o que mudou também por
-  lá.
 
 ### Pipeline de dados (Python, raiz do projeto)
 

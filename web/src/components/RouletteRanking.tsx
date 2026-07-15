@@ -85,7 +85,7 @@ export function RouletteRanking({ top, bottom, selectedIbge, onSelect }: Props) 
   const [fullDataset, setFullDataset] = useState<RealMunicipio[] | null>(null);
   useEffect(() => {
     let cancelled = false;
-    fetch("/data/ranking-composto-2023.json")
+    fetch(`${import.meta.env.BASE_URL}data/ranking-composto-2023.json`)
       .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
       .then((data: RealMunicipio[]) => {
         if (!cancelled) setFullDataset(data);

@@ -9,9 +9,15 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as MetodologiaRouteImport } from './routes/metodologia'
 import { Route as IndicadoresRouteImport } from './routes/indicadores'
 import { Route as IndexRouteImport } from './routes/index'
 
+const MetodologiaRoute = MetodologiaRouteImport.update({
+  id: '/metodologia',
+  path: '/metodologia',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndicadoresRoute = IndicadoresRouteImport.update({
   id: '/indicadores',
   path: '/indicadores',
@@ -26,31 +32,42 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/indicadores': typeof IndicadoresRoute
+  '/metodologia': typeof MetodologiaRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/indicadores': typeof IndicadoresRoute
+  '/metodologia': typeof MetodologiaRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/indicadores': typeof IndicadoresRoute
+  '/metodologia': typeof MetodologiaRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/indicadores'
+  fullPaths: '/' | '/indicadores' | '/metodologia'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/indicadores'
-  id: '__root__' | '/' | '/indicadores'
+  to: '/' | '/indicadores' | '/metodologia'
+  id: '__root__' | '/' | '/indicadores' | '/metodologia'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   IndicadoresRoute: typeof IndicadoresRoute
+  MetodologiaRoute: typeof MetodologiaRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/metodologia': {
+      id: '/metodologia'
+      path: '/metodologia'
+      fullPath: '/metodologia'
+      preLoaderRoute: typeof MetodologiaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/indicadores': {
       id: '/indicadores'
       path: '/indicadores'
@@ -71,6 +88,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   IndicadoresRoute: IndicadoresRoute,
+  MetodologiaRoute: MetodologiaRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

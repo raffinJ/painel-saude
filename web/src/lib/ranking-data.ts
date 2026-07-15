@@ -1,6 +1,6 @@
 // Mock ranking data for the QualiPréNeo Composite Index.
 // Values reflect ranges cited in the project document; some entries are
-// synthetic placeholders until the real CSVs are wired to Lovable Cloud.
+// synthetic placeholders until the real CSVs are wired in.
 
 export type SubScores = {
   prenatal: number;

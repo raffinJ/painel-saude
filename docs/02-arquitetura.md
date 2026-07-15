@@ -4,7 +4,7 @@
 
 | Camada | Tecnologia |
 |---|---|
-| Frontend (site oficial) | React + [TanStack Start](https://tanstack.com/start) + Vite + TypeScript, em `web/` (via [Lovable](https://lovable.dev)) |
+| Frontend (site oficial) | React + [TanStack Start](https://tanstack.com/start) + Vite + TypeScript, em `web/` |
 | UI / componentes | Tailwind CSS + Radix UI (shadcn) |
 | Gráficos (frontend) | Recharts |
 | Pipeline de dados | Python + pandas |
@@ -117,10 +117,12 @@ Para rodar o protótipo arquivado, ver
 
 ## 2.6 Frontend React (`web/`)
 
-Site oficial, em React + TanStack Start + Vite + TypeScript, gerado/
-sincronizado via Lovable (ver `web/AGENTS.md` — **não
-fazer force-push nem reescrever histórico da branch conectada ao
-Lovable**, senão o histórico no editor do Lovable quebra).
+Site oficial, em React + TanStack Start + Vite + TypeScript. O design
+inicial foi prototipado com apoio do [Lovable](https://lovable.dev); o
+projeto não está mais conectado à plataforma (sem sync de editor, sem
+telemetria) — todo o desenvolvimento segue via Claude Code direto no
+repositório. O crédito das ferramentas usadas aparece na aba
+"Metodologia" do site.
 
 Rotas hoje:
 

@@ -27,7 +27,7 @@ export function IndicatorUFMap({ valoresPorUf, direcao, formato, selectedUf, onS
 
   useEffect(() => {
     let cancelled = false;
-    fetch("/data/geo/brazil-uf.geojson")
+    fetch(`${import.meta.env.BASE_URL}data/geo/brazil-uf.geojson`)
       .then((r) => r.json())
       .then((d: UfFeatureCollection) => {
         if (!cancelled) setGeo(d);

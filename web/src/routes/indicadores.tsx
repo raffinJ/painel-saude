@@ -46,7 +46,7 @@ function IndicadoresPage() {
   // Carrega o índice de indicadores uma vez.
   useEffect(() => {
     let cancelled = false;
-    fetch("/data/indicadores/_index.json")
+    fetch(`${import.meta.env.BASE_URL}data/indicadores/_index.json`)
       .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
       .then((idx: IndicadorMeta[]) => {
         if (cancelled) return;
@@ -67,7 +67,7 @@ function IndicadoresPage() {
     if (!chave) return;
     let cancelled = false;
     setLoadingData(true);
-    fetch(`/data/indicadores/${chave}.json`)
+    fetch(`${import.meta.env.BASE_URL}data/indicadores/${chave}.json`)
       .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
       .then((d: IndicadorData) => {
         if (cancelled) return;

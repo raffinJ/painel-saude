@@ -39,9 +39,12 @@ export function SiteHeader() {
           <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
             Comparar
           </a>
-          <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
+          <Link
+            to="/metodologia"
+            className="text-muted-foreground hover:text-foreground transition-colors [&.active]:text-brand-dark [&.active]:font-semibold"
+          >
             Metodologia
-          </a>
+          </Link>
         </nav>
         <div className="flex items-center gap-2">
           <button className="px-3 py-1.5 border border-border font-mono text-[10px] uppercase tracking-widest hover:bg-brand-soft transition-colors">

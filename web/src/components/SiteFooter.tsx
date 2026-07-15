@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import logo from "@/assets/logo_qualipreneo.jpeg";
 
 export function SiteFooter() {
@@ -12,7 +13,7 @@ export function SiteFooter() {
           </p>
         </div>
         <div className="flex gap-10 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-          <a href="#" className="hover:text-foreground">Metodologia</a>
+          <Link to="/metodologia" className="hover:text-foreground">Metodologia</Link>
           <a href="#" className="hover:text-foreground">Microdados</a>
           <a href="#" className="hover:text-foreground">Equipe</a>
           <a href="#" className="hover:text-foreground">Contato</a>

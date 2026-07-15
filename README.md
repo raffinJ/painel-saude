@@ -43,9 +43,10 @@ npm run dev       # ou: bun run dev
 Abre em `http://localhost:3000` (porta padrão do Vite/TanStack Start — o
 terminal mostra o endereço exato). Para parar, use `Ctrl+C`.
 
-Esse frontend está conectado ao [Lovable](https://lovable.dev) — ver
-[`web/AGENTS.md`](web/AGENTS.md) antes de
-mexer em histórico de commits daquela pasta.
+O design inicial do frontend foi prototipado com apoio do
+[Lovable](https://lovable.dev); o projeto não está mais conectado à
+plataforma — todo o desenvolvimento segue via Claude Code direto neste
+repositório.
 
 ---
 
