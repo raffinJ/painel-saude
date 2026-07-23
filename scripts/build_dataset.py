@@ -19,7 +19,8 @@ dim_municipios (um registro por município):
     codibge, cod_mapa, nome_municipio_bruto, uf_sigla, uf_nome, regiao
 
 dim_indicadores (catálogo — um registro por indicador):
-    indicador_chave, indicador_nome, grupo, direcao, formato, arquivo_origem
+    indicador_chave, indicador_nome, grupo, direcao, formato, unidade,
+    arquivo_origem
 
 dim_populacao (grão: município x ano — pesos demográficos para agregação
 ponderada e para estratificar rankings por porte; não é um indicador do
@@ -124,37 +125,43 @@ GRUPO_GERAL = "Indicador Composto"
 # grao_mensal: True quando o arquivo vem em município x ano x mês e precisa
 #              ser reduzido para município x ano (usando 'first', pois o
 #              valor anual já vem replicado em cada linha mensal).
+# 'unidade': rotulo de unidade/escala mostrado nos graficos do frontend
+# (eixo Y, legenda de mapa/heatmap). Verificado empiricamente contra o
+# dado real processado (mediana de valor*denominador/numerador), nao so
+# copiado da planilha de planejamento da equipe - ver
+# docs/03-catalogo-e-metodologia-indicadores.md §3.6 para as divergencias
+# encontradas entre a planilha e o dado real.
 MANIFESTO = [
     dict(arquivo="grupo1_prenatal/munic_ano_estabelecimentos.xlsx", grupo=GRUPO1,
          chave="cobertura_estabelecimentos_saude",
          nome="Coeficiente de Estabelecimentos de Saúde (Atenção Primária)",
          coluna_valor="densidade", coluna_numerador="qtd_cnes", coluna_denominador="population",
-         direcao="maior_melhor", formato="{:.2f}"),
+         direcao="maior_melhor", formato="{:.2f}", unidade="por 10.000 habitantes"),
     dict(arquivo="grupo1_prenatal/munic_ano_hiv_positivo.xlsx", grupo=GRUPO1,
          chave="taxa_hiv_gestantes", nome="Taxa de HIV Positivo em Gestantes",
          coluna_valor="taxa", coluna_numerador="total_hiv", coluna_denominador="total_nascidos",
-         direcao="menor_melhor", formato="{:.2f}"),
+         direcao="menor_melhor", formato="{:.2f}", unidade="por 1.000 nascidos vivos"),
     dict(arquivo="grupo1_prenatal/munic_ano_obitos_fetais.xlsx", grupo=GRUPO1,
          chave="coef_obitos_fetais", nome="Coeficiente de Óbitos Fetais",
          coluna_valor="coef", coluna_numerador="munic_o", coluna_denominador="munic_nascidos",
-         direcao="menor_melhor", formato="{:.2f}"),
+         direcao="menor_melhor", formato="{:.2f}", unidade="por 1.000 nascimentos totais"),
     dict(arquivo="grupo1_prenatal/munic_ano_pre_natal_adequado.xlsx", grupo=GRUPO1,
          chave="proporcao_pre_natal_adequado", nome="Proporção de Gestantes com Pré-natal Adequado",
          coluna_valor="prop", coluna_numerador="sim", coluna_denominador="total",
-         direcao="maior_melhor", formato="{:.1f}%"),
+         direcao="maior_melhor", formato="{:.1f}%", unidade="%"),
     dict(arquivo="grupo1_prenatal/sifilis_munic_ano.xlsx", grupo=GRUPO1,
          chave="taxa_deteccao_sifilis_gestantes", nome="Taxa de Detecção de Sífilis em Gestantes",
          coluna_valor="taxa", coluna_numerador="casos", coluna_denominador="n_total",
-         direcao="menor_melhor", formato="{:.2f}"),
+         direcao="menor_melhor", formato="{:.2f}", unidade="%"),
 
     dict(arquivo="grupo2_parto/enfermeiro_obstetrico_munic_ano.xlsx", grupo=GRUPO2,
          chave="proporcao_enfermeiros_obstetricos", nome="Proporção de Enfermeiros Obstétricos",
          coluna_valor="enf_obst", coluna_numerador="n", coluna_denominador="pop_ano",
-         direcao="maior_melhor", formato="{:.2f}"),
+         direcao="maior_melhor", formato="{:.2f}", unidade="por 10.000 habitantes"),
     dict(arquivo="grupo2_parto/munic_ano_cesareas.xlsx", grupo=GRUPO2,
          chave="proporcao_cesareas", nome="Proporção de Cesáreas",
          coluna_valor="prop", coluna_numerador="tot_c", coluna_denominador="total_partos",
-         direcao="neutro", formato="{:.1f}%"),
+         direcao="neutro", formato="{:.1f}%", unidade="%"),
     # Indicador multi-categoria: 1 linha por tipo de profissional que
     # assistiu o parto vaginal (Medico / Enfermeira-Obstetriz / Parteira /
     # Outros / Ign-NI), distinguidas pela coluna 'categoria'. 'direcao'
@@ -167,36 +174,37 @@ MANIFESTO = [
          nome="Proporção de Partos Vaginais por Profissional que Assistiu",
          coluna_valor="proporcao", coluna_numerador="prof_regiao",
          coluna_denominador="total_regiao", coluna_categoria="profissional_assistiu",
-         direcao="maior_melhor", formato="{:.1f}%"),
+         direcao="maior_melhor", formato="{:.1f}%", unidade="%"),
 
     dict(arquivo="grupo3_neonatal/apgar_munic_ano.xlsx", grupo=GRUPO3,
          chave="apgar_adequado", nome="Proporção de Apgar Adequado (1º/5º min)",
          coluna_valor="proporcao_pct", coluna_numerador="adequados", coluna_denominador="total_nascidos",
-         direcao="maior_melhor", formato="{:.1f}%"),
+         direcao="maior_melhor", formato="{:.1f}%", unidade="%"),
     dict(arquivo="grupo3_neonatal/asfixia_perinatal_munic_ano.xlsx", grupo=GRUPO3,
          chave="proporcao_asfixia_perinatal", nome="Proporção de Asfixia Perinatal",
          coluna_valor="asfixia", coluna_numerador="n_local", coluna_denominador="n_total",
-         direcao="menor_melhor", formato="{:.2f}"),
+         direcao="menor_melhor", formato="{:.2f}", unidade="%"),
     dict(arquivo="grupo3_neonatal/coef_mortalidade_neo_munic_ano.xlsx", grupo=GRUPO3,
          chave="coef_mortalidade_neonatal", nome="Coeficiente de Mortalidade Neonatal",
          coluna_valor="coeficiente", coluna_numerador="n_obitos", coluna_denominador="total_nascidos",
-         direcao="menor_melhor", formato="{:.2f}"),
+         direcao="menor_melhor", formato="{:.2f}", unidade="por 1.000 nascidos vivos"),
     dict(arquivo="grupo3_neonatal/coef_obito_neo_causa_munic_ano.xlsx", grupo=GRUPO3,
          chave="coef_obito_neonatal_causa", nome="Coeficiente de Óbito Neonatal por Causa",
          coluna_valor="coef", coluna_numerador="n_ano", coluna_denominador="n_nv",
-         coluna_categoria="Agrupamento_Nivel_1", direcao="menor_melhor", formato="{:.2f}"),
+         coluna_categoria="Agrupamento_Nivel_1", direcao="menor_melhor", formato="{:.2f}",
+         unidade="por 1.000 nascidos vivos"),
     dict(arquivo="grupo3_neonatal/hiv_vertical_munic_ano.xlsx", grupo=GRUPO3,
          chave="proporcao_hiv_vertical", nome="Proporção de Transmissão Vertical de HIV",
          coluna_valor="hiv", coluna_numerador="n", coluna_denominador="nv_ano",
-         direcao="menor_melhor", formato="{:.2f}"),
+         direcao="menor_melhor", formato="{:.2f}", unidade="%"),
     dict(arquivo="grupo3_neonatal/infeccoes_sistemicas_neo_munic_ano.xlsx", grupo=GRUPO3,
          chave="taxa_infeccoes_sistemicas_neonatais", nome="Proporção de Infecções Sistêmicas Neonatais",
          coluna_valor="taxa_infeccoes", coluna_numerador="n", coluna_denominador="nv_ano",
-         direcao="menor_melhor", formato="{:.2f}"),
+         direcao="menor_melhor", formato="{:.2f}", unidade="por 1.000 nascidos vivos"),
     dict(arquivo="grupo3_neonatal/munic_ano_baixo_peso.xlsx", grupo=GRUPO3,
          chave="taxa_baixo_peso_nascer", nome="Taxa de Baixo Peso ao Nascer",
          coluna_valor="prop", coluna_numerador="total_sim", coluna_denominador="total_nascidos",
-         direcao="menor_melhor", formato="{:.1f}%"),
+         direcao="menor_melhor", formato="{:.1f}%", unidade="%"),
     # nulo_e_zero=True: municipios sem hospital com leito neonatal ficam com
     # taxa_media_mensal/soma_leitos NaN na fonte (nao existe 0 explicito).
     # Isso e' um zero legitimo (nao tem leito mesmo), nao dado suprimido -
@@ -204,50 +212,55 @@ MANIFESTO = [
     dict(arquivo="grupo3_neonatal/munic_ano_leitos_neonatais.xlsx", grupo=GRUPO3,
          chave="taxa_leitos_neonatais", nome="Taxa Total de Leitos Neonatais",
          coluna_valor="taxa_media_mensal", coluna_numerador="soma_leitos", coluna_denominador="nascidos_vivos",
-         direcao="maior_melhor", formato="{:.2f}", grao_mensal=True, nulo_e_zero=True),
+         direcao="maior_melhor", formato="{:.2f}", grao_mensal=True, nulo_e_zero=True,
+         unidade="por 1.000 nascidos vivos"),
     dict(arquivo="grupo3_neonatal/munic_ano_sifilis_congenita.xlsx", grupo=GRUPO3,
          chave="taxa_incidencia_sifilis_congenita", nome="Taxa de Incidência de Sífilis Congênita",
          coluna_valor="taxa_incidencia", coluna_numerador="total_s", coluna_denominador="total_nascidos",
-         direcao="menor_melhor", formato="{:.2f}"),
+         direcao="menor_melhor", formato="{:.2f}", unidade="por 1.000 nascidos vivos"),
     dict(arquivo="grupo3_neonatal/natalidade_munic_ano.xlsx", grupo=GRUPO3,
          chave="taxa_bruta_natalidade", nome="Taxa Bruta de Natalidade",
          coluna_valor="taxa", coluna_numerador="nv_ano", coluna_denominador="pop_ano",
-         direcao="neutro", formato="{:.2f}"),
+         direcao="neutro", formato="{:.2f}", unidade="por 1.000 habitantes"),
     dict(arquivo="grupo3_neonatal/obito_neo_24h_munic_ano.xlsx", grupo=GRUPO3,
          chave="proporcao_obitos_neonatais_24h", nome="Proporção de Óbitos Neonatais nas Primeiras 24h",
          coluna_valor="coeficiente", coluna_numerador="n_obitos", coluna_denominador="total_nascidos",
-         direcao="menor_melhor", formato="{:.2f}"),
+         direcao="menor_melhor", formato="{:.2f}", unidade="por 1.000 nascidos vivos"),
 
+    # unidade "a confirmar": valor == numerador em 100% das linhas (o
+    # denominador, populacao, existe na base mas nao e usado no calculo) -
+    # ver docs/03-catalogo-e-metodologia-indicadores.md §3.6.
     dict(arquivo="grupo4_puerperio/leitos_UTI_adulto_munic_ano.xlsx", grupo=GRUPO4,
          chave="taxa_leitos_uti_adulto", nome="Taxa de Leitos em UTI Adulto",
          coluna_valor="leitos_uti", coluna_numerador="leitos_uti", coluna_denominador="popoulation",
-         direcao="maior_melhor", formato="{:.2f}"),
+         direcao="maior_melhor", formato="{:.2f}", unidade="nº absoluto de leitos"),
     dict(arquivo="grupo4_puerperio/leitos_obst_munic_ano.xlsx", grupo=GRUPO4,
          chave="taxa_leitos_obstetricos", nome="Taxa de Leitos Obstétricos",
          coluna_valor="leitos", coluna_numerador="n_leitos", coluna_denominador="pop",
-         direcao="maior_melhor", formato="{:.2f}"),
+         direcao="maior_melhor", formato="{:.2f}", unidade="por 1.000 habitantes"),
     dict(arquivo="grupo4_puerperio/munic_ano_desfecho_materno_grave.xlsx", grupo=GRUPO4,
          chave="razao_desfecho_materno_grave", nome="Razão de Desfecho Materno Grave",
          coluna_valor="rmm", coluna_numerador="munic_desf", coluna_denominador="munic_nascidos",
-         coluna_ano="YEAR", direcao="menor_melhor", formato="{:.2f}"),
+         coluna_ano="YEAR", direcao="menor_melhor", formato="{:.2f}",
+         unidade="por 100.000 nascidos vivos"),
     dict(arquivo="grupo4_puerperio/munic_ano_mortalidade_materna.xlsx", grupo=GRUPO4,
          chave="razao_mortalidade_materna", nome="Razão de Mortalidade Materna",
          coluna_valor="rmm", coluna_numerador="munic_o", coluna_denominador="munic_nascidos",
-         direcao="menor_melhor", formato="{:.2f}"),
+         direcao="menor_melhor", formato="{:.2f}", unidade="por 100.000 nascidos vivos"),
     dict(arquivo="grupo4_puerperio/obito_mat_evitavel_munic_ano.xlsx", grupo=GRUPO4,
          chave="proporcao_obitos_maternos_evitaveis", nome="Proporção de Óbitos Maternos Evitáveis",
          coluna_valor="prop_evit", coluna_numerador="n_evit", coluna_denominador="n_total",
-         direcao="menor_melhor", formato="{:.1f}%"),
+         direcao="menor_melhor", formato="{:.1f}%", unidade="% (dos óbitos maternos)"),
 
     dict(arquivo="grupo5_perinatal/coef_mortalidade_perinatal_munic_ano.xlsx", grupo=GRUPO5,
          chave="coef_mortalidade_perinatal", nome="Coeficiente de Mortalidade Perinatal",
          coluna_valor="coeficiente", coluna_numerador="n_obitos", coluna_denominador="total_nascidos",
-         direcao="menor_melhor", formato="{:.2f}"),
+         direcao="menor_melhor", formato="{:.2f}", unidade="por 1.000 nascimentos totais"),
 
     dict(arquivo="indicador_composto_munic_ano.xlsx", grupo=GRUPO_GERAL,
          chave="indicador_composto", nome="Indicador Composto",
          coluna_valor="indicador_composto", coluna_numerador=None, coluna_denominador=None,
-         direcao="menor_melhor", formato="{:.2f}"),
+         direcao="menor_melhor", formato="{:.2f}", unidade="escore 0-100"),
 ]
 
 
@@ -447,6 +460,7 @@ def construir_dim_indicadores() -> pd.DataFrame:
             "grupo": e["grupo"],
             "direcao": e["direcao"],
             "formato": e["formato"],
+            "unidade": e["unidade"],
             "arquivo_origem": e["arquivo"],
         }
         for e in MANIFESTO

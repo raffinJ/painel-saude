@@ -1,6 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { geoMercator, geoPath } from "d3-geo";
-import { colorForValue, extentOf, type Direcao } from "@/lib/color-scale";
+import {
+  colorForValue,
+  extentOf,
+  legendGradient,
+  type Direcao,
+} from "@/lib/color-scale";
 import { formatValor } from "@/lib/indicadores-data";
 
 type UfFeature = {
@@ -14,6 +19,7 @@ type Props = {
   valoresPorUf: Record<string, number | undefined>;
   direcao: Direcao;
   formato: string;
+  unidade: string;
   selectedUf?: string;
   onSelectUf: (uf: string) => void;
 };
@@ -21,7 +27,14 @@ type Props = {
 const WIDTH = 480;
 const HEIGHT = 460;
 
-export function IndicatorUFMap({ valoresPorUf, direcao, formato, selectedUf, onSelectUf }: Props) {
+export function IndicatorUFMap({
+  valoresPorUf,
+  direcao,
+  formato,
+  unidade,
+  selectedUf,
+  onSelectUf,
+}: Props) {
   const [geo, setGeo] = useState<UfFeatureCollection | null>(null);
   const [hoverUf, setHoverUf] = useState<string | null>(null);
 
@@ -42,12 +55,18 @@ export function IndicatorUFMap({ valoresPorUf, direcao, formato, selectedUf, onS
 
   const path = useMemo(() => {
     if (!geo) return null;
-    const projection = geoMercator().fitSize([WIDTH, HEIGHT], geo as unknown as GeoJSON.GeoJSON);
+    const projection = geoMercator().fitSize(
+      [WIDTH, HEIGHT],
+      geo as unknown as GeoJSON.GeoJSON,
+    );
     return geoPath(projection);
   }, [geo]);
 
   const [min, max] = useMemo(
-    () => extentOf(Object.values(valoresPorUf).filter((v): v is number => v !== undefined)),
+    () =>
+      extentOf(
+        Object.values(valoresPorUf).filter((v): v is number => v !== undefined),
+      ),
     [valoresPorUf],
   );
 
@@ -59,15 +78,26 @@ export function IndicatorUFMap({ valoresPorUf, direcao, formato, selectedUf, onS
     );
   }
 
+  const piorEhMenor = direcao === "menor_melhor";
+  const piorValor = direcao === "neutro" ? min : piorEhMenor ? max : min;
+  const melhorValor = direcao === "neutro" ? max : piorEhMenor ? min : max;
+
   return (
     <div className="relative">
       <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} className="h-auto w-full">
         {geo.features.map((f) => {
           const uf = f.properties.sigla;
           const valor = valoresPorUf[uf];
-          const d = path({ type: "Feature", properties: {}, geometry: f.geometry } as never) ?? "";
+          const d =
+            path({
+              type: "Feature",
+              properties: {},
+              geometry: f.geometry,
+            } as never) ?? "";
           const fill =
-            valor !== undefined ? colorForValue(valor, min, max, direcao) : "var(--color-muted)";
+            valor !== undefined
+              ? colorForValue(valor, min, max, direcao)
+              : "var(--color-muted)";
           return (
             <path
               key={uf}
@@ -86,9 +116,31 @@ export function IndicatorUFMap({ valoresPorUf, direcao, formato, selectedUf, onS
       {hoverUf && (
         <div className="pointer-events-none absolute left-2 top-2 rounded-md border border-border bg-card px-2.5 py-1.5 text-xs shadow-md">
           <div className="font-mono font-medium">{hoverUf}</div>
-          <div className="tabular-nums">{formatValor(valoresPorUf[hoverUf], formato)}</div>
+          <div className="tabular-nums">
+            {formatValor(valoresPorUf[hoverUf], formato)}
+          </div>
         </div>
       )}
+
+      <div className="mt-3 flex items-center gap-3 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+        <span>
+          {direcao === "neutro" ? "Menor" : "Pior"} ·{" "}
+          {formatValor(piorValor, formato)}
+        </span>
+        <div
+          className="h-2 flex-1"
+          style={{
+            background: `linear-gradient(to right, ${legendGradient(min, max, direcao)})`,
+          }}
+        />
+        <span>
+          {direcao === "neutro" ? "Maior" : "Melhor"} ·{" "}
+          {formatValor(melhorValor, formato)}
+        </span>
+      </div>
+      <div className="mt-1 text-right font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+        {unidade}
+      </div>
     </div>
   );
 }

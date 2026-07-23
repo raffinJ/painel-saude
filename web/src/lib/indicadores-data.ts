@@ -6,6 +6,7 @@ export type IndicadorMeta = {
   grupo: string;
   direcao: Direcao;
   formato: string;
+  unidade: string;
   multi_categoria?: boolean;
 };
 
@@ -66,7 +67,11 @@ export type GeoScope =
  * categoria) no escopo geográfico selecionado — para o line chart, mapa e
  * heatmap "de um valor só". Quando o indicador tem categoria e nenhuma foi
  * passada, usa a primeira da lista. */
-export function serieForScope(data: IndicadorData, scope: GeoScope, categoria?: string): SeriePonto[] {
+export function serieForScope(
+  data: IndicadorData,
+  scope: GeoScope,
+  categoria?: string,
+): SeriePonto[] {
   if (data.multi_categoria) {
     const cat = categoria ?? data.categorias[0];
     switch (scope.nivel) {
@@ -77,7 +82,11 @@ export function serieForScope(data: IndicadorData, scope: GeoScope, categoria?: 
       case "uf":
         return data.ufs[scope.uf]?.[cat] ?? [];
       case "municipio":
-        return data.municipios.find((m) => m.codibge === scope.codibge)?.series[cat] ?? [];
+        return (
+          data.municipios.find((m) => m.codibge === scope.codibge)?.series[
+            cat
+          ] ?? []
+        );
     }
   }
   switch (scope.nivel) {
@@ -88,7 +97,9 @@ export function serieForScope(data: IndicadorData, scope: GeoScope, categoria?: 
     case "uf":
       return data.ufs[scope.uf] ?? [];
     case "municipio":
-      return data.municipios.find((m) => m.codibge === scope.codibge)?.serie ?? [];
+      return (
+        data.municipios.find((m) => m.codibge === scope.codibge)?.serie ?? []
+      );
   }
 }
 
@@ -107,7 +118,9 @@ export function seriesPorCategoriaForScope(
     case "uf":
       return data.ufs[scope.uf] ?? {};
     case "municipio":
-      return data.municipios.find((m) => m.codibge === scope.codibge)?.series ?? {};
+      return (
+        data.municipios.find((m) => m.codibge === scope.codibge)?.series ?? {}
+      );
   }
 }
 
@@ -139,8 +152,12 @@ export function scopeLabel(scope: GeoScope): string {
 }
 
 /** Aplica uma mascara de formato no estilo Python ("{:.1f}%", "{:.2f}") a um numero. */
-export function formatValor(valor: number | null | undefined, formato: string): string {
-  if (valor === null || valor === undefined || !Number.isFinite(valor)) return "—";
+export function formatValor(
+  valor: number | null | undefined,
+  formato: string,
+): string {
+  if (valor === null || valor === undefined || !Number.isFinite(valor))
+    return "—";
   const match = formato.match(/\{:\.(\d+)f\}/);
   const decimals = match ? parseInt(match[1], 10) : 2;
   const formatted = valor.toLocaleString("pt-BR", {

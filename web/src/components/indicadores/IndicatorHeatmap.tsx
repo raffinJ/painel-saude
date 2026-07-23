@@ -7,12 +7,25 @@ type Props = {
   anos: number[];
   direcao: Direcao;
   formato: string;
+  unidade: string;
   selectedUf?: string;
   onSelectUf: (uf: string) => void;
 };
 
-export function IndicatorHeatmap({ ufs: ufsSeries, anos, direcao, formato, selectedUf, onSelectUf }: Props) {
-  const [hover, setHover] = useState<{ uf: string; ano: number; valor?: number } | null>(null);
+export function IndicatorHeatmap({
+  ufs: ufsSeries,
+  anos,
+  direcao,
+  formato,
+  unidade,
+  selectedUf,
+  onSelectUf,
+}: Props) {
+  const [hover, setHover] = useState<{
+    uf: string;
+    ano: number;
+    valor?: number;
+  } | null>(null);
 
   const ufs = useMemo(() => Object.keys(ufsSeries).sort(), [ufsSeries]);
 
@@ -26,7 +39,9 @@ export function IndicatorHeatmap({ ufs: ufsSeries, anos, direcao, formato, selec
   }, [ufs, ufsSeries]);
 
   const [min, max] = useMemo(() => {
-    const todos = ufs.flatMap((uf) => (ufsSeries[uf] ?? []).map((p) => p.valor));
+    const todos = ufs.flatMap((uf) =>
+      (ufsSeries[uf] ?? []).map((p) => p.valor),
+    );
     return extentOf(todos);
   }, [ufs, ufsSeries]);
 
@@ -40,7 +55,10 @@ export function IndicatorHeatmap({ ufs: ufsSeries, anos, direcao, formato, selec
       >
         <div />
         {anos.map((ano) => (
-          <div key={ano} className="text-center font-mono text-muted-foreground">
+          <div
+            key={ano}
+            className="text-center font-mono text-muted-foreground"
+          >
             {String(ano).slice(2)}
           </div>
         ))}
@@ -49,7 +67,9 @@ export function IndicatorHeatmap({ ufs: ufsSeries, anos, direcao, formato, selec
             <button
               onClick={() => onSelectUf(uf)}
               className={`text-left font-mono uppercase pr-1 hover:text-brand-dark ${
-                selectedUf === uf ? "font-bold text-brand-dark" : "text-muted-foreground"
+                selectedUf === uf
+                  ? "font-bold text-brand-dark"
+                  : "text-muted-foreground"
               }`}
             >
               {uf}
@@ -62,7 +82,9 @@ export function IndicatorHeatmap({ ufs: ufsSeries, anos, direcao, formato, selec
                   className="aspect-square cursor-pointer rounded-[2px]"
                   style={{
                     backgroundColor:
-                      valor !== undefined ? colorForValue(valor, min, max, direcao) : "var(--color-muted)",
+                      valor !== undefined
+                        ? colorForValue(valor, min, max, direcao)
+                        : "var(--color-muted)",
                   }}
                   onClick={() => onSelectUf(uf)}
                   onMouseEnter={() => setHover({ uf, ano, valor })}
@@ -73,10 +95,15 @@ export function IndicatorHeatmap({ ufs: ufsSeries, anos, direcao, formato, selec
           </Fragment>
         ))}
       </div>
-      <div className="mt-2 h-5 text-xs text-muted-foreground">
-        {hover
-          ? `${hover.uf} · ${hover.ano} · ${formatValor(hover.valor, formato)}`
-          : "Passe o mouse sobre uma célula para ver o valor"}
+      <div className="mt-2 h-5 flex items-center justify-between text-xs text-muted-foreground">
+        <span>
+          {hover
+            ? `${hover.uf} · ${hover.ano} · ${formatValor(hover.valor, formato)}`
+            : "Passe o mouse sobre uma célula para ver o valor"}
+        </span>
+        <span className="font-mono text-[10px] uppercase tracking-widest">
+          {unidade}
+        </span>
       </div>
     </div>
   );

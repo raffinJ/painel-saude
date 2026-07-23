@@ -42,3 +42,20 @@ export function extentOf(valores: number[]): [number, number] {
   if (!validos.length) return [0, 1];
   return [Math.min(...validos), Math.max(...validos)];
 }
+
+/** Gradiente CSS (linear-gradient, sem "linear-gradient(...)" em volta) do
+ * pior ao melhor valor do recorte — usado na legenda dos mapas por UF e
+ * por município. */
+export function legendGradient(
+  min: number,
+  max: number,
+  direcao: Direcao,
+): string {
+  const steps = [0, 0.25, 0.5, 0.75, 1];
+  return steps
+    .map((t) => {
+      const valor = min + t * (max - min);
+      return `${colorForValue(valor, min, max, direcao)} ${Math.round(t * 100)}%`;
+    })
+    .join(", ");
+}

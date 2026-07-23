@@ -188,6 +188,7 @@ function MapasMunicipaisPage() {
                     infoPorCodibge={infoPorCodibge}
                     direcao={data.direcao}
                     formato={data.formato}
+                    unidade={data.unidade}
                     selectedCodibge={selectedCodibge}
                     onSelectCodibge={setSelectedCodibge}
                   />
@@ -202,6 +203,7 @@ function MapasMunicipaisPage() {
                   municipios={municipiosRankeados}
                   direcao={data.direcao}
                   formato={data.formato}
+                  unidade={data.unidade}
                   chave={data.chave}
                   selectedCodibge={selectedCodibge}
                   onSelectCodibge={setSelectedCodibge}

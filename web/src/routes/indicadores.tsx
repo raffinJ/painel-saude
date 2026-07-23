@@ -51,7 +51,8 @@ function IndicadoresPage() {
       .then((idx: IndicadorMeta[]) => {
         if (cancelled) return;
         setIndicadores(idx);
-        const preferido = idx.find((i) => i.chave === "indicador_composto") ?? idx[0];
+        const preferido =
+          idx.find((i) => i.chave === "indicador_composto") ?? idx[0];
         if (preferido) setChave(preferido.chave);
       })
       .catch(() => {
@@ -74,7 +75,7 @@ function IndicadoresPage() {
         setData(d);
         setAno(d.anos[d.anos.length - 1] ?? null);
         setScope({ nivel: "brasil" });
-        setCategoria(d.multi_categoria ? d.categorias[0] ?? null : null);
+        setCategoria(d.multi_categoria ? (d.categorias[0] ?? null) : null);
       })
       .catch(() => {
         if (!cancelled) setData(null);
@@ -93,7 +94,10 @@ function IndicadoresPage() {
     return map;
   }, [data]);
 
-  const regioes = useMemo(() => (data ? Object.keys(data.regioes) : []), [data]);
+  const regioes = useMemo(
+    () => (data ? Object.keys(data.regioes) : []),
+    [data],
+  );
 
   const ufsDaRegiaoSelecionada = useMemo(() => {
     if (!data) return [];
@@ -104,9 +108,12 @@ function IndicadoresPage() {
   }, [data, scope, ufToRegiao]);
 
   const municipiosDaUf = useMemo(() => {
-    const uf = scope.nivel === "uf" || scope.nivel === "municipio" ? scope.uf : null;
+    const uf =
+      scope.nivel === "uf" || scope.nivel === "municipio" ? scope.uf : null;
     if (!data || !uf) return [];
-    return data.municipios.filter((m) => m.uf === uf).sort((a, b) => a.nome.localeCompare(b.nome));
+    return data.municipios
+      .filter((m) => m.uf === uf)
+      .sort((a, b) => a.nome.localeCompare(b.nome));
   }, [data, scope]);
 
   // Ufs reduzidas a um valor único (categoria selecionada, se houver) —
@@ -126,11 +133,14 @@ function IndicadoresPage() {
     return out;
   }, [ufsSeriesUnica, ano]);
 
-  const serieAtual = data ? serieForScope(data, scope, categoria ?? undefined) : [];
+  const serieAtual = data
+    ? serieForScope(data, scope, categoria ?? undefined)
+    : [];
   const labelAtual = scopeLabel(scope);
 
   const seriesPorCategoriaAtual = useMemo(
-    () => (data?.multi_categoria ? seriesPorCategoriaForScope(data, scope) : {}),
+    () =>
+      data?.multi_categoria ? seriesPorCategoriaForScope(data, scope) : {},
     [data, scope],
   );
 
@@ -148,9 +158,15 @@ function IndicadoresPage() {
           </h1>
           <div className="mt-6 max-w-md">
             {indicadores.length > 0 && chave ? (
-              <IndicatorSelector indicadores={indicadores} value={chave} onChange={setChave} />
+              <IndicatorSelector
+                indicadores={indicadores}
+                value={chave}
+                onChange={setChave}
+              />
             ) : (
-              <div className="text-sm text-muted-foreground">Carregando indicadores…</div>
+              <div className="text-sm text-muted-foreground">
+                Carregando indicadores…
+              </div>
             )}
           </div>
         </section>
@@ -159,9 +175,10 @@ function IndicadoresPage() {
           <>
             {data.multi_categoria && (
               <div className="mt-6 border border-brand/40 bg-brand-soft px-4 py-3 text-sm">
-                Este indicador é apurado por categoria — os gráficos e a tabela "todas as categorias"
-                abaixo mostram a quebra completa. O mapa e o heatmap (que precisam de um valor só por
-                UF) mostram a categoria selecionada no seletor abaixo.
+                Este indicador é apurado por categoria — os gráficos e a tabela
+                "todas as categorias" abaixo mostram a quebra completa. O mapa e
+                o heatmap (que precisam de um valor só por UF) mostram a
+                categoria selecionada no seletor abaixo.
               </div>
             )}
 
@@ -169,32 +186,60 @@ function IndicadoresPage() {
             <section className="mt-8 flex flex-wrap items-center gap-2 font-mono text-[10px] uppercase tracking-widest">
               <button
                 onClick={() => setScope({ nivel: "brasil" })}
-                className={scope.nivel === "brasil" ? "text-brand-dark font-semibold" : "text-muted-foreground hover:text-foreground"}
+                className={
+                  scope.nivel === "brasil"
+                    ? "text-brand-dark font-semibold"
+                    : "text-muted-foreground hover:text-foreground"
+                }
               >
                 Brasil
               </button>
 
               <span className="text-muted-foreground">›</span>
               <select
-                value={scope.nivel === "regiao" || scope.nivel === "uf" || scope.nivel === "municipio" ? (scope.nivel === "regiao" ? scope.regiao : ufToRegiao[scope.uf] ?? "") : ""}
-                onChange={(e) => (e.target.value ? setScope({ nivel: "regiao", regiao: e.target.value }) : setScope({ nivel: "brasil" }))}
+                value={
+                  scope.nivel === "regiao" ||
+                  scope.nivel === "uf" ||
+                  scope.nivel === "municipio"
+                    ? scope.nivel === "regiao"
+                      ? scope.regiao
+                      : (ufToRegiao[scope.uf] ?? "")
+                    : ""
+                }
+                onChange={(e) =>
+                  e.target.value
+                    ? setScope({ nivel: "regiao", regiao: e.target.value })
+                    : setScope({ nivel: "brasil" })
+                }
                 className="border border-border bg-card px-2 py-1.5"
               >
                 <option value="">Região</option>
                 {regioes.map((r) => (
-                  <option key={r} value={r}>{r}</option>
+                  <option key={r} value={r}>
+                    {r}
+                  </option>
                 ))}
               </select>
 
               <span className="text-muted-foreground">›</span>
               <select
-                value={scope.nivel === "uf" || scope.nivel === "municipio" ? scope.uf : ""}
-                onChange={(e) => (e.target.value ? setScope({ nivel: "uf", uf: e.target.value }) : setScope({ nivel: "brasil" }))}
+                value={
+                  scope.nivel === "uf" || scope.nivel === "municipio"
+                    ? scope.uf
+                    : ""
+                }
+                onChange={(e) =>
+                  e.target.value
+                    ? setScope({ nivel: "uf", uf: e.target.value })
+                    : setScope({ nivel: "brasil" })
+                }
                 className="border border-border bg-card px-2 py-1.5"
               >
                 <option value="">UF</option>
                 {ufsDaRegiaoSelecionada.map((uf) => (
-                  <option key={uf} value={uf}>{uf}</option>
+                  <option key={uf} value={uf}>
+                    {uf}
+                  </option>
                 ))}
               </select>
 
@@ -202,41 +247,62 @@ function IndicadoresPage() {
               <select
                 value={scope.nivel === "municipio" ? scope.codibge : ""}
                 onChange={(e) => {
-                  const m = municipiosDaUf.find((mm) => mm.codibge === e.target.value);
-                  if (m) setScope({ nivel: "municipio", codibge: m.codibge, nome: m.nome, uf: m.uf });
+                  const m = municipiosDaUf.find(
+                    (mm) => mm.codibge === e.target.value,
+                  );
+                  if (m)
+                    setScope({
+                      nivel: "municipio",
+                      codibge: m.codibge,
+                      nome: m.nome,
+                      uf: m.uf,
+                    });
                 }}
                 disabled={!municipiosDaUf.length}
                 className="border border-border bg-card px-2 py-1.5 disabled:opacity-40"
               >
-                <option value="">Município{municipiosDaUf.length ? ` (${municipiosDaUf.length})` : ""}</option>
+                <option value="">
+                  Município
+                  {municipiosDaUf.length ? ` (${municipiosDaUf.length})` : ""}
+                </option>
                 {municipiosDaUf.map((m) => (
-                  <option key={m.codibge} value={m.codibge}>{m.nome}</option>
+                  <option key={m.codibge} value={m.codibge}>
+                    {m.nome}
+                  </option>
                 ))}
               </select>
 
               <span className="ml-auto flex items-center gap-2 normal-case">
                 {data.multi_categoria && (
                   <>
-                    <span className="text-muted-foreground">Categoria (mapa/heatmap):</span>
+                    <span className="text-muted-foreground">
+                      Categoria (mapa/heatmap):
+                    </span>
                     <select
                       value={categoria ?? ""}
                       onChange={(e) => setCategoria(e.target.value)}
                       className="border border-border bg-card px-2 py-1.5"
                     >
                       {data.categorias.map((c) => (
-                        <option key={c} value={c}>{c}</option>
+                        <option key={c} value={c}>
+                          {c}
+                        </option>
                       ))}
                     </select>
                   </>
                 )}
-                <span className="text-muted-foreground">Ano do mapa/heatmap:</span>
+                <span className="text-muted-foreground">
+                  Ano do mapa/heatmap:
+                </span>
                 <select
                   value={ano ?? ""}
                   onChange={(e) => setAno(Number(e.target.value))}
                   className="border border-border bg-card px-2 py-1.5 font-mono"
                 >
                   {data.anos.map((a) => (
-                    <option key={a} value={a}>{a}</option>
+                    <option key={a} value={a}>
+                      {a}
+                    </option>
                   ))}
                 </select>
               </span>
@@ -246,20 +312,34 @@ function IndicadoresPage() {
             <section className="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
               <div className="lg:col-span-4">
                 <span className="font-mono text-[10px] uppercase tracking-widest text-brand-dark">
-                  {labelAtual}{data.multi_categoria && categoria ? ` · ${categoria}` : ""}
+                  {labelAtual}
+                  {data.multi_categoria && categoria ? ` · ${categoria}` : ""}
                 </span>
                 <div className="font-display text-5xl mt-2 tabular-nums">
-                  {formatValor(serieAtual.find((p) => p.ano === ano)?.valor, data.formato)}
+                  {formatValor(
+                    serieAtual.find((p) => p.ano === ano)?.valor,
+                    data.formato,
+                  )}
                 </div>
                 <div className="text-sm text-muted-foreground mt-1">
-                  em {ano} · {data.direcao === "maior_melhor" ? "maior é melhor" : data.direcao === "menor_melhor" ? "menor é melhor" : "sem direção definida"}
+                  em {ano} · {data.unidade} ·{" "}
+                  {data.direcao === "maior_melhor"
+                    ? "maior é melhor"
+                    : data.direcao === "menor_melhor"
+                      ? "menor é melhor"
+                      : "sem direção definida"}
                 </div>
               </div>
               <div className="lg:col-span-8 border border-border bg-card p-4">
                 <IndicatorLineChart
                   serie={serieAtual}
-                  label={data.multi_categoria ? `${labelAtual} · ${categoria}` : labelAtual}
+                  label={
+                    data.multi_categoria
+                      ? `${labelAtual} · ${categoria}`
+                      : labelAtual
+                  }
                   formato={data.formato}
+                  unidade={data.unidade}
                 />
               </div>
             </section>
@@ -275,6 +355,7 @@ function IndicadoresPage() {
                     categorias={data.categorias}
                     anos={data.anos}
                     formato={data.formato}
+                    unidade={data.unidade}
                   />
                 </div>
               </section>
@@ -284,21 +365,28 @@ function IndicadoresPage() {
             <section className="mt-12 grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
               <div className="lg:col-span-5">
                 <div className="mb-3 font-mono text-[10px] uppercase tracking-widest text-brand-dark">
-                  Mapa por UF · {ano}{data.multi_categoria && categoria ? ` · ${categoria}` : ""}
+                  Mapa por UF · {ano}
+                  {data.multi_categoria && categoria ? ` · ${categoria}` : ""}
                 </div>
                 <div className="border border-border bg-card p-4">
                   <IndicatorUFMap
                     valoresPorUf={valoresPorUfNoAno}
                     direcao={data.direcao}
                     formato={data.formato}
-                    selectedUf={scope.nivel === "uf" || scope.nivel === "municipio" ? scope.uf : undefined}
+                    unidade={data.unidade}
+                    selectedUf={
+                      scope.nivel === "uf" || scope.nivel === "municipio"
+                        ? scope.uf
+                        : undefined
+                    }
                     onSelectUf={(uf) => setScope({ nivel: "uf", uf })}
                   />
                 </div>
               </div>
               <div className="lg:col-span-7">
                 <div className="mb-3 font-mono text-[10px] uppercase tracking-widest text-brand-dark">
-                  Heatmap · UF × Ano{data.multi_categoria && categoria ? ` · ${categoria}` : ""}
+                  Heatmap · UF × Ano
+                  {data.multi_categoria && categoria ? ` · ${categoria}` : ""}
                 </div>
                 <div className="border border-border bg-card p-4">
                   <IndicatorHeatmap
@@ -306,7 +394,12 @@ function IndicadoresPage() {
                     anos={data.anos}
                     direcao={data.direcao}
                     formato={data.formato}
-                    selectedUf={scope.nivel === "uf" || scope.nivel === "municipio" ? scope.uf : undefined}
+                    unidade={data.unidade}
+                    selectedUf={
+                      scope.nivel === "uf" || scope.nivel === "municipio"
+                        ? scope.uf
+                        : undefined
+                    }
                     onSelectUf={(uf) => setScope({ nivel: "uf", uf })}
                   />
                 </div>
@@ -325,14 +418,21 @@ function IndicadoresPage() {
                   formato={data.formato}
                 />
               ) : (
-                <IndicatorTable serie={serieAtual} label={labelAtual} chave={data.chave} formato={data.formato} />
+                <IndicatorTable
+                  serie={serieAtual}
+                  label={labelAtual}
+                  chave={data.chave}
+                  formato={data.formato}
+                />
               )}
             </section>
           </>
         )}
 
         {loadingData && !data && (
-          <div className="mt-12 text-sm text-muted-foreground">Carregando indicador…</div>
+          <div className="mt-12 text-sm text-muted-foreground">
+            Carregando indicador…
+          </div>
         )}
       </main>
 

@@ -11,9 +11,10 @@ type Props = {
   serie: SeriePonto[];
   label: string;
   formato: string;
+  unidade: string;
 };
 
-export function IndicatorLineChart({ serie, label, formato }: Props) {
+export function IndicatorLineChart({ serie, label, formato, unidade }: Props) {
   const config = {
     valor: { label, color: "var(--color-brand)" },
   } satisfies ChartConfig;
@@ -27,34 +28,50 @@ export function IndicatorLineChart({ serie, label, formato }: Props) {
   }
 
   return (
-    <ChartContainer config={config} className="aspect-auto h-[280px] w-full">
-      <LineChart data={serie} margin={{ left: 4, right: 12, top: 8, bottom: 0 }}>
-        <CartesianGrid vertical={false} />
-        <XAxis dataKey="ano" tickLine={false} axisLine={false} tickMargin={8} />
-        <YAxis
-          tickLine={false}
-          axisLine={false}
-          tickMargin={8}
-          width={56}
-          tickFormatter={(v) => formatValor(v, formato)}
-        />
-        <ChartTooltip
-          content={
-            <ChartTooltipContent
-              labelFormatter={(v) => `Ano ${v}`}
-              formatter={(value) => [formatValor(Number(value), formato), label]}
-            />
-          }
-        />
-        <Line
-          dataKey="valor"
-          type="monotone"
-          stroke="var(--color-valor)"
-          strokeWidth={2}
-          dot={{ r: 3 }}
-          activeDot={{ r: 5 }}
-        />
-      </LineChart>
-    </ChartContainer>
+    <div>
+      <div className="mb-1 text-right font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+        {unidade}
+      </div>
+      <ChartContainer config={config} className="aspect-auto h-[280px] w-full">
+        <LineChart
+          data={serie}
+          margin={{ left: 4, right: 12, top: 8, bottom: 0 }}
+        >
+          <CartesianGrid vertical={false} />
+          <XAxis
+            dataKey="ano"
+            tickLine={false}
+            axisLine={false}
+            tickMargin={8}
+          />
+          <YAxis
+            tickLine={false}
+            axisLine={false}
+            tickMargin={8}
+            width={56}
+            tickFormatter={(v) => formatValor(v, formato)}
+          />
+          <ChartTooltip
+            content={
+              <ChartTooltipContent
+                labelFormatter={(v) => `Ano ${v}`}
+                formatter={(value) => [
+                  formatValor(Number(value), formato),
+                  label,
+                ]}
+              />
+            }
+          />
+          <Line
+            dataKey="valor"
+            type="monotone"
+            stroke="var(--color-valor)"
+            strokeWidth={2}
+            dot={{ r: 3 }}
+            activeDot={{ r: 5 }}
+          />
+        </LineChart>
+      </ChartContainer>
+    </div>
   );
 }

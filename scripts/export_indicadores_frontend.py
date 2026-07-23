@@ -1,5 +1,5 @@
 """Exporta os 26 indicadores do modelo dimensional (data/processed/) como
-JSON estatico para a aba "Indicadores" do frontend em teste_not_streamlit:
+JSON estatico para a aba "Indicadores" do frontend em web/:
 serie anual por Brasil, Regiao, UF e Municipio, prontas para o line chart,
 o mapa por UF, o heatmap UF x Ano e a tabela/CSV.
 
@@ -33,7 +33,7 @@ from utils.data import (
 
 OUT_DIR = (
     Path(__file__).resolve().parent.parent
-    / "teste_not_streamlit"
+    / "web"
     / "public"
     / "data"
     / "indicadores"
@@ -140,6 +140,7 @@ def exportar_indicador(chave: str, row, anos: list[int], ufs: list[str], dim_mun
         "grupo": row["grupo"],
         "direcao": row["direcao"],
         "formato": row["formato"],
+        "unidade": row["unidade"],
         "multi_categoria": multi_categoria,
         "categorias": categorias,
         "anos": anos,
@@ -174,6 +175,7 @@ def main():
             "grupo": row["grupo"],
             "direcao": row["direcao"],
             "formato": row["formato"],
+            "unidade": row["unidade"],
             "multi_categoria": payload["multi_categoria"],
         })
 

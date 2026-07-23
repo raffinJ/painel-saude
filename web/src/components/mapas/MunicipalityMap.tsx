@@ -2,7 +2,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { geoMercator, geoPath } from "d3-geo";
 import { feature } from "topojson-client";
 import type { Topology, GeometryCollection } from "topojson-specification";
-import { colorForValue, extentOf, type Direcao } from "@/lib/color-scale";
+import {
+  colorForValue,
+  extentOf,
+  legendGradient,
+  type Direcao,
+} from "@/lib/color-scale";
 import { formatValor } from "@/lib/indicadores-data";
 
 type MunicipioProperties = { id: string; name: string };
@@ -14,6 +19,7 @@ type Props = {
   infoPorCodibge: Record<string, MunicipioInfo>;
   direcao: Direcao;
   formato: string;
+  unidade: string;
   selectedCodibge?: string;
   onSelectCodibge: (codibge: string) => void;
 };
@@ -33,6 +39,7 @@ export function MunicipalityMap({
   infoPorCodibge,
   direcao,
   formato,
+  unidade,
   selectedCodibge,
   onSelectCodibge,
 }: Props) {
@@ -306,16 +313,9 @@ export function MunicipalityMap({
           {formatValor(legendaDireita, formato)}
         </span>
       </div>
+      <div className="mt-1 text-right font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+        {unidade}
+      </div>
     </div>
   );
-}
-
-function legendGradient(min: number, max: number, direcao: Direcao): string {
-  const steps = [0, 0.25, 0.5, 0.75, 1];
-  return steps
-    .map((t) => {
-      const valor = min + t * (max - min);
-      return `${colorForValue(valor, min, max, direcao)} ${Math.round(t * 100)}%`;
-    })
-    .join(", ");
 }

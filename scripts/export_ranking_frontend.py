@@ -1,5 +1,5 @@
 """Exporta o ranking do indicador_composto (ano 2023) como JSON para a busca
-por município do frontend em teste_not_streamlit (todos os municípios, não
+por município do frontend em web/ (todos os municípios, não
 só o top/bottom 15 mockado em ranking-data.ts)."""
 
 import json
@@ -14,7 +14,7 @@ from utils.data import montar_ranking
 ANO = 2023
 OUT_PATH = (
     Path(__file__).resolve().parent.parent
-    / "teste_not_streamlit"
+    / "web"
     / "public"
     / "data"
     / "ranking-composto-2023.json"

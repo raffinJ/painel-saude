@@ -15,6 +15,7 @@ type Props = {
   municipios: MunicipioRankeado[];
   direcao: Direcao;
   formato: string;
+  unidade: string;
   chave: string;
   selectedCodibge?: string;
   onSelectCodibge: (codibge: string) => void;
@@ -28,6 +29,7 @@ export function MunicipalityRanking({
   municipios,
   direcao,
   formato,
+  unidade,
   chave,
   selectedCodibge,
   onSelectCodibge,
@@ -113,6 +115,10 @@ export function MunicipalityRanking({
             )}
           </div>
         )}
+      </div>
+
+      <div className="px-3 py-1 border-b border-border text-right font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+        {unidade}
       </div>
 
       <div className="flex border-b border-border font-mono text-[10px] uppercase tracking-widest">
