@@ -3,18 +3,12 @@ import { useEffect, useMemo, useState } from "react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { IndicatorSelector } from "@/components/indicadores/IndicatorSelector";
-import { IndicatorLineChart } from "@/components/indicadores/IndicatorLineChart";
 import { MunicipalityMap } from "@/components/mapas/MunicipalityMap";
 import {
   MunicipalityRanking,
   type MunicipioRankeado,
 } from "@/components/mapas/MunicipalityRanking";
-import {
-  formatValor,
-  serieForScope,
-  type IndicadorData,
-  type IndicadorMeta,
-} from "@/lib/indicadores-data";
+import type { IndicadorData, IndicadorMeta } from "@/lib/indicadores-data";
 
 export const Route = createFileRoute("/mapas-municipais")({
   head: () => ({
@@ -119,26 +113,6 @@ function MapasMunicipaisPage() {
     return out;
   }, [data]);
 
-  const municipioSelecionado = data?.municipios.find(
-    (m) => m.codibge === selectedCodibge,
-  );
-  const serieSelecionada =
-    data && municipioSelecionado
-      ? serieForScope(
-          data,
-          {
-            nivel: "municipio",
-            codibge: municipioSelecionado.codibge,
-            nome: municipioSelecionado.nome,
-            uf: municipioSelecionado.uf,
-          },
-          categoria ?? undefined,
-        )
-      : [];
-  const valorSelecionadoNoAno = serieSelecionada.find(
-    (p) => p.ano === ano,
-  )?.valor;
-
   return (
     <div className="min-h-screen bg-background text-foreground">
       <SiteHeader />
@@ -199,37 +173,6 @@ function MapasMunicipaisPage() {
                   </option>
                 ))}
               </select>
-            </section>
-
-            {/* Município selecionado */}
-            <section className="mt-8 border border-border bg-card p-5">
-              {municipioSelecionado ? (
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-                  <div className="lg:col-span-4">
-                    <span className="font-mono text-[10px] uppercase tracking-widest text-brand-dark">
-                      {municipioSelecionado.nome} · {municipioSelecionado.uf}
-                    </span>
-                    <div className="font-display text-5xl mt-2 tabular-nums">
-                      {formatValor(valorSelecionadoNoAno, data.formato)}
-                    </div>
-                    <div className="text-sm text-muted-foreground mt-1">
-                      em {ano}
-                    </div>
-                  </div>
-                  <div className="lg:col-span-8">
-                    <IndicatorLineChart
-                      serie={serieSelecionada}
-                      label={municipioSelecionado.nome}
-                      formato={data.formato}
-                    />
-                  </div>
-                </div>
-              ) : (
-                <div className="text-sm text-muted-foreground text-center py-6">
-                  Clique em um município no mapa ou na lista de ranking para ver
-                  o detalhe.
-                </div>
-              )}
             </section>
 
             {/* Mapa + ranking */}

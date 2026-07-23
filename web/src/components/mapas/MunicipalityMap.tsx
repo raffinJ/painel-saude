@@ -117,7 +117,11 @@ export function MunicipalityMap({
 
   // Wheel precisa de preventDefault para não rolar a página atrás do mapa —
   // React trata onWheel como passivo por padrão, então o listener precisa
-  // ser nativo (mesmo problema resolvido em RouletteRanking.tsx).
+  // ser nativo (mesmo problema resolvido em RouletteRanking.tsx). Depende de
+  // `path` (só existe depois que o geo carrega) porque antes disso o
+  // componente renderiza o placeholder "Carregando…" em vez do <svg> real —
+  // um efeito com deps `[]` rodaria só nesse primeiro render e nunca
+  // encontraria `svgRef.current`, deixando o zoom por scroll morto.
   useEffect(() => {
     const el = svgRef.current;
     if (!el) return;
@@ -131,7 +135,7 @@ export function MunicipalityMap({
     };
     el.addEventListener("wheel", onWheelNative, { passive: false });
     return () => el.removeEventListener("wheel", onWheelNative);
-  }, []);
+  }, [path]);
 
   function zoomAt(
     t: Transform,

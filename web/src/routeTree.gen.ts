@@ -9,19 +9,14 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as MetodologiaRouteImport } from './routes/metodologia'
-import { Route as MapasMunicipaisRouteImport } from './routes/mapas-municipais'
-import { Route as IndicadoresRouteImport } from './routes/indicadores'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as IndicadoresRouteImport } from './routes/indicadores'
+import { Route as MapasMunicipaisRouteImport } from './routes/mapas-municipais'
+import { Route as MetodologiaRouteImport } from './routes/metodologia'
 
-const MetodologiaRoute = MetodologiaRouteImport.update({
-  id: '/metodologia',
-  path: '/metodologia',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MapasMunicipaisRoute = MapasMunicipaisRouteImport.update({
-  id: '/mapas-municipais',
-  path: '/mapas-municipais',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndicadoresRoute = IndicadoresRouteImport.update({
@@ -29,9 +24,14 @@ const IndicadoresRoute = IndicadoresRouteImport.update({
   path: '/indicadores',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const MapasMunicipaisRoute = MapasMunicipaisRouteImport.update({
+  id: '/mapas-municipais',
+  path: '/mapas-municipais',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MetodologiaRoute = MetodologiaRouteImport.update({
+  id: '/metodologia',
+  path: '/metodologia',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -71,18 +71,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/metodologia': {
-      id: '/metodologia'
-      path: '/metodologia'
-      fullPath: '/metodologia'
-      preLoaderRoute: typeof MetodologiaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mapas-municipais': {
-      id: '/mapas-municipais'
-      path: '/mapas-municipais'
-      fullPath: '/mapas-municipais'
-      preLoaderRoute: typeof MapasMunicipaisRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/indicadores': {
@@ -92,11 +85,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndicadoresRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/mapas-municipais': {
+      id: '/mapas-municipais'
+      path: '/mapas-municipais'
+      fullPath: '/mapas-municipais'
+      preLoaderRoute: typeof MapasMunicipaisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/metodologia': {
+      id: '/metodologia'
+      path: '/metodologia'
+      fullPath: '/metodologia'
+      preLoaderRoute: typeof MetodologiaRouteImport
       parentRoute: typeof rootRouteImport
     }
   }

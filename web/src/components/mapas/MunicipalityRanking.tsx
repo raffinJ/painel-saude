@@ -35,16 +35,16 @@ export function MunicipalityRanking({
   const [aba, setAba] = useState<"piores" | "melhores">("piores");
   const [query, setQuery] = useState("");
 
-  // Ordem "pior primeiro": indicadores menor_melhor ordenam crescente
-  // (maior valor = pior), os demais ordenam decrescente.
+  // Ordem "melhor primeiro": indicadores menor_melhor ordenam crescente
+  // (menor valor = melhor), os demais ordenam decrescente.
   const ordenados = useMemo(() => {
     const sinal = direcao === "menor_melhor" ? -1 : 1;
     return [...municipios].sort((a, b) => sinal * (b.valor - a.valor));
   }, [municipios, direcao]);
 
   const total = ordenados.length;
-  const piores = ordenados.slice(0, TOP_N);
-  const melhores = [...ordenados.slice(-TOP_N)].reverse();
+  const melhores = ordenados.slice(0, TOP_N);
+  const piores = [...ordenados.slice(-TOP_N)].reverse();
   const lista = aba === "piores" ? piores : melhores;
 
   const rankPorCodibge = useMemo(() => {
