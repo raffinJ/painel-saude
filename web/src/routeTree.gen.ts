@@ -10,12 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as MetodologiaRouteImport } from './routes/metodologia'
+import { Route as MapasMunicipaisRouteImport } from './routes/mapas-municipais'
 import { Route as IndicadoresRouteImport } from './routes/indicadores'
 import { Route as IndexRouteImport } from './routes/index'
 
 const MetodologiaRoute = MetodologiaRouteImport.update({
   id: '/metodologia',
   path: '/metodologia',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MapasMunicipaisRoute = MapasMunicipaisRouteImport.update({
+  id: '/mapas-municipais',
+  path: '/mapas-municipais',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndicadoresRoute = IndicadoresRouteImport.update({
@@ -32,30 +38,34 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/indicadores': typeof IndicadoresRoute
+  '/mapas-municipais': typeof MapasMunicipaisRoute
   '/metodologia': typeof MetodologiaRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/indicadores': typeof IndicadoresRoute
+  '/mapas-municipais': typeof MapasMunicipaisRoute
   '/metodologia': typeof MetodologiaRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/indicadores': typeof IndicadoresRoute
+  '/mapas-municipais': typeof MapasMunicipaisRoute
   '/metodologia': typeof MetodologiaRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/indicadores' | '/metodologia'
+  fullPaths: '/' | '/indicadores' | '/mapas-municipais' | '/metodologia'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/indicadores' | '/metodologia'
-  id: '__root__' | '/' | '/indicadores' | '/metodologia'
+  to: '/' | '/indicadores' | '/mapas-municipais' | '/metodologia'
+  id: '__root__' | '/' | '/indicadores' | '/mapas-municipais' | '/metodologia'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   IndicadoresRoute: typeof IndicadoresRoute
+  MapasMunicipaisRoute: typeof MapasMunicipaisRoute
   MetodologiaRoute: typeof MetodologiaRoute
 }
 
@@ -66,6 +76,13 @@ declare module '@tanstack/react-router' {
       path: '/metodologia'
       fullPath: '/metodologia'
       preLoaderRoute: typeof MetodologiaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mapas-municipais': {
+      id: '/mapas-municipais'
+      path: '/mapas-municipais'
+      fullPath: '/mapas-municipais'
+      preLoaderRoute: typeof MapasMunicipaisRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/indicadores': {
@@ -88,6 +105,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   IndicadoresRoute: IndicadoresRoute,
+  MapasMunicipaisRoute: MapasMunicipaisRoute,
   MetodologiaRoute: MetodologiaRoute,
 }
 export const routeTree = rootRouteImport

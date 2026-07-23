@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, useMotionValue, animate } from "motion/react";
 import type { Municipality } from "@/lib/ranking-data";
+import { normalizeSearch } from "@/lib/search";
 
 type Props = {
   top: Municipality[];
@@ -46,17 +47,12 @@ const CURVE_AMPLITUDE = 34; // px, how far the crescent bulges at the focus dot
 const TOP_COLOR = "var(--color-brand)";
 const BOTTOM_COLOR = "var(--color-accent-warm)";
 
-// Strips accents so "Aguas Frias" finds "Águas Frias" — most people typing
-// a Brazilian municipality name on the fly skip diacritics.
-function normalizeSearch(s: string): string {
-  return s
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .trim()
-    .toLowerCase();
-}
-
-export function RouletteRanking({ top, bottom, selectedIbge, onSelect }: Props) {
+export function RouletteRanking({
+  top,
+  bottom,
+  selectedIbge,
+  onSelect,
+}: Props) {
   const items = useMemo(() => {
     return [
       ...top.map((m) => ({ m, band: "top" as const })),
@@ -98,11 +94,17 @@ export function RouletteRanking({ top, bottom, selectedIbge, onSelect }: Props) 
     };
   }, []);
 
-  const [searchResult, setSearchResult] = useState<SearchableMunicipio | null>(null);
+  const [searchResult, setSearchResult] = useState<SearchableMunicipio | null>(
+    null,
+  );
 
   const goTo = (index: number, notify = true) => {
     const clamped = Math.max(0, Math.min(items.length - 1, index));
-    animate(offset, targetY(clamped), { type: "spring", stiffness: 320, damping: 34 });
+    animate(offset, targetY(clamped), {
+      type: "spring",
+      stiffness: 320,
+      damping: 34,
+    });
     setFocusIndexState(clamped);
     const item = items[clamped];
     if (notify && item) onSelect(item.m);
@@ -136,8 +138,14 @@ export function RouletteRanking({ top, bottom, selectedIbge, onSelect }: Props) 
   }, []);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "ArrowDown") { e.preventDefault(); goTo(focusIndex + 1); }
-    if (e.key === "ArrowUp") { e.preventDefault(); goTo(focusIndex - 1); }
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      goTo(focusIndex + 1);
+    }
+    if (e.key === "ArrowUp") {
+      e.preventDefault();
+      goTo(focusIndex - 1);
+    }
   };
 
   const rankLabel = (i: number, band: "top" | "bottom") =>
@@ -165,7 +173,10 @@ export function RouletteRanking({ top, bottom, selectedIbge, onSelect }: Props) 
     const q = normalizeSearch(query);
     if (!q) return [];
     return searchPool
-      .filter((m) => normalizeSearch(m.name).includes(q) || normalizeSearch(m.uf) === q)
+      .filter(
+        (m) =>
+          normalizeSearch(m.name).includes(q) || normalizeSearch(m.uf) === q,
+      )
       .slice(0, 8);
   }, [searchPool, query]);
 
@@ -190,7 +201,8 @@ export function RouletteRanking({ top, bottom, selectedIbge, onSelect }: Props) 
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === "Enter" && matches.length > 0) selectMatch(matches[0]);
+            if (e.key === "Enter" && matches.length > 0)
+              selectMatch(matches[0]);
           }}
           placeholder={
             fullDataset === null
@@ -235,7 +247,10 @@ export function RouletteRanking({ top, bottom, selectedIbge, onSelect }: Props) 
           <div className="min-w-0">
             <div className="text-sm font-semibold truncate">
               {searchResult.name}
-              <span className="text-muted-foreground font-normal"> · {searchResult.uf}</span>
+              <span className="text-muted-foreground font-normal">
+                {" "}
+                · {searchResult.uf}
+              </span>
             </div>
             <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
               {searchResult.region}
@@ -269,7 +284,10 @@ export function RouletteRanking({ top, bottom, selectedIbge, onSelect }: Props) 
           <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
             {focused?.band === "top" ? "Top 15" : "Bottom 15"}
           </div>
-          <div className="font-display text-3xl leading-none mt-1" style={{ color: focusColor }}>
+          <div
+            className="font-display text-3xl leading-none mt-1"
+            style={{ color: focusColor }}
+          >
             {focused ? rankLabel(focusIndex, focused.band) : ""}
           </div>
           <div className="font-mono text-[10px] text-muted-foreground mt-0.5">
@@ -291,7 +309,9 @@ export function RouletteRanking({ top, bottom, selectedIbge, onSelect }: Props) 
             <div className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">
               Anterior
             </div>
-            <div className="text-xs truncate max-w-40">{prev?.m.name ?? "—"}</div>
+            <div className="text-xs truncate max-w-40">
+              {prev?.m.name ?? "—"}
+            </div>
           </div>
 
           <div
@@ -311,7 +331,10 @@ export function RouletteRanking({ top, bottom, selectedIbge, onSelect }: Props) 
             <div
               aria-hidden
               className="absolute top-1/2 -translate-y-1/2 size-6 rounded-full border border-dashed border-brand/50 z-20"
-              style={{ left: `calc(50% + ${CURVE_AMPLITUDE}px)`, transform: "translate(-50%, -50%)" }}
+              style={{
+                left: `calc(50% + ${CURVE_AMPLITUDE}px)`,
+                transform: "translate(-50%, -50%)",
+              }}
             />
 
             <motion.div
@@ -331,25 +354,37 @@ export function RouletteRanking({ top, bottom, selectedIbge, onSelect }: Props) 
                 const t = Math.max(-1, Math.min(1, d / CURVE_SPREAD));
                 const curveX = CURVE_AMPLITUDE * Math.cos(t * (Math.PI / 2));
                 const fade = Math.max(0.15, 1 - absD / (CURVE_SPREAD + 2));
-                const scale = isFocus ? 1 : Math.max(0.4, 1 - (absD / (CURVE_SPREAD + 2)) * 0.7);
+                const scale = isFocus
+                  ? 1
+                  : Math.max(0.4, 1 - (absD / (CURVE_SPREAD + 2)) * 0.7);
                 return (
                   <div
                     key={it.m.ibge}
                     className="absolute left-1/2 flex items-center justify-center"
-                    style={{ top: i * DOT_GAP, height: DOT_GAP, width: DOT_GAP }}
+                    style={{
+                      top: i * DOT_GAP,
+                      height: DOT_GAP,
+                      width: DOT_GAP,
+                    }}
                   >
                     <motion.button
                       type="button"
                       onClick={() => goTo(i)}
                       aria-label={`${it.m.name} · ${rankLabel(i, it.band)}`}
                       animate={{ x: curveX, opacity: fade, scale }}
-                      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 30,
+                      }}
                       className="rounded-full"
                       style={{
                         width: isFocus ? 14 : 8,
                         height: isFocus ? 14 : 8,
                         backgroundColor: color,
-                        boxShadow: isFocus ? `0 0 0 3px color-mix(in oklab, ${color} 25%, transparent)` : undefined,
+                        boxShadow: isFocus
+                          ? `0 0 0 3px color-mix(in oklab, ${color} 25%, transparent)`
+                          : undefined,
                       }}
                     />
                   </div>
@@ -366,7 +401,9 @@ export function RouletteRanking({ top, bottom, selectedIbge, onSelect }: Props) 
             <div className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">
               Posterior
             </div>
-            <div className="text-xs truncate max-w-40">{next?.m.name ?? "—"}</div>
+            <div className="text-xs truncate max-w-40">
+              {next?.m.name ?? "—"}
+            </div>
           </div>
         </div>
       </div>

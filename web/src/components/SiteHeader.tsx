@@ -33,10 +33,16 @@ export function SiteHeader() {
           >
             Indicadores
           </Link>
-          <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
-            Mapa
-          </a>
-          <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
+          <Link
+            to="/mapas-municipais"
+            className="text-muted-foreground hover:text-foreground transition-colors [&.active]:text-brand-dark [&.active]:font-semibold"
+          >
+            Mapas municipais
+          </Link>
+          <a
+            href="#"
+            className="text-muted-foreground hover:text-foreground transition-colors"
+          >
             Comparar
           </a>
           <Link

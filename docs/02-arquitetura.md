@@ -107,7 +107,7 @@ o frontend React ainda não replicou:
 | 🏆 Ranking | Parcial — página `/` mostra roleta top/bottom 15 com dados majoritariamente mockados (`src/lib/ranking-data.ts`) |
 | 🔍 Buscar Município | Não portado — `MunicipalityDetail.tsx` existe mas mostra o município selecionado na roleta, não uma busca livre |
 | 📊 Comparar | Não portado (link "Comparar" no menu ainda é `#`) |
-| 🗺️ Mapa | Não portado (link "Mapa" no menu ainda é `#`) |
+| 🗺️ Mapa | Portado como "Mapas municipais" (`/mapas-municipais`), com mapa por município (não só por estado) e ranking — ver [2.6](#26-frontend-react-web) |
 
 Ver checklist de portabilidade em
 [09-roadmap-e-perguntas-abertas.md](09-roadmap-e-perguntas-abertas.md).
@@ -144,12 +144,38 @@ Rotas hoje:
   presa em React ≤18, incompatível com o React 19 deste projeto) para
   projetar o GeoJSON vendorizado em
   `public/data/geo/brazil-uf.geojson` (27 UFs, simplificado com
-  `mapshaper` de 3,4 MB para ~120 KB). Mapa por município fica para uma
-  próxima etapa (ver
-  [09-roadmap-e-perguntas-abertas.md](09-roadmap-e-perguntas-abertas.md)).
+  `mapshaper` de 3,4 MB para ~120 KB).
   `SiteHeader`/`SiteFooter` foram extraídos para
   `src/components/SiteHeader.tsx`/`SiteFooter.tsx` (antes viviam dentro de
-  `index.tsx`) para serem reaproveitados pelas duas rotas.
+  `index.tsx`) para serem reaproveitados pelas rotas.
+- `src/routes/mapas-municipais.tsx` (`/mapas-municipais`) — aba "Mapas
+  municipais": igual à aba Indicadores, mas só com agregação por
+  município (Brasil/Região/UF continuam só em `/indicadores`) — mapa
+  coroplético do Brasil inteiro por município (zoom/pan, hover) ao lado
+  do ranking de piores/melhores desempenhos no indicador selecionado,
+  com busca e download em CSV. Consome os mesmos JSONs de
+  `public/data/indicadores/` (o campo `municipios[]` de cada indicador já
+  vem com série por `codibge`). A malha municipal vem de
+  `public/data/geo/brazil-municipios-topo.json` — TopoJSON (não GeoJSON
+  solto, para deduplicar fronteiras compartilhadas) gerado a partir do
+  [tbrugz/geodata-br](https://github.com/tbrugz/geodata-br) (licença
+  CC0, arquivo `geojson/geojs-100-mun.json`, 5.564 municípios) com:
+  ```
+  mapshaper -i geojs-100-mun.json -clean -simplify 1% keep-shapes \
+    -o format=topojson quantization=1e5 brazil-municipios-topo.json
+  ```
+  De 22,5 MB para ~1,3 MB. O `-clean` é essencial antes do `-simplify`:
+  sem ele, ~34 municípios costeiros (Rio de Janeiro, Ilhabela, Vitória,
+  Angra dos Reis etc.) saem com o anel invertido e o d3-geo os renderiza
+  como "o mapa inteiro menos um buraco minúsculo" — um bug clássico de
+  winding order em geometria vinda de shapefile. O TopoJSON é convertido
+  para GeoJSON no browser com `topojson-client` (`feature()`). O `id` de
+  7 dígitos do geojson (`cod_mapa`) é truncado para 6 dígitos para bater
+  com o `codibge` dos dados de indicadores. Faltam geometria só para 6
+  municípios criados após 2013 e ainda não desmembrados nessa malha
+  (Mojuí dos Campos, Nazária, Pescaria Brava, Balneário Rincão, Pinto
+  Bandeira, Paraíso das Águas) — aparecem no ranking normalmente, só não
+  têm polígono próprio no mapa.
 
 `[A DEFINIR]` — nome final do projeto: o frontend usa a marca
 "CuidadoPreNeo" no header/footer, enquanto o resto do projeto (dados,

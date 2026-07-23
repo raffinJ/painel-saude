@@ -13,13 +13,14 @@ falta portar (ver comparação detalhada em
       por UF, heatmap UF×Ano e tabela com download em CSV. Feito em
       2026-07-14 (ver `scripts/export_indicadores_frontend.py` e
       `src/routes/indicadores.tsx`).
-- [ ] **Mapa por município** (hoje o mapa da aba Indicadores é só por UF —
-      o Streamlit arquivado tinha a mesma limitação e já documentava o
-      caminho para evoluir, ver o expansor "Como evoluir para o mapa
-      municipal" em `_legacy_streamlit/pages/4_Mapa.py`: baixar a malha
-      municipal do IBGE, simplificar com `mapshaper` como já foi feito
-      para a malha de UF em `public/data/geo/brazil-uf.geojson`, e trocar
-      `IndicatorUFMap` por um equivalente municipal)
+- [x] **Mapa por município** — nova aba "Mapas municipais"
+      (`/mapas-municipais`), com mapa coroplético do Brasil por município
+      (zoom/pan, hover) e ranking de piores/melhores desempenhos ao lado.
+      Feito em 2026-07-23 (ver `src/routes/mapas-municipais.tsx`,
+      `src/components/mapas/` e a malha em
+      [02-arquitetura.md §2.6](02-arquitetura.md#26-frontend-react-web)).
+      O mapa por UF da aba Indicadores continua como está — Brasil/Região/UF
+      seguem só lá.
 - [x] **Visualização por categoria** para os indicadores que têm quebra
       por categoria (`proporcao_parto_vaginal_profissional` — por
       profissional que assistiu o parto; `coef_obito_neonatal_causa` —
@@ -53,7 +54,7 @@ falta portar (ver comparação detalhada em
 - [ ] Trazer os 40 indicadores restantes (repetir o fluxo de
       [03-catalogo-e-metodologia-indicadores.md §3.4](03-catalogo-e-metodologia-indicadores.md#34-como-adicionar-um-indicador-novo)
       para cada um, com ficha metodológica preenchida)
-- [ ] Mapa por município (ver checklist 9.1 acima)
+- [x] Mapa por município (ver checklist 9.1 acima)
 - [ ] Tooltips explicando a metodologia de cálculo de cada indicador
 - [ ] Filtro por "região de saúde" (precisa de tabela de-para
       código do município → região de saúde)
