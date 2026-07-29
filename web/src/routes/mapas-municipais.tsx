@@ -205,6 +205,7 @@ function MapasMunicipaisPage() {
                   formato={data.formato}
                   unidade={data.unidade}
                   chave={data.chave}
+                  data={data}
                   selectedCodibge={selectedCodibge}
                   onSelectCodibge={setSelectedCodibge}
                 />

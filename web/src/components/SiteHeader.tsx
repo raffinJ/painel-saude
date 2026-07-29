@@ -1,7 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import logo from "@/assets/logo_qualipreneo.jpeg";
+import { useComparador } from "@/lib/comparador";
 
 export function SiteHeader() {
+  const comparador = useComparador();
+
   return (
     <header className="border-b border-border bg-background/80 backdrop-blur sticky top-0 z-40">
       <div className="max-w-[1440px] mx-auto px-6 md:px-10 h-16 flex items-center justify-between">
@@ -39,12 +42,12 @@ export function SiteHeader() {
           >
             Mapas municipais
           </Link>
-          <a
-            href="#"
-            className="text-muted-foreground hover:text-foreground transition-colors"
+          <Link
+            to="/comparar"
+            className="text-muted-foreground hover:text-foreground transition-colors [&.active]:text-brand-dark [&.active]:font-semibold"
           >
-            Comparar
-          </a>
+            Comparar{comparador.length > 0 ? ` (${comparador.length})` : ""}
+          </Link>
           <Link
             to="/metodologia"
             className="text-muted-foreground hover:text-foreground transition-colors [&.active]:text-brand-dark [&.active]:font-semibold"
@@ -52,11 +55,6 @@ export function SiteHeader() {
             Metodologia
           </Link>
         </nav>
-        <div className="flex items-center gap-2">
-          <button className="px-3 py-1.5 border border-border font-mono text-[10px] uppercase tracking-widest hover:bg-brand-soft transition-colors">
-            Baixar dados
-          </button>
-        </div>
       </div>
     </header>
   );

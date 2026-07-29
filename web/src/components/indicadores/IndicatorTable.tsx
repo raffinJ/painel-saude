@@ -1,15 +1,21 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { downloadCsv } from "@/lib/csv";
-import { formatValor, type SeriePonto } from "@/lib/indicadores-data";
+import {
+  formatValor,
+  indicadorRawCsv,
+  type IndicadorData,
+  type SeriePonto,
+} from "@/lib/indicadores-data";
 
 type Props = {
   serie: SeriePonto[];
   label: string;
   chave: string;
   formato: string;
+  data: IndicadorData;
 };
 
-export function IndicatorTable({ serie, label, chave, formato }: Props) {
+export function IndicatorTable({ serie, label, chave, formato, data }: Props) {
   const ordenada = [...serie].sort((a, b) => b.ano - a.ano);
 
   return (
@@ -19,14 +25,11 @@ export function IndicatorTable({ serie, label, chave, formato }: Props) {
           {label} · série por ano
         </span>
         <button
-          onClick={() =>
-            downloadCsv(
-              `${chave}_${label.toLowerCase().replace(/\s+/g, "-")}.csv`,
-              ["ano", "valor"],
-              ordenada.map((p) => [p.ano, p.valor]),
-            )
-          }
-          disabled={!ordenada.length}
+          onClick={() => {
+            const { headers, rows } = indicadorRawCsv(data);
+            downloadCsv(`${chave}_dados_brutos.csv`, headers, rows);
+          }}
+          disabled={!data.municipios.length}
           className="px-3 py-1.5 border border-border font-mono text-[10px] uppercase tracking-widest hover:bg-brand-soft transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
           Baixar CSV

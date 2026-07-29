@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
+import { DetalhamentoIndicadores } from "@/components/metodologia/DetalhamentoIndicadores";
 
 export const Route = createFileRoute("/metodologia")({
   head: () => ({
@@ -63,6 +64,18 @@ function MetodologiaPage() {
             indicador tem uma direção definida (maior é melhor ou menor é
             melhor) usada para colorir mapas, heatmaps e rankings.
           </p>
+        </section>
+
+        <section className="py-10 space-y-4 border-b border-border">
+          <h2 className="font-display text-2xl">
+            Obtenção de dados e cálculo dos indicadores
+          </h2>
+          <p className="text-muted-foreground leading-relaxed">
+            Para cada indicador: as fontes usadas no numerador e no
+            denominador, os filtros aplicados, o período e o recorte
+            geográfico disponíveis, e as limitações conhecidas do cálculo.
+          </p>
+          <DetalhamentoIndicadores />
         </section>
 
         <section className="py-10 space-y-3">

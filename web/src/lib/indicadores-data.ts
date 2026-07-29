@@ -151,6 +151,38 @@ export function scopeLabel(scope: GeoScope): string {
   }
 }
 
+/** Dado bruto completo do indicador — todos os municípios, todos os anos (e
+ * categorias, se houver) — independente do recorte geográfico/ano/categoria
+ * selecionado na tela. Usado pelos botões "Baixar CSV". */
+export function indicadorRawCsv(
+  data: IndicadorData,
+): { headers: string[]; rows: (string | number)[][] } {
+  if (data.multi_categoria) {
+    const rows: (string | number)[][] = [];
+    for (const m of data.municipios) {
+      for (const [categoria, serie] of Object.entries(m.series)) {
+        for (const p of serie) {
+          rows.push([m.codibge, m.nome, m.uf, m.regiao, categoria, p.ano, p.valor]);
+        }
+      }
+    }
+    return {
+      headers: ["codibge", "municipio", "uf", "regiao", "categoria", "ano", "valor"],
+      rows,
+    };
+  }
+  const rows: (string | number)[][] = [];
+  for (const m of data.municipios) {
+    for (const p of m.serie) {
+      rows.push([m.codibge, m.nome, m.uf, m.regiao, p.ano, p.valor]);
+    }
+  }
+  return {
+    headers: ["codibge", "municipio", "uf", "regiao", "ano", "valor"],
+    rows,
+  };
+}
+
 /** Aplica uma mascara de formato no estilo Python ("{:.1f}%", "{:.2f}") a um numero. */
 export function formatValor(
   valor: number | null | undefined,

@@ -68,6 +68,10 @@ const BOTTOM_15_RAW: Municipality[] = [
 // Best-of-worst first so index 0 = position 5556; worst last.
 export const BOTTOM_15: Municipality[] = [...BOTTOM_15_RAW].reverse();
 
+// Únicos municípios com perfil completo (sub-scores + série histórica) no
+// mock atual — universo de onde o comparador pode selecionar.
+export const ALL_MOCK_MUNICIPIOS: Municipality[] = [...TOP_15, ...BOTTOM_15];
+
 export const NATIONAL_MEAN = 42.8;
 export const NATIONAL_STDDEV = 8.4;
 export const YEARS = [2018, 2019, 2020, 2021, 2022, 2023] as const;

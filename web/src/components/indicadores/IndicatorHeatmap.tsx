@@ -38,6 +38,16 @@ export function IndicatorHeatmap({
     return byUf;
   }, [ufs, ufsSeries]);
 
+  // Um ano só entra como coluna se pelo menos uma UF tiver dado nele —
+  // caso contrário o ano não fez parte da análise deste indicador (ex.:
+  // apgar_adequado só apura 2008 e 2023; proporcao_parto_vaginal_profissional
+  // só a partir de 2013). Isso é diferente de uma UF sem dado num ano que
+  // foi analisado, que continua aparecendo em cinza.
+  const anosAnalisados = useMemo(
+    () => anos.filter((ano) => ufs.some((uf) => grid[uf]?.[ano] !== undefined)),
+    [anos, ufs, grid],
+  );
+
   const [min, max] = useMemo(() => {
     const todos = ufs.flatMap((uf) =>
       (ufsSeries[uf] ?? []).map((p) => p.valor),
@@ -50,16 +60,16 @@ export function IndicatorHeatmap({
       <div
         className="grid gap-[2px] text-[10px]"
         style={{
-          gridTemplateColumns: `56px repeat(${anos.length}, minmax(28px, 1fr))`,
+          gridTemplateColumns: `56px repeat(${anosAnalisados.length}, minmax(28px, 1fr))`,
         }}
       >
         <div />
-        {anos.map((ano) => (
+        {anosAnalisados.map((ano) => (
           <div
             key={ano}
             className="text-center font-mono text-muted-foreground"
           >
-            {String(ano).slice(2)}
+            {ano}
           </div>
         ))}
         {ufs.map((uf) => (
@@ -74,7 +84,7 @@ export function IndicatorHeatmap({
             >
               {uf}
             </button>
-            {anos.map((ano) => {
+            {anosAnalisados.map((ano) => {
               const valor = grid[uf]?.[ano];
               return (
                 <div

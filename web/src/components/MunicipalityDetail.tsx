@@ -1,12 +1,63 @@
+import { useState } from "react";
 import type { Municipality } from "@/lib/ranking-data";
 import { SUB_SCORE_LABELS, YEARS } from "@/lib/ranking-data";
+import { downloadCsv } from "@/lib/csv";
+import { fetchRankingReal } from "@/lib/ranking-real";
+import {
+  COMPARADOR_MAX,
+  addToComparador,
+  removeFromComparador,
+  useComparador,
+} from "@/lib/comparador";
 
 type Props = { m: Municipality };
 
 export function MunicipalityDetail({ m }: Props) {
+  const [baixando, setBaixando] = useState(false);
   const isTop = m.rank <= 500;
   const accent = isTop ? "var(--color-brand)" : "var(--color-accent-warm)";
   const maxTrend = Math.max(...m.trend);
+
+  const comparador = useComparador();
+  const noComparador = comparador.includes(m.ibge);
+  const comparadorCheio = !noComparador && comparador.length >= COMPARADOR_MAX;
+
+  const handleToggleComparador = () => {
+    if (noComparador) {
+      removeFromComparador(m.ibge);
+      return;
+    }
+    const ok = addToComparador(m.ibge);
+    if (!ok) {
+      alert(
+        `Você pode comparar até ${COMPARADOR_MAX} municípios por vez. Remova um antes de adicionar outro.`,
+      );
+    }
+  };
+
+  const handleDownloadCsv = async () => {
+    setBaixando(true);
+    try {
+      const municipios = await fetchRankingReal();
+      downloadCsv(
+        "indicador_composto_dados_brutos.csv",
+        ["rank", "codibge", "municipio", "uf", "regiao", "indice_composto", "populacao"],
+        municipios.map((r) => [
+          r.rank,
+          r.codibge,
+          r.name,
+          r.uf,
+          r.region,
+          r.composite,
+          r.population ?? "",
+        ]),
+      );
+    } catch {
+      alert("Não foi possível carregar os dados para download. Tente novamente.");
+    } finally {
+      setBaixando(false);
+    }
+  };
 
   return (
     <div className="grid gap-6">
@@ -121,11 +172,23 @@ export function MunicipalityDetail({ m }: Props) {
         <button className="px-4 py-2 bg-foreground text-background text-xs font-bold uppercase tracking-wider hover:bg-brand-dark transition-colors">
           Ver ficha completa
         </button>
-        <button className="px-4 py-2 border border-border bg-card text-xs font-bold uppercase tracking-wider hover:bg-brand-soft transition-colors">
-          Adicionar ao comparador
+        <button
+          onClick={handleToggleComparador}
+          disabled={comparadorCheio}
+          className={`px-4 py-2 border text-xs font-bold uppercase tracking-wider transition-colors disabled:opacity-50 ${
+            noComparador
+              ? "border-brand-dark bg-brand-soft text-brand-dark hover:bg-brand-soft/70"
+              : "border-border bg-card hover:bg-brand-soft"
+          }`}
+        >
+          {noComparador ? "Remover do comparador" : "Adicionar ao comparador"}
         </button>
-        <button className="px-4 py-2 border border-border bg-card text-xs font-bold uppercase tracking-wider hover:bg-brand-soft transition-colors">
-          Baixar CSV
+        <button
+          onClick={handleDownloadCsv}
+          disabled={baixando}
+          className="px-4 py-2 border border-border bg-card text-xs font-bold uppercase tracking-wider hover:bg-brand-soft transition-colors disabled:opacity-50"
+        >
+          {baixando ? "Baixando…" : "Baixar CSV"}
         </button>
       </div>
     </div>

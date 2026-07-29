@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { downloadCsv } from "@/lib/csv";
-import { formatValor } from "@/lib/indicadores-data";
+import { formatValor, indicadorRawCsv, type IndicadorData } from "@/lib/indicadores-data";
 import { normalizeSearch } from "@/lib/search";
 import type { Direcao } from "@/lib/color-scale";
 
@@ -17,6 +17,7 @@ type Props = {
   formato: string;
   unidade: string;
   chave: string;
+  data: IndicadorData;
   selectedCodibge?: string;
   onSelectCodibge: (codibge: string) => void;
 };
@@ -31,6 +32,7 @@ export function MunicipalityRanking({
   formato,
   unidade,
   chave,
+  data,
   selectedCodibge,
   onSelectCodibge,
 }: Props) {
@@ -68,11 +70,8 @@ export function MunicipalityRanking({
   }, [ordenados, query]);
 
   const handleDownload = () => {
-    downloadCsv(
-      `${chave}_ranking_municipios.csv`,
-      ["rank", "codibge", "municipio", "uf", "valor"],
-      ordenados.map((m, i) => [i + 1, m.codibge, m.nome, m.uf, m.valor]),
-    );
+    const { headers, rows } = indicadorRawCsv(data);
+    downloadCsv(`${chave}_dados_brutos.csv`, headers, rows);
   };
 
   return (
@@ -179,7 +178,7 @@ export function MunicipalityRanking({
           disabled={!total}
           className="w-full px-3 py-2 border border-border font-mono text-[10px] uppercase tracking-widest hover:bg-brand-soft transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          Baixar ranking completo (CSV)
+          Baixar CSV
         </button>
       </div>
     </div>

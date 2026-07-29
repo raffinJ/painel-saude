@@ -416,6 +416,7 @@ function IndicadoresPage() {
                   label={labelAtual}
                   chave={data.chave}
                   formato={data.formato}
+                  data={data}
                 />
               ) : (
                 <IndicatorTable
@@ -423,6 +424,7 @@ function IndicadoresPage() {
                   label={labelAtual}
                   chave={data.chave}
                   formato={data.formato}
+                  data={data}
                 />
               )}
             </section>

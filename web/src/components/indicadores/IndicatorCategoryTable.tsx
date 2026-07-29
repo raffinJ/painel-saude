@@ -1,6 +1,11 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { downloadCsv } from "@/lib/csv";
-import { formatValor, type SeriePonto } from "@/lib/indicadores-data";
+import {
+  formatValor,
+  indicadorRawCsv,
+  type IndicadorDataCategorias,
+  type SeriePonto,
+} from "@/lib/indicadores-data";
 
 type Props = {
   seriesPorCategoria: Record<string, SeriePonto[]>;
@@ -9,6 +14,7 @@ type Props = {
   label: string;
   chave: string;
   formato: string;
+  data: IndicadorDataCategorias;
 };
 
 export function IndicatorCategoryTable({
@@ -18,6 +24,7 @@ export function IndicatorCategoryTable({
   label,
   chave,
   formato,
+  data,
 }: Props) {
   const anosOrdenados = [...anos].sort((a, b) => b - a);
 
@@ -32,14 +39,11 @@ export function IndicatorCategoryTable({
           {label} · todas as categorias por ano
         </span>
         <button
-          onClick={() =>
-            downloadCsv(
-              `${chave}_${label.toLowerCase().replace(/\s+/g, "-")}_categorias.csv`,
-              ["ano", ...categorias],
-              anosOrdenados.map((ano) => [ano, ...categorias.map((c) => valorEm(c, ano) ?? "")]),
-            )
-          }
-          disabled={!temAlgumDado}
+          onClick={() => {
+            const { headers, rows } = indicadorRawCsv(data);
+            downloadCsv(`${chave}_dados_brutos.csv`, headers, rows);
+          }}
+          disabled={!data.municipios.length}
           className="px-3 py-1.5 border border-border font-mono text-[10px] uppercase tracking-widest hover:bg-brand-soft transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
           Baixar CSV
