@@ -12,6 +12,23 @@ export type RankingMunicipioReal = {
   population: number | null;
 };
 
+// Entrada sintética para representar o Brasil (agregado nacional) nos
+// mesmos seletores/listas que usam RankingMunicipioReal — ex.: o
+// comparador de municípios, que permite comparar qualquer indicador
+// contra o valor nacional. Não existe no dataset real (que é só
+// município); tratado como caso especial onde é consumido.
+export const BRASIL_CODIBGE = "BR";
+
+export const BRASIL_ENTRY: RankingMunicipioReal = {
+  codibge: BRASIL_CODIBGE,
+  name: "Brasil",
+  uf: "Nacional",
+  region: "Agregado nacional",
+  rank: 0,
+  composite: 0,
+  population: null,
+};
+
 let cache: Promise<RankingMunicipioReal[]> | null = null;
 
 export function fetchRankingReal(): Promise<RankingMunicipioReal[]> {

@@ -1,11 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { MunicipioMultiSelect } from "@/components/comparar/MunicipioMultiSelect";
 import { IndicatorMultiSelect } from "@/components/comparar/IndicatorMultiSelect";
 import { IndicatorComparisonBlock } from "@/components/comparar/IndicatorComparisonBlock";
 import {
+  BRASIL_CODIBGE,
+  BRASIL_ENTRY,
   fetchRankingReal,
   type RankingMunicipioReal,
 } from "@/lib/ranking-real";
@@ -62,9 +64,21 @@ function ComparadorPage() {
     };
   }, []);
 
+  // Brasil entra como mais uma opção selecionável, ao lado dos municípios
+  // reais — permite comparar qualquer indicador contra o agregado nacional.
+  const municipiosDisponiveis = useMemo(
+    () => [BRASIL_ENTRY, ...todosMunicipios],
+    [todosMunicipios],
+  );
+
   const municipios = codibges
-    .map((codibge) => todosMunicipios.find((m) => m.codibge === codibge))
+    .map((codibge) => municipiosDisponiveis.find((m) => m.codibge === codibge))
     .filter((m): m is RankingMunicipioReal => m !== undefined);
+
+  // Códigos salvos (ex.: de uma sessão antiga) que não existem na base atual
+  // — o usuário ainda consegue removê-los pelos chips do seletor acima,
+  // mas não entram na comparação porque não há dado nenhum para eles.
+  const naoEncontrados = codibges.length - municipios.length;
 
   const toggleIndicador = (chave: string) => {
     setChavesSelecionadas((atual) =>
@@ -97,12 +111,25 @@ function ComparadorPage() {
                 Municípios
               </div>
               <MunicipioMultiSelect
-                municipios={todosMunicipios}
+                municipios={municipiosDisponiveis}
                 selected={codibges}
                 onAdd={(codibge) => addToComparador(codibge)}
                 onRemove={removeFromComparador}
                 max={COMPARADOR_MAX}
               />
+              {naoEncontrados > 0 && (
+                <p className="mt-2 text-xs text-muted-foreground">
+                  {naoEncontrados === 1
+                    ? "1 município salvo anteriormente"
+                    : `${naoEncontrados} municípios salvos anteriormente`}{" "}
+                  não{" "}
+                  {naoEncontrados === 1
+                    ? "foi encontrado"
+                    : "foram encontrados"}{" "}
+                  na base atual — remova{naoEncontrados === 1 ? "-o" : "-os"}{" "}
+                  pelo × acima e busque de novo.
+                </p>
+              )}
             </div>
             <div>
               <div className="mb-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
@@ -149,16 +176,24 @@ function ComparadorPage() {
                     {m.name}
                   </div>
                   <div className="text-sm opacity-80">{m.uf}</div>
-                  <div className="mt-4 font-mono text-[10px] uppercase tracking-widest opacity-70">
-                    Indicador Composto · 2023
-                  </div>
-                  <div className="font-display text-4xl leading-none tabular-nums">
-                    {m.composite.toFixed(1)}
-                  </div>
-                  <div className="font-mono text-[10px] uppercase tracking-widest opacity-70 mt-1">
-                    {m.rank}º de{" "}
-                    {todosMunicipios.length.toLocaleString("pt-BR")}
-                  </div>
+                  {m.codibge === BRASIL_CODIBGE ? (
+                    <div className="mt-4 font-mono text-[10px] uppercase tracking-widest opacity-70">
+                      Agregado de todos os municípios
+                    </div>
+                  ) : (
+                    <>
+                      <div className="mt-4 font-mono text-[10px] uppercase tracking-widest opacity-70">
+                        Indicador Composto · 2023
+                      </div>
+                      <div className="font-display text-4xl leading-none tabular-nums">
+                        {m.composite.toFixed(1)}
+                      </div>
+                      <div className="font-mono text-[10px] uppercase tracking-widest opacity-70 mt-1">
+                        {m.rank}º de{" "}
+                        {todosMunicipios.length.toLocaleString("pt-BR")}
+                      </div>
+                    </>
+                  )}
                 </div>
               ))}
             </div>

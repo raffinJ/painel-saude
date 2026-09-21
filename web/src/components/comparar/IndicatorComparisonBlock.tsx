@@ -12,6 +12,7 @@ import {
   type IndicadorData,
   type SeriePonto,
 } from "@/lib/indicadores-data";
+import { BRASIL_CODIBGE } from "@/lib/ranking-real";
 
 type MunicipioSelecionado = { codibge: string; nome: string; uf: string };
 
@@ -27,6 +28,13 @@ function serieDoMunicipio(
   codibge: string,
   categoria: string | null,
 ): SeriePonto[] {
+  if (codibge === BRASIL_CODIBGE) {
+    if (data.multi_categoria) {
+      const cat = categoria ?? data.categorias[0];
+      return data.brasil[cat] ?? [];
+    }
+    return data.brasil;
+  }
   if (data.multi_categoria) {
     const m = data.municipios.find((mm) => mm.codibge === codibge);
     const cat = categoria ?? data.categorias[0];

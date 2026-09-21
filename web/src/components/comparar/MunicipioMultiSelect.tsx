@@ -31,9 +31,24 @@ export function MunicipioMultiSelect({
       .slice(0, 8);
   }, [municipios, query]);
 
-  const selecionados = selected
-    .map((codibge) => municipios.find((m) => m.codibge === codibge))
-    .filter((m): m is RankingMunicipioReal => m !== undefined);
+  // Sempre um chip por código salvo, mesmo quando o município não é
+  // encontrado na base carregada (ex.: código de uma versão antiga do
+  // comparador) — senão esse código continua ocupando uma vaga do limite
+  // sem nenhuma forma de removê-lo, travando a busca.
+  const selecionados = selected.map((codibge) => {
+    const encontrado = municipios.find((m) => m.codibge === codibge);
+    return (
+      encontrado ?? {
+        codibge,
+        name: `Município ${codibge}`,
+        uf: "",
+        region: "",
+        rank: 0,
+        composite: 0,
+        population: null,
+      }
+    );
+  });
 
   return (
     <div>
