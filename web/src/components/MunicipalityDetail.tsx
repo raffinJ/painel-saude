@@ -169,9 +169,6 @@ export function MunicipalityDetail({ m }: Props) {
 
       {/* Actions */}
       <div className="flex flex-wrap gap-3">
-        <button className="px-4 py-2 bg-foreground text-background text-xs font-bold uppercase tracking-wider hover:bg-brand-dark transition-colors">
-          Ver ficha completa
-        </button>
         <button
           onClick={handleToggleComparador}
           disabled={comparadorCheio}

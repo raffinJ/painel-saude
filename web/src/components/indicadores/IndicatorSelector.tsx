@@ -9,8 +9,13 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { normalizeSearch } from "@/lib/search";
 import type { IndicadorMeta } from "@/lib/indicadores-data";
 
 type Props = {
@@ -18,13 +23,6 @@ type Props = {
   value: string;
   onChange: (chave: string) => void;
 };
-
-function normalize(s: string): string {
-  return s
-    .normalize("NFD")
-    .replace(/\p{Diacritic}/gu, "")
-    .toLowerCase();
-}
 
 export function IndicatorSelector({ indicadores, value, onChange }: Props) {
   const [open, setOpen] = useState(false);
@@ -58,7 +56,7 @@ export function IndicatorSelector({ indicadores, value, onChange }: Props) {
       >
         <Command
           filter={(value, search) =>
-            normalize(value).includes(normalize(search)) ? 1 : 0
+            normalizeSearch(value).includes(normalizeSearch(search)) ? 1 : 0
           }
         >
           <CommandInput placeholder="Buscar indicador por palavra-chave…" />

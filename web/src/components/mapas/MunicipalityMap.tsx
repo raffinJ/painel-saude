@@ -45,8 +45,12 @@ export function MunicipalityMap({
 }: Props) {
   const [topology, setTopology] = useState<Topology | null>(null);
   const [hoverCodibge, setHoverCodibge] = useState<string | null>(null);
+  const [hoverPos, setHoverPos] = useState<{ x: number; y: number } | null>(
+    null,
+  );
   const [transform, setTransform] = useState<Transform>({ k: 1, x: 0, y: 0 });
   const svgRef = useRef<SVGSVGElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const dragState = useRef<{
     lastX: number;
     lastY: number;
@@ -192,6 +196,9 @@ export function MunicipalityMap({
     const target = e.target as SVGElement;
     const codibge = target.dataset.codibge;
     setHoverCodibge(codibge ?? null);
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (rect)
+      setHoverPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
   };
 
   const handleClick = (e: React.MouseEvent<SVGSVGElement>) => {
@@ -212,24 +219,44 @@ export function MunicipalityMap({
     );
   }
 
-  const focusCodibge = hoverCodibge ?? selectedCodibge;
-  const focusInfo = focusCodibge ? infoPorCodibge[focusCodibge] : undefined;
-  const focusValor = focusCodibge ? valoresPorCodibge[focusCodibge] : undefined;
-  const focusD = focusCodibge ? dPorCodibge.get(focusCodibge) : undefined;
+  // Contorno de destaque: município sob o cursor, ou o selecionado (ex.: via
+  // busca/ranking) quando não há hover ativo no mapa.
+  const highlightCodibge = hoverCodibge ?? selectedCodibge;
+  const highlightD = highlightCodibge
+    ? dPorCodibge.get(highlightCodibge)
+    : undefined;
+
+  // Tooltip no cursor, só enquanto o mouse está sobre um município.
+  const hoverInfo = hoverCodibge ? infoPorCodibge[hoverCodibge] : undefined;
+  const hoverValor = hoverCodibge ? valoresPorCodibge[hoverCodibge] : undefined;
+
+  // Painel fixo: mostra o município selecionado (via busca/ranking) quando
+  // não há hover ativo, para não duplicar a tooltip do cursor.
+  const selectedInfo =
+    !hoverCodibge && selectedCodibge
+      ? infoPorCodibge[selectedCodibge]
+      : undefined;
+  const selectedValor =
+    !hoverCodibge && selectedCodibge
+      ? valoresPorCodibge[selectedCodibge]
+      : undefined;
 
   const piorEhMenor = direcao === "menor_melhor";
   const legendaEsquerda = direcao === "neutro" ? min : piorEhMenor ? max : min;
   const legendaDireita = direcao === "neutro" ? max : piorEhMenor ? min : max;
 
   return (
-    <div className="relative select-none">
+    <div className="relative select-none" ref={containerRef}>
       <svg
         ref={svgRef}
         viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
         className="h-auto w-full cursor-grab active:cursor-grabbing touch-none"
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMoveOver}
-        onMouseLeave={() => setHoverCodibge(null)}
+        onMouseLeave={() => {
+          setHoverCodibge(null);
+          setHoverPos(null);
+        }}
         onClick={handleClick}
       >
         <g
@@ -244,9 +271,9 @@ export function MunicipalityMap({
               stroke="none"
             />
           ))}
-          {focusD && (
+          {highlightD && (
             <path
-              d={focusD}
+              d={highlightD}
               fill="none"
               stroke="var(--color-foreground)"
               strokeWidth={1.5 / transform.k}
@@ -255,6 +282,19 @@ export function MunicipalityMap({
           )}
         </g>
       </svg>
+
+      {hoverCodibge && hoverPos && hoverInfo && (
+        <div
+          className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-[calc(100%+10px)] rounded-md border border-border bg-card px-2.5 py-1.5 text-xs shadow-md"
+          style={{ left: hoverPos.x, top: hoverPos.y }}
+        >
+          <div className="font-medium">
+            {hoverInfo.nome}{" "}
+            <span className="text-muted-foreground">· {hoverInfo.uf}</span>
+          </div>
+          <div className="tabular-nums">{formatValor(hoverValor, formato)}</div>
+        </div>
+      )}
 
       <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between p-2">
         <div className="pointer-events-auto flex gap-1">
@@ -284,14 +324,14 @@ export function MunicipalityMap({
           </button>
         </div>
 
-        {focusCodibge && focusInfo && (
+        {selectedInfo && (
           <div className="rounded-md border border-border bg-card px-2.5 py-1.5 text-xs shadow-md">
             <div className="font-medium">
-              {focusInfo.nome}{" "}
-              <span className="text-muted-foreground">· {focusInfo.uf}</span>
+              {selectedInfo.nome}{" "}
+              <span className="text-muted-foreground">· {selectedInfo.uf}</span>
             </div>
             <div className="tabular-nums">
-              {formatValor(focusValor, formato)}
+              {formatValor(selectedValor, formato)}
             </div>
           </div>
         )}

@@ -45,16 +45,21 @@ export function extentOf(valores: number[]): [number, number] {
 
 /** Gradiente CSS (linear-gradient, sem "linear-gradient(...)" em volta) do
  * pior ao melhor valor do recorte — usado na legenda dos mapas por UF e
- * por município. */
+ * por município. Percorre de piorValor (0%) a melhorValor (100%): para
+ * indicadores "menor_melhor" isso é max → min, não min → max, senão o
+ * gradiente fica invertido em relação aos rótulos "Pior"/"Melhor" que os
+ * mapas mostram nas pontas. */
 export function legendGradient(
   min: number,
   max: number,
   direcao: Direcao,
 ): string {
+  const piorValor = direcao === "menor_melhor" ? max : min;
+  const melhorValor = direcao === "menor_melhor" ? min : max;
   const steps = [0, 0.25, 0.5, 0.75, 1];
   return steps
     .map((t) => {
-      const valor = min + t * (max - min);
+      const valor = piorValor + t * (melhorValor - piorValor);
       return `${colorForValue(valor, min, max, direcao)} ${Math.round(t * 100)}%`;
     })
     .join(", ");
