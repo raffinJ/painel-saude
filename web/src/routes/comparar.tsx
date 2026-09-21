@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { MunicipioMultiSelect } from "@/components/comparar/MunicipioMultiSelect";
@@ -14,6 +14,7 @@ import {
 import {
   COMPARADOR_MAX,
   addToComparador,
+  getComparador,
   removeFromComparador,
   useComparador,
 } from "@/lib/comparador";
@@ -47,6 +48,21 @@ function ComparadorPage() {
     fetchRankingReal()
       .then(setTodosMunicipios)
       .catch(() => setTodosMunicipios([]));
+  }, []);
+
+  // Brasil entra pré-selecionado quando o comparador está vazio (primeira
+  // visita, ou depois de remover todo mundo) — só uma vez por montagem,
+  // pra não voltar sozinho toda vez que o usuário remove ele de propósito
+  // depois de já ter outros municípios escolhidos. Lê o localStorage direto
+  // (em vez do `codibges` reativo) porque, com SSR, o primeiro render usa o
+  // snapshot do servidor (sempre vazio) antes de sincronizar com o valor
+  // real do navegador — se o efeito confiasse em `codibges`, rodaria cedo
+  // demais e semearia o Brasil mesmo já havendo municípios salvos.
+  const jaSemeouBrasil = useRef(false);
+  useEffect(() => {
+    if (jaSemeouBrasil.current) return;
+    jaSemeouBrasil.current = true;
+    if (getComparador().length === 0) addToComparador(BRASIL_CODIBGE);
   }, []);
 
   useEffect(() => {
