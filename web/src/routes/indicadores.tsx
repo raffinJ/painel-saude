@@ -107,15 +107,6 @@ function IndicadoresPage() {
       .sort();
   }, [data, scope, ufToRegiao]);
 
-  const municipiosDaUf = useMemo(() => {
-    const uf =
-      scope.nivel === "uf" || scope.nivel === "municipio" ? scope.uf : null;
-    if (!data || !uf) return [];
-    return data.municipios
-      .filter((m) => m.uf === uf)
-      .sort((a, b) => a.nome.localeCompare(b.nome));
-  }, [data, scope]);
-
   // Ufs reduzidas a um valor único (categoria selecionada, se houver) —
   // formato que o mapa e o heatmap entendem independente de o indicador
   // ter categoria ou não.
@@ -182,7 +173,8 @@ function IndicadoresPage() {
               </div>
             )}
 
-            {/* Drill-down Brasil > Região > UF > Município */}
+            {/* Drill-down Brasil > Região > UF (o recorte por Município fica
+            para a futura aba dedicada a municípios) */}
             <section className="mt-8 flex flex-wrap items-center gap-2 font-mono text-[10px] uppercase tracking-widest">
               <button
                 onClick={() => setScope({ nivel: "brasil" })}
@@ -243,35 +235,6 @@ function IndicadoresPage() {
                 ))}
               </select>
 
-              <span className="text-muted-foreground">›</span>
-              <select
-                value={scope.nivel === "municipio" ? scope.codibge : ""}
-                onChange={(e) => {
-                  const m = municipiosDaUf.find(
-                    (mm) => mm.codibge === e.target.value,
-                  );
-                  if (m)
-                    setScope({
-                      nivel: "municipio",
-                      codibge: m.codibge,
-                      nome: m.nome,
-                      uf: m.uf,
-                    });
-                }}
-                disabled={!municipiosDaUf.length}
-                className="border border-border bg-card px-2 py-1.5 disabled:opacity-40"
-              >
-                <option value="">
-                  Município
-                  {municipiosDaUf.length ? ` (${municipiosDaUf.length})` : ""}
-                </option>
-                {municipiosDaUf.map((m) => (
-                  <option key={m.codibge} value={m.codibge}>
-                    {m.nome}
-                  </option>
-                ))}
-              </select>
-
               <span className="ml-auto flex items-center gap-2 normal-case">
                 {data.multi_categoria && (
                   <>
@@ -310,19 +273,22 @@ function IndicadoresPage() {
 
             {/* Valor atual + line chart */}
             <section className="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-              <div className="lg:col-span-4">
-                <span className="font-mono text-[10px] uppercase tracking-widest text-brand-dark">
-                  {labelAtual}
+              <div className="lg:col-span-4 border-l-4 border-brand bg-brand-soft/60 px-5 py-5">
+                <div className="font-mono text-[10px] uppercase tracking-widest text-brand-dark">
+                  {labelAtual} · {ano}
                   {data.multi_categoria && categoria ? ` · ${categoria}` : ""}
-                </span>
-                <div className="font-display text-5xl mt-2 tabular-nums">
+                </div>
+                <div className="font-display text-6xl mt-3 tabular-nums text-brand-dark">
                   {formatValor(
                     serieAtual.find((p) => p.ano === ano)?.valor,
                     data.formato,
                   )}
                 </div>
-                <div className="text-sm text-muted-foreground mt-1">
-                  em {ano} · {data.unidade} ·{" "}
+                <div className="mt-3 text-base font-semibold leading-snug text-foreground">
+                  {data.nome}
+                </div>
+                <div className="mt-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                  {data.unidade} ·{" "}
                   {data.direcao === "maior_melhor"
                     ? "maior é melhor"
                     : data.direcao === "menor_melhor"

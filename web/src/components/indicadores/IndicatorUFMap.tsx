@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { geoMercator, geoPath } from "d3-geo";
 import {
   colorForValue,
@@ -37,6 +37,14 @@ export function IndicatorUFMap({
 }: Props) {
   const [geo, setGeo] = useState<UfFeatureCollection | null>(null);
   const [hoverUf, setHoverUf] = useState<string | null>(null);
+  const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  function handleMouseMove(e: React.MouseEvent) {
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    setPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -83,7 +91,7 @@ export function IndicatorUFMap({
   const melhorValor = direcao === "neutro" ? max : piorEhMenor ? min : max;
 
   return (
-    <div className="relative">
+    <div className="relative" ref={containerRef} onMouseMove={handleMouseMove}>
       <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} className="h-auto w-full">
         {geo.features.map((f) => {
           const uf = f.properties.sigla;
@@ -113,8 +121,11 @@ export function IndicatorUFMap({
           );
         })}
       </svg>
-      {hoverUf && (
-        <div className="pointer-events-none absolute left-2 top-2 rounded-md border border-border bg-card px-2.5 py-1.5 text-xs shadow-md">
+      {hoverUf && pos && (
+        <div
+          className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-[calc(100%+10px)] rounded-md border border-border bg-card px-2.5 py-1.5 text-xs shadow-md"
+          style={{ left: pos.x, top: pos.y }}
+        >
           <div className="font-mono font-medium">{hoverUf}</div>
           <div className="tabular-nums">
             {formatValor(valoresPorUf[hoverUf], formato)}

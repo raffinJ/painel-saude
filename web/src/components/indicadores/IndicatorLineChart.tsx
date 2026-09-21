@@ -1,10 +1,5 @@
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-  type ChartConfig,
-} from "@/components/ui/chart";
+import { ChartContainer, ChartTooltip, type ChartConfig } from "@/components/ui/chart";
 import { formatValor, type SeriePonto } from "@/lib/indicadores-data";
 
 type Props = {
@@ -52,15 +47,15 @@ export function IndicatorLineChart({ serie, label, formato, unidade }: Props) {
             tickFormatter={(v) => formatValor(v, formato)}
           />
           <ChartTooltip
-            content={
-              <ChartTooltipContent
-                labelFormatter={(v) => `Ano ${v}`}
-                formatter={(value) => [
-                  formatValor(Number(value), formato),
-                  label,
-                ]}
-              />
-            }
+            content={({ active, payload }) => {
+              if (!active || !payload?.length) return null;
+              return (
+                <div className="rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs font-mono font-medium uppercase tracking-wide tabular-nums shadow-xl">
+                  {formatValor(Number(payload[0]?.value), formato)}{" "}
+                  {unidade.toUpperCase()}
+                </div>
+              );
+            }}
           />
           <Line
             dataKey="valor"

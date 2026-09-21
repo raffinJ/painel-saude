@@ -1,4 +1,4 @@
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useMemo, useRef, useState } from "react";
 import { colorForValue, extentOf, type Direcao } from "@/lib/color-scale";
 import { formatValor, type SeriePonto } from "@/lib/indicadores-data";
 
@@ -26,6 +26,14 @@ export function IndicatorHeatmap({
     ano: number;
     valor?: number;
   } | null>(null);
+  const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
+
+  function handleMouseMove(e: React.MouseEvent) {
+    const rect = gridRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    setPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+  }
 
   const ufs = useMemo(() => Object.keys(ufsSeries).sort(), [ufsSeries]);
 
@@ -58,7 +66,9 @@ export function IndicatorHeatmap({
   return (
     <div className="overflow-x-auto">
       <div
-        className="grid gap-[2px] text-[10px]"
+        ref={gridRef}
+        onMouseMove={handleMouseMove}
+        className="relative grid gap-[2px] text-[10px]"
         style={{
           gridTemplateColumns: `56px repeat(${anosAnalisados.length}, minmax(28px, 1fr))`,
         }}
@@ -104,13 +114,23 @@ export function IndicatorHeatmap({
             })}
           </Fragment>
         ))}
+
+        {hover && pos && (
+          <div
+            className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-[calc(100%+10px)] rounded-md border border-border bg-card px-2.5 py-1.5 text-xs shadow-md"
+            style={{ left: pos.x, top: pos.y }}
+          >
+            <div className="font-mono font-medium">
+              {hover.uf} · {hover.ano}
+            </div>
+            <div className="tabular-nums">
+              {formatValor(hover.valor, formato)}
+            </div>
+          </div>
+        )}
       </div>
       <div className="mt-2 h-5 flex items-center justify-between text-xs text-muted-foreground">
-        <span>
-          {hover
-            ? `${hover.uf} · ${hover.ano} · ${formatValor(hover.valor, formato)}`
-            : "Passe o mouse sobre uma célula para ver o valor"}
-        </span>
+        <span>Passe o mouse sobre uma célula para ver o valor</span>
         <span className="font-mono text-[10px] uppercase tracking-widest">
           {unidade}
         </span>
