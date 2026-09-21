@@ -1,8 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Municipality } from "@/lib/ranking-data";
 import { SUB_SCORE_LABELS, YEARS } from "@/lib/ranking-data";
 import { downloadCsv } from "@/lib/csv";
-import { fetchRankingReal } from "@/lib/ranking-real";
+import {
+  fetchRankingReal,
+  type RankingMunicipioReal,
+} from "@/lib/ranking-real";
+import { normalizeSearch } from "@/lib/search";
 import {
   COMPARADOR_MAX,
   addToComparador,
@@ -18,16 +22,45 @@ export function MunicipalityDetail({ m }: Props) {
   const accent = isTop ? "var(--color-brand)" : "var(--color-accent-warm)";
   const maxTrend = Math.max(...m.trend);
 
+  // O ibge do mock (usado só para a vitrine da roleta) não corresponde ao
+  // codibge da base real — o comparador (e todo o resto do site) usa a base
+  // real, então resolvemos o codibge correto por nome+UF antes de
+  // adicionar/remover, senão o município entra no comparador com um código
+  // que não bate com nada e aparece só como "Município <código>".
+  const [reais, setReais] = useState<RankingMunicipioReal[]>([]);
+  useEffect(() => {
+    let cancelled = false;
+    fetchRankingReal()
+      .then((r) => {
+        if (!cancelled) setReais(r);
+      })
+      .catch(() => {
+        if (!cancelled) setReais([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+  const real = reais.find(
+    (r) => normalizeSearch(r.name) === normalizeSearch(m.name) && r.uf === m.uf,
+  );
+
   const comparador = useComparador();
-  const noComparador = comparador.includes(m.ibge);
+  const noComparador = real ? comparador.includes(real.codibge) : false;
   const comparadorCheio = !noComparador && comparador.length >= COMPARADOR_MAX;
 
   const handleToggleComparador = () => {
-    if (noComparador) {
-      removeFromComparador(m.ibge);
+    if (!real) {
+      alert(
+        "Não foi possível localizar este município na base de dados. Tente novamente em instantes.",
+      );
       return;
     }
-    const ok = addToComparador(m.ibge);
+    if (noComparador) {
+      removeFromComparador(real.codibge);
+      return;
+    }
+    const ok = addToComparador(real.codibge);
     if (!ok) {
       alert(
         `Você pode comparar até ${COMPARADOR_MAX} municípios por vez. Remova um antes de adicionar outro.`,
@@ -75,7 +108,8 @@ export function MunicipalityDetail({ m }: Props) {
               {m.name}
             </h2>
             <div className="mt-1 text-sm opacity-80">
-              {m.uf} · {m.population.toLocaleString("pt-BR")} hab · IBGE {m.ibge}
+              {m.uf} · {m.population.toLocaleString("pt-BR")} hab · IBGE{" "}
+              {real?.codibge ?? m.ibge}
             </div>
           </div>
           <div className="text-right">
