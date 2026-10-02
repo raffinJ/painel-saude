@@ -14,7 +14,7 @@ export function SiteHeader() {
             alt="CuidadoPreNeo"
             className="h-10 w-auto object-contain"
           />
-          <div className="hidden md:flex flex-col leading-none">
+          <div className="hidden lg:flex flex-col leading-none">
             <span className="font-display italic text-xl text-brand-dark">
               CuidadoPreNeo
             </span>
@@ -23,7 +23,7 @@ export function SiteHeader() {
             </span>
           </div>
         </div>
-        <nav className="hidden md:flex items-center gap-7 font-mono text-[11px] uppercase tracking-widest">
+        <nav className="hidden md:flex items-center gap-4 lg:gap-7 font-mono text-[11px] uppercase tracking-widest whitespace-nowrap">
           <Link
             to="/"
             className="text-foreground hover:text-brand-dark transition-colors [&.active]:text-brand-dark"
@@ -35,6 +35,12 @@ export function SiteHeader() {
             className="text-muted-foreground hover:text-foreground transition-colors [&.active]:text-brand-dark [&.active]:font-semibold"
           >
             Indicadores
+          </Link>
+          <Link
+            to="/custos"
+            className="text-muted-foreground hover:text-foreground transition-colors [&.active]:text-brand-dark [&.active]:font-semibold"
+          >
+            Custos hospitalares
           </Link>
           <Link
             to="/mapas-municipais"

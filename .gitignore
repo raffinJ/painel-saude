@@ -20,3 +20,6 @@ dist-ssr/
 *.local
 .wrangler/
 .dev.vars
+
+# cubo neonatal por CID completo (23 MB; regenerado por scripts/custos_sihsus.R)
+data/custos/cubo_neonatal_cid_completo.csv

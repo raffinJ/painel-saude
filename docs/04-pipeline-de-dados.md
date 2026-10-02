@@ -149,3 +149,66 @@ usava via URL). Foi simplificado de 3,4 MB para ~120 KB com
 brazil-uf.geojson -simplify 5% -o brazil-uf.geojson force`) — se precisar
 regenerar (ex.: trocar a fonte), rodar essa mesma simplificação antes de
 commitar, senão o mapa fica pesado.
+
+## 4.9 Aba Custos hospitalares (R + SIH/SUS)
+
+Reproduz a metodologia do artigo *Healthcare Costs and Main Characteristics of
+Childbirth and Neonatal Inpatient Care From the Brazilian Public Health System
+Perspective* (Value Health Reg Issues 2025;50:101161) direto dos microdados do
+SIH/SUS. Este pipeline é independente do Python e usa **R** (`read.dbc`,
+`data.table`, `jsonlite`). Os scripts originais do artigo estão em
+<https://github.com/raffinJ/childbirth_neonatal_healthcare_costs_article>.
+
+```bash
+# 1. Lê os 3.888 arquivos RD*.dbc (27 UF x 12 meses x 12 anos) e gera o cubo.
+#    ~10-12 min com 8 núcleos; precisa dos .dbc em disco (~10 GB).
+Rscript scripts/custos_sihsus.R "/Volumes/HD JULIA/TabWin/SIH/Dados" data/custos
+
+# 2. Converte o cubo em JSON para o site.
+Rscript scripts/export_custos_frontend.R
+```
+
+| Etapa | Saída | Observação |
+|---|---|---|
+| 1 | `data/custos/cubo_parto.csv` | ano × UF × via de parto × UTI, com **somas** de custos, dias e óbitos |
+| 1 | `data/custos/cubo_neonatal_cid_completo.csv` | ano × UF × CID × UTI (23 MB, **não versionado**) |
+| 2 | `web/public/data/custos/custos.json` | cubo de partos + cubo neonatal com os 30 CIDs de maior custo e "Outros" (~1,7 MB) |
+
+**Recortes** (iguais ao artigo): *parto* = `PROC_REA` ∈ {0310010039, 0310010047,
+0310010055, 0411010026, 0411010034, 0411010042}; *neonatal* = idade 0–27 dias
+(`COD_IDADE` 0/1, ou 2 com `IDADE ≤ 27`), excluindo os registros de parto.
+**Custo** = `VAL_TOT`, corrigido pelo IPCA para dez/2023 (fatores do artigo);
+Int$ = R$ ÷ 2,44 (PPC 2023). **UTI** = `MARCA_UTI != "00"`; o custo de UTI
+(`VAL_UTI`) só é contado nessas AIHs (~R$ 86 mi de `VAL_UTI` em AIHs sem marca de
+UTI ficam apenas no `VAL_TOT`, como no artigo). A UF é a do estabelecimento
+(`MUNIC_MOV`).
+
+**Por que um "cubo" de somas?** Médias e desvios-padrão de qualquer recorte
+escolhido no site saem de `n`, `Σx` e `Σx²`, sem precisar de microdados no
+navegador. O site só soma linhas do cubo (`web/src/lib/custos-data.ts`).
+
+**Validação** (o script imprime ao final; valores do artigo entre parênteses):
+
+| | Reproduzido | Artigo |
+|---|---|---|
+| Internações de parto | 23.135.767 | 23.135.767 |
+| Partos vaginais | 13.165.422 | 13.165.422 |
+| Partos com UTI | 89.248 | 89.248 |
+| Custo total de parto (R$) | 22.894.711.855 | 22.894.711.855 |
+| Internações neonatais | 3.834.791 | 3.835.128 (−0,009%) |
+| Custo total neonatal (R$) | 14.689.019.175 | 14.689.319.222 |
+| Custo de UTI neonatal (R$) | 9.571.225.234 | 9.571.225.234 |
+| Mortalidade intra-hosp. materna / neonatal | 29,7 /100 mil · 43,3 /mil | 29,7 · 43,2 |
+
+A pequena diferença no neonatal (337 AIHs) vem da extração original no TabWin,
+que não temos mais; os custos, médias, DPs e o top-20 de diagnósticos coincidem.
+
+**Denominadores por 1.000 nascidos vivos.** Dois, rotulados no site:
+- *Todos os nascidos vivos* (SINASC, por UF de residência e ano, 2011–2022 = 34.264.484), somados da planilha
+  `natalidade_munic_ano.xlsx` (`/Volumes/HD JULIA/QualiPreNeo/indicadores/taxa_bruta_natalidade/`, colunas
+  `year`, `codibge`, `nv_ano`). O `export_custos_frontend.R` aceita outro caminho como 1º argumento e grava
+  `data/custos/nascidos_vivos_uf_ano.csv`. Permite filtrar por ano e UF.
+- *Nascidos vivos em estabelecimentos públicos* por região, 2011–2022, copiados do artigo
+  (`meta.nascidos_vivos_regiao`; 13,9 milhões) — só valem para o período completo e reproduzem a Tabela 2.
+  O resultado muda bastante conforme o denominador (Sul: ~2,8× o Norte com o do artigo; ~1,2× com todos os nascidos vivos).
+`[A DEFINIR]` — como o artigo filtrou "estabelecimentos públicos" (os scripts do GitHub não mostram).

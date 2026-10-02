@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CompararRouteImport } from './routes/comparar'
+import { Route as CustosRouteImport } from './routes/custos'
 import { Route as IndicadoresRouteImport } from './routes/indicadores'
 import { Route as MapasMunicipaisRouteImport } from './routes/mapas-municipais'
 import { Route as MetodologiaRouteImport } from './routes/metodologia'
@@ -23,6 +24,11 @@ const IndexRoute = IndexRouteImport.update({
 const CompararRoute = CompararRouteImport.update({
   id: '/comparar',
   path: '/comparar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CustosRoute = CustosRouteImport.update({
+  id: '/custos',
+  path: '/custos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndicadoresRoute = IndicadoresRouteImport.update({
@@ -44,6 +50,7 @@ const MetodologiaRoute = MetodologiaRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/comparar': typeof CompararRoute
+  '/custos': typeof CustosRoute
   '/indicadores': typeof IndicadoresRoute
   '/mapas-municipais': typeof MapasMunicipaisRoute
   '/metodologia': typeof MetodologiaRoute
@@ -51,6 +58,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/comparar': typeof CompararRoute
+  '/custos': typeof CustosRoute
   '/indicadores': typeof IndicadoresRoute
   '/mapas-municipais': typeof MapasMunicipaisRoute
   '/metodologia': typeof MetodologiaRoute
@@ -59,6 +67,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/comparar': typeof CompararRoute
+  '/custos': typeof CustosRoute
   '/indicadores': typeof IndicadoresRoute
   '/mapas-municipais': typeof MapasMunicipaisRoute
   '/metodologia': typeof MetodologiaRoute
@@ -66,13 +75,25 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/comparar' | '/indicadores' | '/mapas-municipais' | '/metodologia'
+    | '/'
+    | '/comparar'
+    | '/custos'
+    | '/indicadores'
+    | '/mapas-municipais'
+    | '/metodologia'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/comparar' | '/indicadores' | '/mapas-municipais' | '/metodologia'
+  to:
+    | '/'
+    | '/comparar'
+    | '/custos'
+    | '/indicadores'
+    | '/mapas-municipais'
+    | '/metodologia'
   id:
     | '__root__'
     | '/'
     | '/comparar'
+    | '/custos'
     | '/indicadores'
     | '/mapas-municipais'
     | '/metodologia'
@@ -81,6 +102,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CompararRoute: typeof CompararRoute
+  CustosRoute: typeof CustosRoute
   IndicadoresRoute: typeof IndicadoresRoute
   MapasMunicipaisRoute: typeof MapasMunicipaisRoute
   MetodologiaRoute: typeof MetodologiaRoute
@@ -100,6 +122,13 @@ declare module '@tanstack/react-router' {
       path: '/comparar'
       fullPath: '/comparar'
       preLoaderRoute: typeof CompararRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/custos': {
+      id: '/custos'
+      path: '/custos'
+      fullPath: '/custos'
+      preLoaderRoute: typeof CustosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/indicadores': {
@@ -129,6 +158,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CompararRoute: CompararRoute,
+  CustosRoute: CustosRoute,
   IndicadoresRoute: IndicadoresRoute,
   MapasMunicipaisRoute: MapasMunicipaisRoute,
   MetodologiaRoute: MetodologiaRoute,

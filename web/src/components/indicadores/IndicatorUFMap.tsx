@@ -22,6 +22,8 @@ type Props = {
   unidade: string;
   selectedUf?: string;
   onSelectUf: (uf: string) => void;
+  /** Formatador próprio (ex.: valores monetários da aba Custos); por padrão usa `formato`. */
+  formatador?: (valor: number | undefined) => string;
 };
 
 const WIDTH = 480;
@@ -34,7 +36,9 @@ export function IndicatorUFMap({
   unidade,
   selectedUf,
   onSelectUf,
+  formatador,
 }: Props) {
+  const fmt = formatador ?? ((v: number | undefined) => formatValor(v, formato));
   const [geo, setGeo] = useState<UfFeatureCollection | null>(null);
   const [hoverUf, setHoverUf] = useState<string | null>(null);
   const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
@@ -128,7 +132,7 @@ export function IndicatorUFMap({
         >
           <div className="font-mono font-medium">{hoverUf}</div>
           <div className="tabular-nums">
-            {formatValor(valoresPorUf[hoverUf], formato)}
+            {fmt(valoresPorUf[hoverUf])}
           </div>
         </div>
       )}
@@ -136,7 +140,7 @@ export function IndicatorUFMap({
       <div className="mt-3 flex items-center gap-3 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
         <span>
           {direcao === "neutro" ? "Menor" : "Pior"} ·{" "}
-          {formatValor(piorValor, formato)}
+          {fmt(piorValor)}
         </span>
         <div
           className="h-2 flex-1"
@@ -146,7 +150,7 @@ export function IndicatorUFMap({
         />
         <span>
           {direcao === "neutro" ? "Maior" : "Melhor"} ·{" "}
-          {formatValor(melhorValor, formato)}
+          {fmt(melhorValor)}
         </span>
       </div>
       <div className="mt-1 text-right font-mono text-[10px] uppercase tracking-widest text-muted-foreground">

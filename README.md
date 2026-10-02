@@ -86,12 +86,18 @@ python scripts/export_ranking_frontend.py
 
 # 6. Exportar os 26 indicadores para a aba "Indicadores" (demora ~15 min)
 python scripts/export_indicadores_frontend.py
+
+# 7. Aba "Custos hospitalares" (R; lê os .dbc do SIH/SUS, ~10 min)
+Rscript scripts/custos_sihsus.R "/caminho/para/SIH/Dados" data/custos
+Rscript scripts/export_custos_frontend.R
 ```
 
 O passo 5 grava em
 `web/public/data/ranking-composto-2023.json`; o passo 6
 grava em `web/public/data/indicadores/` (um JSON por
 indicador — ver [docs/04-pipeline-de-dados.md §4.7](docs/04-pipeline-de-dados.md#47-exportando-para-a-aba-indicadores-react)).
+O passo 7 usa R e grava `web/public/data/custos/custos.json` (ver
+[docs/04-pipeline-de-dados.md §4.9](docs/04-pipeline-de-dados.md#49-aba-custos-hospitalares-r--sihsus)).
 Depois é só
 rodar o frontend (seção 1) normalmente.
 
@@ -112,7 +118,9 @@ painel-saude/
 │   ├── build_dataset.py            # pipeline atual: gera o modelo dimensional (star schema)
 │   ├── importar_indicadores.py     # pipeline legado (ver docs/02-arquitetura.md)
 │   ├── export_ranking_frontend.py  # exporta o ranking em JSON para o frontend
-│   └── export_indicadores_frontend.py # exporta os 26 indicadores (aba Indicadores)
+│   ├── export_indicadores_frontend.py # exporta os 26 indicadores (aba Indicadores)
+│   ├── custos_sihsus.R             # SIH/SUS 2011-2022 -> cubo de custos (aba Custos hospitalares)
+│   └── export_custos_frontend.R    # cubo de custos -> JSON do frontend
 ├── data/
 │   ├── raw/                        # arquivos .xlsx originais de cada indicador (entram aqui)
 │   ├── processed/                  # saída do pipeline atual (parquet + qualipreneo.db)
