@@ -1,3 +1,4 @@
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Bar,
   BarChart,
@@ -41,6 +42,7 @@ export function CustosSerie({
   anoIni,
   anoFim,
 }: Props) {
+  const estreito = useIsMobile();
   const m = medidaPorId(medida);
   const config = {
     valor: { label: m.label, color: "var(--color-brand)" },
@@ -81,7 +83,23 @@ export function CustosSerie({
     />
   );
   const eixoX = (
-    <XAxis dataKey="ano" tickLine={false} axisLine={false} tickMargin={8} />
+    <XAxis
+      dataKey="ano"
+      tickLine={false}
+      axisLine={false}
+      tickMargin={8}
+      interval={0}
+      tick={{
+        fontSize: 11,
+        ...(estreito ? { angle: -45, textAnchor: "end" } : {}),
+      }}
+      height={estreito ? 72 : 46}
+      label={{
+        value: "Ano",
+        position: "insideBottom",
+        offset: estreito ? -4 : 0,
+      }}
+    />
   );
   const area = recortado ? (
     <ReferenceArea

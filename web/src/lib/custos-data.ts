@@ -413,10 +413,10 @@ export function fmtMedida(
 export function unidadeMedida(m: MedidaId, tipo: Tipo, moeda: Moeda): string {
   switch (m) {
     case "custo_total":
-      return `${simboloMoeda(moeda)} de 2023, soma do período`;
+      return `${simboloMoeda(moeda)} corrigidos pela inflação (IPCA, dez/2023), soma do período`;
     case "custo_medio":
     case "custo_uti_medio":
-      return `${simboloMoeda(moeda)} de 2023 por internação`;
+      return `${simboloMoeda(moeda)} corrigidos pela inflação (IPCA, dez/2023) por internação`;
     case "n":
       return "internações";
     case "pct_uti":

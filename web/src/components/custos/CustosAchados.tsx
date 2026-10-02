@@ -1,3 +1,4 @@
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useMemo } from "react";
 import { Bar, BarChart, CartesianGrid, Legend, XAxis, YAxis } from "recharts";
 import {
@@ -67,6 +68,7 @@ function Card({
 const pct = (a: number, b: number) => (b ? (100 * a) / b : 0);
 
 export function CustosAchados({ data, moeda, fm, onExplorar }: Props) {
+  const estreito = useIsMobile();
   const primeiro = data.anos[0];
   const ultimo = data.anos[data.anos.length - 1];
   const f = (tipo: Filtro["tipo"], extra: Partial<Filtro> = {}): Filtro => ({
@@ -181,7 +183,7 @@ export function CustosAchados({ data, moeda, fm, onExplorar }: Props) {
 
   const top10 = k.cidsOrd.slice(0, 10).map((c) => ({
     cod: c.cod,
-    label: `${c.cod} · ${nomeCurtoCid(c.nome)}`,
+    label: `${c.cod} · ${c.nome}`,
     valor: (c.acc!.val_tot * fm) / 1e9,
   }));
   const configTop = {
@@ -194,7 +196,8 @@ export function CustosAchados({ data, moeda, fm, onExplorar }: Props) {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
         <div className="lg:col-span-4 border-l-4 border-brand bg-brand-soft/60 px-5 py-6 flex flex-col">
           <div className="font-mono text-[10px] uppercase tracking-widest text-brand-dark">
-            {primeiro}–{ultimo} · valores de dez/2023
+            {primeiro}–{ultimo} · valores de custo corrigidos pela inflação pelo
+            IPCA para dezembro de 2023
           </div>
           <div className="font-display text-6xl md:text-7xl mt-3 tabular-nums text-brand-dark leading-none">
             {fmtMoeda(totalGeral * fm, moeda, true).replace(
@@ -252,7 +255,17 @@ export function CustosAchados({ data, moeda, fm, onExplorar }: Props) {
                 tickLine={false}
                 axisLine={false}
                 tickMargin={8}
-                tickFormatter={(v) => String(v).slice(2)}
+                interval={0}
+                tick={{
+                  fontSize: 11,
+                  ...(estreito ? { angle: -45, textAnchor: "end" } : {}),
+                }}
+                height={estreito ? 72 : 46}
+                label={{
+                  value: "Ano",
+                  position: "insideBottom",
+                  offset: estreito ? -4 : 0,
+                }}
               />
               <YAxis
                 tickLine={false}
@@ -283,7 +296,7 @@ export function CustosAchados({ data, moeda, fm, onExplorar }: Props) {
                 }}
               />
               <Legend
-                verticalAlign="bottom"
+                verticalAlign="top"
                 iconType="square"
                 wrapperStyle={{ fontSize: 11 }}
               />
@@ -307,17 +320,16 @@ export function CustosAchados({ data, moeda, fm, onExplorar }: Props) {
 
       <div className="mt-5 border border-border bg-card p-4">
         <div className="font-mono text-[10px] uppercase tracking-widest text-brand-dark mb-1">
-          10 diagnósticos neonatais mais custosos ·{" "}
-          {moeda === "int" ? "Int$" : "R$"} bi
+          10 diagnósticos neonatais mais custosos
         </div>
         <ChartContainer
           config={configTop}
-          className="aspect-auto h-[330px] w-full"
+          className="aspect-auto h-[360px] w-full"
         >
           <BarChart
             data={top10}
             layout="vertical"
-            margin={{ left: 0, right: 12, top: 4, bottom: 0 }}
+            margin={{ left: 0, right: 24, top: 4, bottom: 0 }}
           >
             <CartesianGrid horizontal={false} />
             <XAxis
@@ -325,15 +337,24 @@ export function CustosAchados({ data, moeda, fm, onExplorar }: Props) {
               tickLine={false}
               axisLine={false}
               tickFormatter={(v) => fmtDec(Number(v), 1)}
+              height={44}
+              label={{
+                value:
+                  moeda === "int"
+                    ? "Custo em bilhão de dólares internacionais (Int$)"
+                    : "Custo em bilhão de Reais (R$)",
+                position: "insideBottom",
+                offset: 0,
+              }}
             />
             <YAxis
               type="category"
               dataKey="label"
-              width={240}
+              width={estreito ? 170 : 400}
               tickLine={false}
               axisLine={false}
               interval={0}
-              tick={{ fontSize: 12 }}
+              tick={{ fontSize: estreito ? 10 : 12 }}
             />
             <ChartTooltip
               cursor={{ fill: "var(--color-muted)", opacity: 0.5 }}
@@ -461,8 +482,8 @@ export function CustosAchados({ data, moeda, fm, onExplorar }: Props) {
           {fmtMoeda(maxTodos.partoMilNvTodos * fm, moeda, true)};{" "}
           {minTodos.regiao}:{" "}
           {fmtMoeda(minTodos.partoMilNvTodos * fm, moeda, true)}). A conclusão
-          depende muito do denominador escolhido. Veja a tabela “Por região”
-          com o IDH logo abaixo.
+          depende muito do denominador escolhido. Veja a tabela “Por região” com
+          o IDH logo abaixo.
         </Card>
       </div>
     </div>

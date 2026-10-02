@@ -387,9 +387,10 @@ function CustosPage() {
             <strong className="text-foreground">Custo:</strong> valor total da
             AIH (serviços hospitalares + serviços profissionais, incluindo a
             UTI), isto é, o que o SUS pagou — não o custo de produção do
-            serviço. Valores corrigidos pelo IPCA para dezembro de 2023; Int$
-            usa a paridade do poder de compra do Banco Mundial para 2023 (2,44
-            R$/Int$).
+            serviço. Valores de custo corrigidos pela inflação pelo IPCA para
+            dezembro de 2023, para que anos diferentes possam ser comparados;
+            Int$ usa a paridade do poder de compra do Banco Mundial para 2023
+            (2,44 R$/Int$).
           </li>
           <li>
             <strong className="text-foreground">UTI:</strong> internações com

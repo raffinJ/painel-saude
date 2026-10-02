@@ -267,9 +267,11 @@ export function CustosFiltros({
 
         <div className="lg:col-span-7 flex items-end justify-between gap-4">
           <p className="text-[11px] leading-snug text-muted-foreground max-w-xl">
-            Valores corrigidos pelo IPCA para dez/2023. Int$ = dólar
-            internacional (paridade do poder de compra de 2,44 R$/Int$).
-            Mortalidade = óbitos ocorridos <em>dentro</em> da internação.
+            Valores de custo corrigidos pela inflação pelo IPCA para dezembro de
+            2023 (um real de 2011 vale mais de um real de 2023, então todos os
+            anos são trazidos para o mesmo preço). Int$ = dólar internacional
+            (paridade do poder de compra de 2,44 R$/Int$). Mortalidade = óbitos
+            ocorridos <em>dentro</em> da internação.
           </p>
           <button
             type="button"
