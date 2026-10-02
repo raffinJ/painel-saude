@@ -1269,32 +1269,6 @@ LIMITAÇÕES
 
 
 
-# Incidência de tétano neonatal positivo
-
-FONTES
-
-SINASC (denominador)
-Nascidos vivos
-Filtros: -
-Período: 2008 - 2024
-Região: município de residência da mãe
-Características: Raça/cor e faixa etária da mãe
-
-SINAN - TÉTANO (numerador)
-Pacientes RECÉM NASCIDOS com sífilis
-Filtros: somente casos confirmados (CLASSI_FIN = 1)
-Período: 2014 e 2021 (anos disponíveis no governo)
-Região: município de residência da mãe
-Características: quantas consultas pré natal, faixa etária da mãe
-
-
-Durante a agregação, some os itens do numerador e denominador, faça o merge das bases através do campo agregado (UF, município, região de saúde, faixa etária da mãe, raça/cor mãe) e do ano e ou/mês
-
-===========================================================
-LIMITAÇÕES
-No período de interesse existem apenas dois casos confirmados, informações associadas ao parto não estão disponíveis
-
-
 # Taxa de incidência de sífilis congênita em neonatos 
 
 Esse indicador representa os casos novos de sífilis congênita em neonatos em relação ao total de nasidos vivos em um local e/ou período. 

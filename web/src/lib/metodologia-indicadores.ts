@@ -246,14 +246,6 @@ export const METODOLOGIA_INDICADORES: IndicadorMetodologia[] = [
     calculo: "Média mensal de leitos neonatais dividida pelo número de nascidos vivos no mesmo período e local.",
   },
   {
-    titulo: "Incidência de tétano neonatal positivo",
-    resumo:
-      "Mede casos confirmados de tétano neonatal — doença hoje rara no Brasil graças à vacinação e aos cuidados de assepsia no parto — cuja ocorrência sinaliza falhas graves de cobertura vacinal ou de cuidado ao coto umbilical.",
-    fonte: "SINAN (casos notificados) e SINASC (nascidos vivos).",
-    filtros: "Apenas casos confirmados de tétano.",
-    calculo: "Número de casos confirmados de tétano neonatal dividido pelo número de nascidos vivos.",
-  },
-  {
     titulo: "Taxa de incidência de sífilis congênita em neonatos",
     resumo:
       "Mede casos novos de sífilis congênita — infecção evitável quando a sífilis materna é detectada e tratada durante o pré-natal — em relação aos nascidos vivos.",
