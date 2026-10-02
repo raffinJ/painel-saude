@@ -340,3 +340,43 @@ export const METODOLOGIA_INDICADORES: IndicadorMetodologia[] = [
     calculo: "Número de gestantes com pré-natal adequado (consultas mínimas + início precoce) dividido pelo total de nascidos vivos, ×100.",
   },
 ];
+
+/** Título (em METODOLOGIA_INDICADORES) de cada indicador das abas Indicadores
+ * e Mapas municipais, indexado pela `chave` de data/indicadores/_index.json. */
+const TITULO_POR_CHAVE: Record<string, string> = {
+  cobertura_estabelecimentos_saude: "Densidade de Unidades Básicas de Saúde",
+  taxa_hiv_gestantes: "Taxa de HIV positivo em gestantes",
+  coef_obitos_fetais: "Taxa de óbitos fetais",
+  proporcao_pre_natal_adequado: "Proporção de gestantes com o pré-natal adequado",
+  taxa_deteccao_sifilis_gestantes: "Taxa de detecção de sífilis em gestantes",
+  proporcao_enfermeiros_obstetricos: "Taxa de enfermeiros obstétricos",
+  proporcao_cesareas: "Proporção de cesáreas",
+  proporcao_parto_vaginal_profissional: "Proporção de partos vaginais conforme o profissional que assistiu",
+  apgar_adequado: "Proporção de neonatos com adequado índice de Apgar no 1º e 5º minuto",
+  proporcao_asfixia_perinatal: "Proporção de óbitos por asfixia perinatal",
+  coef_mortalidade_neonatal: "Coeficiente de mortalidade neonatal",
+  coef_obito_neonatal_causa: "Coeficiente de óbitos neonatais conforme causa",
+  proporcao_hiv_vertical: "Proporção de transmissão vertical de HIV",
+  taxa_infeccoes_sistemicas_neonatais: "Coeficiente de infecções sistêmicas neonatais",
+  taxa_leitos_neonatais: "Taxa de leitos neonatais",
+  taxa_incidencia_sifilis_congenita: "Taxa de incidência de sífilis congênita em neonatos",
+  taxa_bruta_natalidade: "Taxa bruta de natalidade",
+  proporcao_obitos_neonatais_24h: "Coeficiente de óbitos de recém-nascidos nas primeiras 24 horas de vida",
+  taxa_leitos_uti_adulto: "Número de leitos de UTI adulto necessários para a atenção materna",
+  taxa_leitos_obstetricos: "Taxa de leitos obstétricos",
+  razao_desfecho_materno_grave: "Razão de desfecho materno grave",
+  razao_mortalidade_materna: "Razão de mortalidade materna",
+  proporcao_obitos_maternos_evitaveis: "Proporção de óbitos maternos evitáveis",
+  coef_mortalidade_perinatal: "Coeficiente de mortalidade perinatal",
+  taxa_baixo_peso_nascer: "Taxa de baixo peso ao nascer",
+};
+
+const RESUMO_COMPOSTO =
+  "Resume os indicadores dos cinco grupos (Pré-natal, Parto, Neonatal, Puerpério e Perinatal) em um único número por município, usado no ranking.";
+
+/** Breve explicação do conceito do indicador (texto público da Metodologia). */
+export function resumoDoIndicador(chave: string): string | undefined {
+  if (chave === "indicador_composto") return RESUMO_COMPOSTO;
+  const titulo = TITULO_POR_CHAVE[chave];
+  return METODOLOGIA_INDICADORES.find((i) => i.titulo === titulo)?.resumo;
+}

@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { IndicatorSelector } from "@/components/indicadores/IndicatorSelector";
+import { IndicatorDescricao } from "@/components/indicadores/IndicatorDescricao";
 import { MunicipalityMap } from "@/components/mapas/MunicipalityMap";
 import {
   MunicipalityRanking,
@@ -138,6 +139,11 @@ function MapasMunicipaisPage() {
               </div>
             )}
           </div>
+          {indicadores.find((i) => i.chave === chave) && (
+            <IndicatorDescricao
+              indicador={indicadores.find((i) => i.chave === chave)!}
+            />
+          )}
         </section>
 
         {data && (

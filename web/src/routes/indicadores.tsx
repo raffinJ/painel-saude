@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { IndicatorSelector } from "@/components/indicadores/IndicatorSelector";
+import { IndicatorDescricao } from "@/components/indicadores/IndicatorDescricao";
 import { IndicatorLineChart } from "@/components/indicadores/IndicatorLineChart";
 import { IndicatorUFMap } from "@/components/indicadores/IndicatorUFMap";
 import { IndicatorHeatmap } from "@/components/indicadores/IndicatorHeatmap";
@@ -160,6 +161,11 @@ function IndicadoresPage() {
               </div>
             )}
           </div>
+          {indicadores.find((i) => i.chave === chave) && (
+            <IndicatorDescricao
+              indicador={indicadores.find((i) => i.chave === chave)!}
+            />
+          )}
         </section>
 
         {data && (
