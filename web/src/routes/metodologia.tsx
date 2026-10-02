@@ -35,23 +35,23 @@ function MetodologiaPage() {
         <section className="py-10 space-y-4 border-b border-border">
           <h2 className="font-display text-2xl">O que é o CuidadoPreNeo</h2>
           <p className="text-muted-foreground leading-relaxed">
-            O CuidadoPreNeo é um painel público de indicadores de qualidade
-            da assistência pré-natal, ao parto e neonatal nos municípios
+            O CuidadoPreNeo é um painel público de indicadores de qualidade da
+            assistência pré-natal, ao parto e neonatal nos municípios
             brasileiros, desenvolvido no âmbito do Projeto Cuidado Pré e
-            Neonatal (Chamada 46/2022 Decit/CNPq), coordenado pela Profa.
-            Aline M. Toledo.
+            Neonatal (Chamada 46/2022 Decit/CNPq), coordenado pela Profa. Aline
+            M. Toledo.
           </p>
         </section>
 
         <section className="py-10 space-y-4 border-b border-border">
           <h2 className="font-display text-2xl">Fontes de dados</h2>
           <p className="text-muted-foreground leading-relaxed">
-            Os indicadores são calculados a partir de bases públicas do
-            DataSUS — principalmente SINASC (Sistema de Informações sobre
-            Nascidos Vivos), SIM (Sistema de Informações sobre Mortalidade)
-            e CNES (Cadastro Nacional de Estabelecimentos de Saúde). Todos
-            os dados são públicos e agregados por município; nenhuma
-            informação identificável é utilizada.
+            Os indicadores são calculados a partir de bases públicas do DataSUS
+            — principalmente SINASC (Sistema de Informações sobre Nascidos
+            Vivos), SIM (Sistema de Informações sobre Mortalidade) e CNES
+            (Cadastro Nacional de Estabelecimentos de Saúde). Todos os dados são
+            públicos e agregados por município; nenhuma informação identificável
+            é utilizada.
           </p>
         </section>
 
@@ -59,10 +59,10 @@ function MetodologiaPage() {
           <h2 className="font-display text-2xl">Os indicadores</h2>
           <p className="text-muted-foreground leading-relaxed">
             São 26 indicadores organizados em 5 grupos — Pré-natal, Parto,
-            Neonatal, Puerpério e Perinatal —, além do Indicador Composto,
-            que resume os grupos em um único número por município. Cada
-            indicador tem uma direção definida (maior é melhor ou menor é
-            melhor) usada para colorir mapas, heatmaps e rankings.
+            Neonatal, Puerpério e Perinatal —, além do Indicador Composto, que
+            resume os grupos em um único número por município. Cada indicador
+            tem uma direção definida (maior é melhor ou menor é melhor) usada
+            para colorir mapas, heatmaps e rankings.
           </p>
         </section>
 
@@ -71,9 +71,9 @@ function MetodologiaPage() {
             Obtenção de dados e cálculo dos indicadores
           </h2>
           <p className="text-muted-foreground leading-relaxed">
-            Para cada indicador: as fontes usadas no numerador e no
-            denominador, os filtros aplicados, o período e o recorte
-            geográfico disponíveis, e as limitações conhecidas do cálculo.
+            Para cada indicador: as fontes usadas no numerador e no denominador,
+            os filtros aplicados, o período e o recorte geográfico disponíveis,
+            e as limitações conhecidas do cálculo.
           </p>
           <DetalhamentoIndicadores />
         </section>
@@ -83,13 +83,14 @@ function MetodologiaPage() {
           <p className="text-muted-foreground leading-relaxed">
             A aba Custos hospitalares não usa os indicadores municipais acima:
             ela vem dos arquivos reduzidos de AIH do Sistema de Informações
-            Hospitalares do SUS (SIH/SUS), 2011–2022. Entram as internações de
-            parto (parto normal ou cesariano, inclusive em gestação de alto
-            risco) e as internações de recém-nascidos de 0 a 27 dias. O custo
-            é o valor total pago pelo SUS por AIH (serviços hospitalares +
-            profissionais, incluindo UTI), corrigido pelo IPCA para dezembro de
-            2023 e, quando indicado, convertido em dólares internacionais
-            (Int$) pela paridade do poder de compra de 2,44 R$/Int$.
+            Hospitalares do SUS (SIH/SUS), 2011–2022. Entram os registros de
+            internação (AIH) de parto (parto normal ou cesariano, inclusive em
+            gestação de alto risco) e os registros de internação de
+            recém-nascidos de 0 a 27 dias. O custo é o valor total pago pelo SUS
+            por AIH (serviços hospitalares + profissionais, incluindo UTI),
+            corrigido pelo IPCA para dezembro de 2023 e, quando indicado,
+            convertido em dólares internacionais (Int$) pela paridade do poder
+            de compra de 2,44 R$/Int$.
           </p>
           <p className="text-muted-foreground leading-relaxed">
             Método e resultados de referência: Moura JR et al., Value in Health
@@ -102,11 +103,12 @@ function MetodologiaPage() {
             >
               doi:10.1016/j.vhri.2025.101161
             </a>
-            ). Os números do site foram recalculados dos microdados com o
-            código do artigo e conferem com o publicado. Limitação importante:
-            o SIH registra apenas internações pagas pelo SUS, e a mortalidade
-            mostrada é a <em>intra-hospitalar</em> (óbitos durante a internação
-            ÷ internações), diferente da mortalidade materna e neonatal oficial.
+            ). Os números do site foram recalculados dos microdados com o código
+            do artigo e conferem com o publicado. Limitação importante: o SIH
+            registra apenas registros de internação (AIH) pagos pelo SUS, e a
+            mortalidade mostrada é a <em>intra-hospitalar</em> (óbitos
+            registrados nas AIHs ÷ registros de internação), diferente da
+            mortalidade materna e neonatal oficial.
           </p>
         </section>
 

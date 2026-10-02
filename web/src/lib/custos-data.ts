@@ -234,49 +234,51 @@ export const MEDIDAS: Medida[] = [
     label: "Custo total",
     aditiva: true,
     monetaria: true,
-    descricao: "Soma do valor total pago pelo SUS nas internações do recorte.",
+    descricao:
+      "Soma do valor total pago pelo SUS nos registros de internação (AIH) do recorte.",
   },
   {
     id: "custo_medio",
-    label: "Custo médio por internação",
+    label: "Custo médio por registro de internação",
     aditiva: false,
     monetaria: true,
-    descricao: "Custo total ÷ número de internações.",
+    descricao: "Custo total ÷ número de registros de internação.",
   },
   {
     id: "n",
-    label: "Nº de internações (AIH)",
+    label: "Nº de registros de internação (AIH)",
     aditiva: true,
     monetaria: false,
-    descricao: "Autorizações de Internação Hospitalar aprovadas.",
+    descricao:
+      "Autorizações de Internação Hospitalar (AIH) aprovadas. A AIH é um registro de faturamento e pode representar só parte de uma internação.",
   },
   {
     id: "custo_uti_medio",
     label: "Custo médio de UTI",
     aditiva: false,
     monetaria: true,
-    descricao: "Valor de UTI ÷ internações que usaram UTI.",
+    descricao: "Valor de UTI ÷ registros de internação que usaram UTI.",
   },
   {
     id: "pct_uti",
-    label: "% das internações com UTI",
+    label: "% dos registros de internação com UTI",
     aditiva: false,
     monetaria: false,
-    descricao: "Internações com algum uso de UTI ÷ total.",
+    descricao: "Registros de internação com algum uso de UTI ÷ total.",
   },
   {
     id: "letalidade",
     label: "Mortalidade intra-hospitalar",
     aditiva: false,
     monetaria: false,
-    descricao: "Óbitos ocorridos na internação ÷ internações.",
+    descricao: "Óbitos registrados nas AIHs ÷ registros de internação.",
   },
   {
     id: "permanencia",
     label: "Permanência média (dias)",
     aditiva: false,
     monetaria: false,
-    descricao: "Média de dias de internação por AIH.",
+    descricao: "Média de dias de permanência por registro de internação (AIH).",
   },
 ];
 
@@ -416,17 +418,17 @@ export function unidadeMedida(m: MedidaId, tipo: Tipo, moeda: Moeda): string {
       return `${simboloMoeda(moeda)} corrigidos pela inflação (IPCA, dez/2023), soma do período`;
     case "custo_medio":
     case "custo_uti_medio":
-      return `${simboloMoeda(moeda)} corrigidos pela inflação (IPCA, dez/2023) por internação`;
+      return `${simboloMoeda(moeda)} corrigidos pela inflação (IPCA, dez/2023) por registro de internação`;
     case "n":
-      return "internações";
+      return "registros de internação";
     case "pct_uti":
-      return "% das internações";
+      return "% dos registros de internação";
     case "letalidade":
       return tipo === "parto"
-        ? "óbitos por 100 mil internações"
-        : "óbitos por 1.000 internações";
+        ? "óbitos por 100 mil registros de internação"
+        : "óbitos por 1.000 registros de internação";
     case "permanencia":
-      return "dias por internação";
+      return "dias por registro de internação";
   }
 }
 
@@ -442,7 +444,7 @@ export const REGIOES = [
 
 export function labelTipo(t: Tipo): string {
   return t === "parto"
-    ? "Partos (internação da mãe)"
+    ? "Partos (registros de internação da mãe)"
     : "Recém-nascidos (0–27 dias)";
 }
 

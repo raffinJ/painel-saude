@@ -205,7 +205,7 @@ export function CustosUf({
     const base = visao === "uf" ? ["uf", "regiao"] : ["regiao"];
     const headers = [
       ...base,
-      "internacoes",
+      "registros_internacao",
       `custo_total_${moeda}`,
       `custo_medio_${moeda}`,
       "pct_uti",
@@ -273,8 +273,8 @@ export function CustosUf({
         <p className="mt-2 text-[11px] text-muted-foreground">
           Clique em uma UF para filtrar o restante da página. O mapa usa uma
           escala contínua do menor ao maior valor — sem juízo de “melhor” ou
-          “pior”, já que custos e internações dependem do tamanho e da estrutura
-          de cada estado.
+          “pior”, já que custos e registros de internação dependem do tamanho e
+          da estrutura de cada estado.
         </p>
       </div>
 
@@ -315,7 +315,7 @@ export function CustosUf({
               <TableRow>
                 <Cab id="nome">{visao === "uf" ? "UF" : "Região"}</Cab>
                 <Cab id="n" className="text-right">
-                  Internações
+                  Registros
                 </Cab>
                 <Cab id="custo_total" className="text-right">
                   Custo total

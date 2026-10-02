@@ -1,3 +1,4 @@
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Bar, BarChart, CartesianGrid, Cell, XAxis, YAxis } from "recharts";
 import {
   ChartContainer,
@@ -36,6 +37,7 @@ export function CustosCategorias({
   moeda,
   onSelecionar,
 }: Props) {
+  const estreito = useIsMobile();
   const config = {
     valor: { label: "Valor", color: "var(--color-brand)" },
   } satisfies ChartConfig;
@@ -47,7 +49,7 @@ export function CustosCategorias({
     );
   }
   const algumaSelecionada = barras.some((b) => b.selecionada);
-  const altura = Math.max(180, barras.length * 30 + 40);
+  const altura = Math.max(180, barras.length * 40 + 40);
 
   return (
     <div>
@@ -74,11 +76,11 @@ export function CustosCategorias({
           <YAxis
             type="category"
             dataKey="label"
-            width={190}
+            width={estreito ? 150 : 270}
             tickLine={false}
             axisLine={false}
             interval={0}
-            tick={{ fontSize: 11 }}
+            tick={{ fontSize: estreito ? 10 : 11 }}
           />
           <ChartTooltip
             cursor={{ fill: "var(--color-muted)", opacity: 0.5 }}
@@ -92,7 +94,7 @@ export function CustosCategorias({
                     {fmtMedida(b.valor, medida, tipo, moeda, false)}
                   </div>
                   <div className="text-muted-foreground tabular-nums">
-                    {fmtInt(b.n)} internações
+                    {fmtInt(b.n)} registros de internação
                   </div>
                   <div className="mt-1 text-[10px] uppercase tracking-widest text-muted-foreground">
                     Clique para filtrar

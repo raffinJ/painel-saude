@@ -209,13 +209,13 @@ export function CustosAchados({ data, moeda, fm, onExplorar }: Props) {
             {moeda === "int" ? "Int$" : "R$"}
           </div>
           <p className="mt-4 text-base font-semibold leading-snug">
-            gastos diretos do SUS com internações para parto e para
-            recém-nascidos de 0 a 27 dias.
+            gastos diretos do SUS com registros de internação (AIH) para parto e
+            para recém-nascidos de 0 a 27 dias.
           </p>
           <dl className="mt-4 space-y-1.5 text-sm">
             <div className="flex justify-between gap-4">
               <dt className="text-muted-foreground">
-                Partos ({fmtInt(k.parto.n)} internações)
+                Partos ({fmtInt(k.parto.n)} registros de internação)
               </dt>
               <dd className="tabular-nums font-medium whitespace-nowrap">
                 {fmtMoeda(k.parto.val_tot * fm, moeda, true)}
@@ -223,7 +223,7 @@ export function CustosAchados({ data, moeda, fm, onExplorar }: Props) {
             </div>
             <div className="flex justify-between gap-4">
               <dt className="text-muted-foreground">
-                Recém-nascidos ({fmtInt(k.neo.n)} internações)
+                Recém-nascidos ({fmtInt(k.neo.n)} registros de internação)
               </dt>
               <dd className="tabular-nums font-medium whitespace-nowrap">
                 {fmtMoeda(k.neo.val_tot * fm, moeda, true)}
@@ -231,9 +231,9 @@ export function CustosAchados({ data, moeda, fm, onExplorar }: Props) {
             </div>
           </dl>
           <p className="mt-auto pt-4 text-xs text-muted-foreground leading-snug">
-            Segundo o artigo, isso equivale a cerca de 14,6% de todo o gasto com
-            internações do SUS no período (8,9% com partos e 5,7% com
-            recém-nascidos).
+            Segundo o artigo, isso equivale a cerca de 14,6% de todo o gasto do
+            SUS com registros de internação no período (8,9% com partos e 5,7%
+            com recém-nascidos).
           </p>
         </div>
 
@@ -395,28 +395,28 @@ export function CustosAchados({ data, moeda, fm, onExplorar }: Props) {
         >
           As cesáreas somam {fmtMoeda(k.cesarea.val_tot * fm, moeda, true)},
           contra {fmtMoeda(k.vaginal.val_tot * fm, moeda, true)} dos partos
-          vaginais, embora sejam {fmtDec(pct(k.cesarea.n, k.parto.n), 0)}% das
-          internações. O custo médio da cesárea é de{" "}
+          vaginais, embora sejam {fmtDec(pct(k.cesarea.n, k.parto.n), 0)}% dos
+          registros de internação. O custo médio da cesárea é de{" "}
           {fmtMoeda((k.cesarea.val_tot / k.cesarea.n) * fm, moeda)} (vaginal:{" "}
           {fmtMoeda((k.vaginal.val_tot / k.vaginal.n) * fm, moeda)}), e elas
-          respondem por {fmtDec(pct(k.cesarea.n_uti, utiPartoTotal), 0)}% das
-          internações de parto com UTI.
+          respondem por {fmtDec(pct(k.cesarea.n_uti, utiPartoTotal), 0)}% dos
+          registros de internação de parto com UTI.
         </Card>
 
         <Card
           rotulo="UTI neonatal"
           destaque={`${fmtDec(pct(k.neoUti.val_tot, k.neo.val_tot), 0)}%`}
-          titulo="do custo neonatal está nas internações com UTI"
+          titulo="do custo neonatal está nos registros de internação com UTI"
           onExplorar={() =>
             onExplorar({ tipo: "neonatal", uti: "com" }, "custo_total")
           }
         >
-          Só {fmtDec(pct(k.neoUti.n, k.neo.n), 0)}% dos recém-nascidos
-          internados usam UTI, mas essas internações custam em média{" "}
+          Só {fmtDec(pct(k.neoUti.n, k.neo.n), 0)}% dos registros de internação
+          de recém-nascidos têm UTI, mas esses registros custam em média{" "}
           {fmtMoeda((k.neoUti.val_tot / k.neoUti.n) * fm, moeda)} — o valor de
           UTI sozinho é {fmtMoeda((k.neoUti.val_uti / k.neoUti.n) * fm, moeda)}{" "}
-          por internação — e duram {fmtDec(k.neoUti.dias / k.neoUti.n, 0)} dias,
-          em média.
+          por registro — e têm permanência média de{" "}
+          {fmtDec(k.neoUti.dias / k.neoUti.n, 0)} dias.
         </Card>
 
         <Card
@@ -443,20 +443,20 @@ export function CustosAchados({ data, moeda, fm, onExplorar }: Props) {
         <Card
           rotulo="Mortalidade materna intra-hospitalar"
           destaque={`${fmtDec(sA.letP, 1)} → ${fmtDec(sZ.letP, 1)}`}
-          titulo="óbitos por 100 mil internações de parto, 2011 → 2022"
+          titulo="óbitos por 100 mil registros de internação de parto, 2011 → 2022"
           onExplorar={() => onExplorar({ tipo: "parto" }, "letalidade")}
         >
           A taxa subiu entre 2011 e 2022, com pico de {fmtDec(k.pico.letP, 1)}{" "}
           em {k.pico.ano}, ano marcado pela pandemia de COVID-19 — quase 10
           vezes a dos Estados Unidos em 2021, segundo o artigo. Atenção: são
-          óbitos ocorridos dentro da internação, não a razão de mortalidade
-          materna oficial.
+          óbitos registrados dentro dos registros de internação, não a razão de
+          mortalidade materna oficial.
         </Card>
 
         <Card
           rotulo="Mortalidade neonatal intra-hospitalar"
           destaque={`${fmtDec(sA.letN, 1)} → ${fmtDec(sZ.letN, 1)}`}
-          titulo="óbitos por mil internações de recém-nascidos, 2011 → 2022"
+          titulo="óbitos por mil registros de internação de recém-nascidos, 2011 → 2022"
           onExplorar={() => onExplorar({ tipo: "neonatal" }, "letalidade")}
         >
           Ao contrário da materna, a mortalidade neonatal hospitalar caiu a cada

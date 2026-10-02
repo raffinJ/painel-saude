@@ -87,9 +87,9 @@ export function CustosFiltros({
     <div className="border border-border bg-card/60 p-4 md:p-5">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-x-5 gap-y-4">
         <div className="lg:col-span-4">
-          <span className={labelCls}>Tipo de internação</span>
+          <span className={labelCls}>Tipo de registro de internação</span>
           <Segmentado<Tipo>
-            nome="Tipo de internação"
+            nome="Tipo de registro de internação"
             valor={filtro.tipo}
             onChange={(tipo) => {
               // categorias e medidas mudam de sentido entre parto e neonatal
@@ -143,9 +143,9 @@ export function CustosFiltros({
         </div>
 
         <div className="lg:col-span-5">
-          <span className={labelCls}>Local da internação</span>
+          <span className={labelCls}>Local do estabelecimento</span>
           <select
-            aria-label="Local da internação"
+            aria-label="Local do estabelecimento"
             value={filtro.geo}
             onChange={(e) => set({ geo: e.target.value })}
             className={selectCls}
@@ -271,7 +271,7 @@ export function CustosFiltros({
             2023 (um real de 2011 vale mais de um real de 2023, então todos os
             anos são trazidos para o mesmo preço). Int$ = dólar internacional
             (paridade do poder de compra de 2,44 R$/Int$). Mortalidade = óbitos
-            ocorridos <em>dentro</em> da internação.
+            registrados <em>dentro</em> dos registros de internação (AIH).
           </p>
           <button
             type="button"

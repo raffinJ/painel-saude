@@ -32,7 +32,7 @@ export const Route = createFileRoute("/custos")({
       {
         name: "description",
         content:
-          "Quanto o SUS gasta com internações para parto e com recém-nascidos (2011–2022): custos por via de parto, diagnóstico, UTI, região e UF.",
+          "Quanto o SUS gasta com registros de internação para parto e para recém-nascidos (2011–2022): custos por via de parto, diagnóstico, UTI, região e UF.",
       },
     ],
   }),
@@ -153,7 +153,7 @@ function CustosPage() {
         if (a && valor !== undefined && a.n >= minimo)
           lista.push({
             id: c.cod,
-            label: `${c.cod} · ${c.nome.length > 34 ? `${c.nome.slice(0, 32)}…` : c.nome}`,
+            label: `${c.cod} · ${c.nome}`,
             valor,
             n: a.n,
             selecionada: filtro.cat === c.cod || filtro.cat === `g:${c.grupo}`,
@@ -196,11 +196,12 @@ function CustosPage() {
           Custos hospitalares · SIH/SUS · {anoIni}–{anoFim}
         </div>
         <h1 className="font-display text-4xl md:text-6xl leading-[0.95] text-balance">
-          Quanto o SUS gasta com partos e com internações de recém-nascidos?
+          Quanto o SUS gasta com o atendimento hospitalar de partos e de
+          recém-nascidos?
         </h1>
         <p className="mt-5 max-w-3xl text-muted-foreground leading-relaxed">
-          Custos diretos de todas as internações hospitalares pagas pelo SUS
-          para <strong>parto</strong> e para{" "}
+          Custos diretos de todos os registros de internação hospitalar (AIH)
+          pagos pelo SUS para <strong>parto</strong> e para{" "}
           <strong>recém-nascidos de 0 a 27 dias</strong>, em todo o Brasil.
           Comece pelos principais achados e depois use os filtros para explorar
           por via de parto, diagnóstico, UTI, região e UF. Resultados do artigo{" "}
@@ -363,25 +364,35 @@ function CustosPage() {
         </h2>
         <ul className="list-disc pl-5 space-y-2 text-sm text-muted-foreground leading-relaxed">
           <li>
-            <strong className="text-foreground">Fonte:</strong> Sistema de
-            Informações Hospitalares do SUS (SIH/SUS), arquivos reduzidos de
-            AIH, competências {anoIni}–{anoFim}. Só entram internações pagas
-            pelo SUS — partos e recém-nascidos atendidos pela saúde suplementar
-            ou de forma particular não aparecem.
+            <strong className="text-foreground">
+              Registro de internação ≠ internação:
+            </strong>{" "}
+            o SIH/SUS é um sistema de pagamento (faturamento) de procedimentos
+            hospitalares. Cada AIH é um registro de faturamento e pode
+            representar apenas parte de uma internação — por isso falamos sempre
+            em “registros de internação”, e não em internações ou pessoas
+            internadas.
           </li>
           <li>
-            <strong className="text-foreground">Partos:</strong> internações com
-            procedimento principal de parto normal, parto normal em gestação de
-            alto risco, parto normal em centro de parto normal, parto cesariano,
-            cesariano em gestação de alto risco ou cesariano com laqueadura
-            tubária.
+            <strong className="text-foreground">Fonte:</strong> Sistema de
+            Informações Hospitalares do SUS (SIH/SUS), arquivos reduzidos de
+            AIH, competências {anoIni}–{anoFim}. Só entram registros pagos pelo
+            SUS — partos e recém-nascidos atendidos pela saúde suplementar ou de
+            forma particular não aparecem.
+          </li>
+          <li>
+            <strong className="text-foreground">Partos:</strong> registros de
+            internação com procedimento principal de parto normal, parto normal
+            em gestação de alto risco, parto normal em centro de parto normal,
+            parto cesariano, cesariano em gestação de alto risco ou cesariano
+            com laqueadura tubária.
           </li>
           <li>
             <strong className="text-foreground">Recém-nascidos:</strong>{" "}
-            internações de 0 a 27 dias de vida, agrupadas pelo diagnóstico
-            principal (CID-10). Aqui mostramos os 30 diagnósticos de maior
-            custo; os demais ficam fora dos gráficos por diagnóstico, mas entram
-            nos totais.
+            registros de internação de 0 a 27 dias de vida, agrupadas pelo
+            diagnóstico principal (CID-10). Aqui mostramos os 30 diagnósticos de
+            maior custo; os demais ficam fora dos gráficos por diagnóstico, mas
+            entram nos totais.
           </li>
           <li>
             <strong className="text-foreground">Custo:</strong> valor total da
@@ -393,28 +404,28 @@ function CustosPage() {
             (2,44 R$/Int$).
           </li>
           <li>
-            <strong className="text-foreground">UTI:</strong> internações com
-            algum registro de UTI. O custo de UTI conta apenas nessas
-            internações.
+            <strong className="text-foreground">UTI:</strong> registros de
+            internação com algum uso de UTI. O custo de UTI conta apenas nesses
+            registros.
           </li>
           <li>
             <strong className="text-foreground">
               Mortalidade intra-hospitalar:
             </strong>{" "}
-            óbitos ocorridos durante a internação ÷ internações. Não é a
+            óbitos registrados nas AIHs ÷ registros de internação. Não é a
             mortalidade materna ou neonatal oficial, que usa nascidos vivos como
             denominador e inclui óbitos fora do hospital.
           </li>
           <li>
             <strong className="text-foreground">UF:</strong> estado do
-            estabelecimento onde ocorreu a internação (não o local de
+            estabelecimento onde foi faturado o registro (não o local de
             residência). Análises por município ficam para uma próxima etapa.
           </li>
           <li>
             Os números foram recalculados a partir dos microdados do SIH com o
-            método do artigo e conferem com ele (partos: 23.135.767 internações,
-            igual ao publicado; recém-nascidos: diferença de 0,01% por causa de
-            pequenas diferenças de extração). Código:{" "}
+            método do artigo e conferem com ele (partos: 23.135.767 registros de
+            internação, igual ao publicado; recém-nascidos: diferença de 0,01%
+            por causa de pequenas diferenças de extração). Código:{" "}
             <a
               href={GITHUB_URL}
               target="_blank"

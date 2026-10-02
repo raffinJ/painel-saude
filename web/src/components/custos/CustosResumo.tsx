@@ -47,8 +47,8 @@ export function CustosResumo({ acc, tipo, moeda, fm, descricao }: Props) {
   if (acc.n === 0) {
     return (
       <div className="border border-border bg-card p-8 text-center text-sm text-muted-foreground">
-        Nenhuma internação neste recorte. Tente ampliar o período ou remover
-        algum filtro.
+        Nenhum registro de internação neste recorte. Tente ampliar o período ou
+        remover algum filtro.
       </div>
     );
   }
@@ -85,14 +85,14 @@ export function CustosResumo({ acc, tipo, moeda, fm, descricao }: Props) {
         {descricao}
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-x-6 gap-y-7">
-        <Kpi label="Internações" valor={fmtInt(acc.n)} />
+        <Kpi label="Registros de internação" valor={fmtInt(acc.n)} />
         <Kpi
           label="Custo total"
           valor={fmtMoeda(acc.val_tot * fm, moeda, true)}
           detalhe={`${fmtMoeda(acc.val_tot * fm, moeda)}`}
         />
         <Kpi
-          label="Custo médio / internação"
+          label="Custo médio / registro de internação"
           valor={fmtMoeda((acc.val_tot / acc.n) * fm, moeda)}
           detalhe={
             sdTot !== undefined
@@ -106,7 +106,7 @@ export function CustosResumo({ acc, tipo, moeda, fm, descricao }: Props) {
           detalhe={
             utiMedio !== undefined
               ? `custo médio de UTI ${fmtMoeda(utiMedio * fm, moeda)}${sdUti !== undefined ? ` (DP ${fmtMoeda(sdUti * fm, moeda)})` : ""}`
-              : "sem internações com UTI"
+              : "sem registros com UTI"
           }
         />
         <Kpi
@@ -122,7 +122,7 @@ export function CustosResumo({ acc, tipo, moeda, fm, descricao }: Props) {
             (baseLetalidade(tipo) * acc.n_obito) / acc.n,
             tipo === "parto" ? 1 : 1,
           )}
-          detalhe={`${tipo === "parto" ? "por 100 mil" : "por 1.000"} internações · ${fmtInt(acc.n_obito)} óbitos`}
+          detalhe={`${tipo === "parto" ? "por 100 mil" : "por 1.000"} registros de internação · ${fmtInt(acc.n_obito)} óbitos`}
         />
       </div>
 
