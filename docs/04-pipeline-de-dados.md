@@ -212,3 +212,30 @@ que não temos mais; os custos, médias, DPs e o top-20 de diagnósticos coincid
   (`meta.nascidos_vivos_regiao`; 13,9 milhões) — só valem para o período completo e reproduzem a Tabela 2.
   O resultado muda bastante conforme o denominador (Sul: ~2,8× o Norte com o do artigo; ~1,2× com todos os nascidos vivos).
 `[A DEFINIR]` — como o artigo filtrou "estabelecimentos públicos" (os scripts do GitHub não mostram).
+
+## 4.10 Indicadores a partir do dado bruto (numerador/denominador)
+
+Os CSVs brutos do HD (`dados_qualineopre/`, estratificados por idade,
+peso, raça etc.) são a base primária que gerou os `.xlsx` antigos. Os
+indicadores migrados passam por:
+
+```bash
+python scripts/agregar_brutos.py proporcao_cesareas      # HD -> data/brutos/<chave>.csv
+python scripts/export_indicadores_frontend.py proporcao_cesareas   # -> web/public/data/indicadores/<chave>.json
+```
+
+- `data/brutos/<chave>.csv` (versionado, pequeno): `codibge, ano, numerador, denominador`.
+- `data/brutos/_municipios.csv`: nome, UF e região por município.
+- No JSON, cada ponto traz `valor`, `num` e `den`; município, UF, região e
+  Brasil saem todos de `soma(num)/soma(den) × fator` (ADR-001), e o site
+  mostra "X de Y".
+- Regra de cada indicador fica em `BRUTOS` (`scripts/agregar_brutos.py`).
+  Códigos `xx0000` (município não informado) são sempre descartados.
+- Migrados: `cobertura_sisab` (novo; numerador = SISAB `Total Gestantes`
+  somado por mês; denominador = nascidos vivos + nascidos mortos; série
+  2017-2023; validado contra o documento "Cobertura do SISAB": numerador
+  11.506.153 e denominadores anuais idênticos; metadados em `BRUTOS`),
+  `proporcao_cesareas` (num = cesáreos; den = cesáreo + vaginal +
+  ignorado + não informado, ou seja, partos sem via informada ficam no
+  denominador — declarado na aba Metodologia; validado: 89.093 pares município-ano
+  coincidem com o indicador anterior).

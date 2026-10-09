@@ -1,6 +1,7 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { downloadCsv } from "@/lib/csv";
 import {
+  formatNumDen,
   formatValor,
   indicadorRawCsv,
   type IndicadorData,
@@ -17,6 +18,7 @@ type Props = {
 
 export function IndicatorTable({ serie, label, chave, formato, data }: Props) {
   const ordenada = [...serie].sort((a, b) => b.ano - a.ano);
+  const comBruto = ordenada.some((p) => p.den !== undefined);
 
   return (
     <div>
@@ -40,6 +42,7 @@ export function IndicatorTable({ serie, label, chave, formato, data }: Props) {
           <TableHeader>
             <TableRow>
               <TableHead>Ano</TableHead>
+              {comBruto && <TableHead className="text-right">Casos / total</TableHead>}
               <TableHead className="text-right">Valor</TableHead>
             </TableRow>
           </TableHeader>
@@ -48,6 +51,11 @@ export function IndicatorTable({ serie, label, chave, formato, data }: Props) {
               ordenada.map((p) => (
                 <TableRow key={p.ano}>
                   <TableCell className="font-mono">{p.ano}</TableCell>
+                  {comBruto && (
+                    <TableCell className="text-right font-mono tabular-nums text-muted-foreground">
+                      {formatNumDen(p)}
+                    </TableCell>
+                  )}
                   <TableCell className="text-right font-mono tabular-nums">
                     {formatValor(p.valor, formato)}
                   </TableCell>
@@ -55,7 +63,7 @@ export function IndicatorTable({ serie, label, chave, formato, data }: Props) {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={2} className="text-center text-muted-foreground">
+                <TableCell colSpan={comBruto ? 3 : 2} className="text-center text-muted-foreground">
                   Sem dados para este recorte.
                 </TableCell>
               </TableRow>

@@ -131,8 +131,8 @@ export const METODOLOGIA_INDICADORES: IndicadorMetodologia[] = [
     resumo:
       "Mede a proporção de gestantes que iniciaram o pré-natal pela atenção básica, refletindo o alcance do acompanhamento pré-natal público.",
     fonte: "SISAB (registros da atenção básica) e SINASC/SIM (nascimentos totais).",
-    filtros: "Primeiro atendimento de pré-natal registrado no SISAB.",
-    calculo: "Número de gestantes com primeiro atendimento de pré-natal no SISAB dividido pelo total de nascimentos (vivos e mortos), ×100.",
+    filtros: "Primeiro atendimento de pré-natal registrado no SISAB. Série a partir de 2017 (início do SISAB), por município de residência; municípios sem registro no SISAB entram com zero gestantes.",
+    calculo: "Número de gestantes com primeiro atendimento de pré-natal no SISAB dividido pelo total de nascimentos (nascidos vivos + nascidos mortos), ×100.",
   },
   {
     titulo: "Proporção de óbitos por asfixia perinatal",
@@ -273,9 +273,9 @@ export const METODOLOGIA_INDICADORES: IndicadorMetodologia[] = [
     titulo: "Proporção de cesáreas",
     resumo:
       "Mede a proporção de partos realizados por cesárea. A OMS recomenda que fique entre 10% e 15%: acima disso sugere cesáreas sem indicação médica; abaixo, possível dificuldade de acesso a cesáreas necessárias.",
-    fonte: "SINASC (nascidos vivos, com tipo de parto informado).",
-    filtros: "Partos com via de parto (vaginal ou cesárea) informada.",
-    calculo: "Número de partos cesáreos dividido pelo total de partos com via informada, ×100.",
+    fonte: "SINASC (nascidos vivos).",
+    filtros: "Todos os partos; os registros sem via de parto informada (ignorada ou não informada) permanecem no denominador. Registros sem município de residência identificado são excluídos.",
+    calculo: "Número de partos cesáreos dividido pelo total de partos (inclusive os sem via informada), ×100.",
   },
   {
     titulo: "Taxa bruta de natalidade",
@@ -337,6 +337,7 @@ export const METODOLOGIA_INDICADORES: IndicadorMetodologia[] = [
  * e Mapas municipais, indexado pela `chave` de data/indicadores/_index.json. */
 const TITULO_POR_CHAVE: Record<string, string> = {
   cobertura_estabelecimentos_saude: "Densidade de Unidades Básicas de Saúde",
+  cobertura_sisab: "Taxa de cobertura do SISAB",
   taxa_hiv_gestantes: "Taxa de HIV positivo em gestantes",
   coef_obitos_fetais: "Taxa de óbitos fetais",
   proporcao_pre_natal_adequado: "Proporção de gestantes com o pré-natal adequado",

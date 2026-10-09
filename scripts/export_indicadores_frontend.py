@@ -30,6 +30,7 @@ from utils.data import (
     load_dim_municipios,
     load_fato_indicadores,
 )
+from agregar_brutos import BRUTOS, OUT_DIR as BRUTOS_DIR
 
 OUT_DIR = (
     Path(__file__).resolve().parent.parent
@@ -114,7 +115,56 @@ def serie_municipios_por_categoria(
     return municipios
 
 
+def exportar_indicador_bruto(chave: str) -> dict:
+    """Indicador cuja fonte e' data/brutos/<chave>.csv (numerador e
+    denominador por municipio x ano). Todos os niveis (municipio, UF,
+    regiao, Brasil) saem de soma(numerador)/soma(denominador) * fator, e cada
+    ponto leva `num` e `den` para o site mostrar "X de Y"."""
+    fator = BRUTOS[chave]["fator"]
+    mun = pd.read_csv(BRUTOS_DIR / "_municipios.csv", dtype={"codibge": str})
+    df = pd.read_csv(BRUTOS_DIR / f"{chave}.csv", dtype={"codibge": str})
+    df = df.merge(mun, on="codibge", how="left")
+    if df["uf"].isna().any():
+        sys.exit(f"{chave}: municipios sem cadastro em _municipios.csv: "
+                 f"{sorted(df[df['uf'].isna()]['codibge'].unique())[:10]}")
+
+    def serie(sub: pd.DataFrame) -> list[dict]:
+        g = sub.groupby("ano")[["numerador", "denominador"]].sum()
+        return [
+            {
+                "ano": int(ano),
+                "valor": round(float(r.numerador / r.denominador * fator), 4),
+                "num": int(r.numerador),
+                "den": int(r.denominador),
+            }
+            for ano, r in g.iterrows()
+            if r.denominador > 0
+        ]
+
+    municipios = [
+        {"codibge": cod, "nome": g["nome"].iat[0], "uf": g["uf"].iat[0],
+         "regiao": g["regiao"].iat[0], "serie": serie(g)}
+        for cod, g in df.groupby("codibge")
+    ]
+    return {
+        "anos": sorted(int(a) for a in df["ano"].unique()),
+        "brasil": serie(df),
+        "regioes": {r: serie(df[df["regiao"] == r]) for r in REGIOES_ORDEM},
+        "ufs": {uf: serie(df[df["uf"] == uf]) for uf in sorted(df["uf"].unique())},
+        "municipios": municipios,
+    }
+
+
 def exportar_indicador(chave: str, row, anos: list[int], ufs: list[str], dim_mun: pd.DataFrame) -> dict:
+    if chave in BRUTOS:
+        extra = exportar_indicador_bruto(chave)
+        anos = extra.pop("anos")
+        return {
+            "chave": chave, "nome": row["indicador_nome"], "grupo": row["grupo"],
+            "direcao": row["direcao"], "formato": row["formato"], "unidade": row["unidade"],
+            "multi_categoria": False, "categorias": [], "anos": anos, **extra,
+        }
+
     categorias = listar_categorias(chave)
     multi_categoria = bool(categorias)
 
@@ -151,7 +201,32 @@ def exportar_indicador(chave: str, row, anos: list[int], ufs: list[str], dim_mun
     }
 
 
+def main_brutos(chaves: list[str]):
+    """Exporta so indicadores com fonte em data/brutos/ (nao precisa dos
+    parquets). Atualiza o JSON do indicador e mantem o _index.json."""
+    meta = {r["chave"]: r for r in json.loads((OUT_DIR / "_index.json").read_text(encoding="utf-8"))}
+    for chave in chaves:
+        cfg = BRUTOS[chave]
+        if "nome" in cfg:  # indicador novo, metadados vivem em BRUTOS
+            row = {k: cfg[k] for k in ("grupo", "direcao", "formato", "unidade")}
+            row["indicador_nome"] = cfg["nome"]
+        else:
+            antigo = json.loads((OUT_DIR / f"{chave}.json").read_text(encoding="utf-8"))
+            row = {k: antigo[k] for k in ("grupo", "direcao", "formato", "unidade")}
+            row["indicador_nome"] = antigo["nome"]
+        payload = exportar_indicador(chave, row, [], [], None)
+        (OUT_DIR / f"{chave}.json").write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+        if chave not in meta:
+            meta[chave] = {"chave": chave, "nome": row["indicador_nome"], "grupo": row["grupo"],
+                           "direcao": row["direcao"], "formato": row["formato"],
+                           "unidade": row["unidade"], "multi_categoria": False}
+            (OUT_DIR / "_index.json").write_text(json.dumps(list(meta.values()), ensure_ascii=False), encoding="utf-8")
+        print(f"-> '{chave}' exportado a partir de data/brutos/")
+
+
 def main():
+    if len(sys.argv) > 1:
+        return main_brutos(sys.argv[1:])
     dim_ind = load_dim_indicadores_parquet()
     fato = load_fato_indicadores()
     dim_mun = load_dim_municipios()

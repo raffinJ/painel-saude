@@ -10,7 +10,9 @@ export type IndicadorMeta = {
   multi_categoria?: boolean;
 };
 
-export type SeriePonto = { ano: number; valor: number };
+/** num/den: numerador e denominador brutos (ex.: cesáreas e partos totais),
+ * presentes nos indicadores já migrados para data/brutos/. */
+export type SeriePonto = { ano: number; valor: number; num?: number; den?: number };
 
 export type MunicipioSerieSimples = {
   codibge: string;
@@ -172,15 +174,23 @@ export function indicadorRawCsv(
     };
   }
   const rows: (string | number)[][] = [];
+  const comBruto = data.municipios.some((m) => m.serie.some((p) => p.den !== undefined));
   for (const m of data.municipios) {
     for (const p of m.serie) {
-      rows.push([m.codibge, m.nome, m.uf, m.regiao, p.ano, p.valor]);
+      const base = [m.codibge, m.nome, m.uf, m.regiao, p.ano, p.valor];
+      rows.push(comBruto ? [...base, p.num ?? "", p.den ?? ""] : base);
     }
   }
   return {
-    headers: ["codibge", "municipio", "uf", "regiao", "ano", "valor"],
+    headers: ["codibge", "municipio", "uf", "regiao", "ano", "valor", ...(comBruto ? ["numerador", "denominador"] : [])],
     rows,
   };
+}
+
+/** "312 de 540" (pt-BR); string vazia se o ponto não tem dado bruto. */
+export function formatNumDen(p: { num?: number; den?: number } | undefined): string {
+  if (!p || p.num === undefined || p.den === undefined) return "";
+  return `${p.num.toLocaleString("pt-BR")} de ${p.den.toLocaleString("pt-BR")}`;
 }
 
 /** Aplica uma mascara de formato no estilo Python ("{:.1f}%", "{:.2f}") a um numero. */

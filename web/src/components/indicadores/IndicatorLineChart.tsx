@@ -1,6 +1,6 @@
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import { ChartContainer, ChartTooltip, type ChartConfig } from "@/components/ui/chart";
-import { formatValor, type SeriePonto } from "@/lib/indicadores-data";
+import { formatNumDen, formatValor, type SeriePonto } from "@/lib/indicadores-data";
 
 type Props = {
   serie: SeriePonto[];
@@ -53,6 +53,11 @@ export function IndicatorLineChart({ serie, label, formato, unidade }: Props) {
                 <div className="rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs font-mono font-medium uppercase tracking-wide tabular-nums shadow-xl">
                   {formatValor(Number(payload[0]?.value), formato)}{" "}
                   {unidade.toUpperCase()}
+                  {formatNumDen(payload[0]?.payload) && (
+                    <div className="normal-case text-muted-foreground">
+                      {formatNumDen(payload[0]?.payload)}
+                    </div>
+                  )}
                 </div>
               );
             }}
