@@ -144,11 +144,15 @@ def exportar_indicador_bruto(chave: str) -> dict:
         ref = mun.assign(codigo_uf=mun["codibge"].str[:2])[["codigo_uf", "uf", "regiao"]].drop_duplicates()
         agg = ufs_csv.merge(ref, on="codigo_uf", how="left")
 
-    def serie(sub: pd.DataFrame, omitir_zeros: bool = False) -> list[dict]:
+    # cfg min_den_municipal: não exibe pontos municipais com denominador abaixo
+    # do mínimo (taxas instáveis e peso do JSON)
+    min_den = cfg.get("min_den_municipal", 0)
+
+    def serie(sub: pd.DataFrame, omitir_zeros: bool = False, min_den: float = 0) -> list[dict]:
         g = sub.groupby("ano")[["numerador", "denominador"]].sum()
         pts = []
         for ano, r in g.iterrows():
-            if r.denominador <= 0 or (omitir_zeros and r.numerador == 0):
+            if r.denominador <= 0 or r.denominador < min_den or (omitir_zeros and r.numerador == 0):
                 continue
             if soma:
                 pts.append({"ano": int(ano), "valor": round(float(r.numerador), 4)})
@@ -163,10 +167,11 @@ def exportar_indicador_bruto(chave: str) -> dict:
         return {c: serie(sub[sub["categoria"] == c]) for c in categorias}
 
     municipios = []
-    for cod, g in ([] if cfg.get("sem_municipios") else df.groupby("codibge")):
+    for cod, g in df.groupby("codibge"):
         base = {"codibge": cod, "nome": g["nome"].iat[0], "uf": g["uf"].iat[0], "regiao": g["regiao"].iat[0]}
         if multi:
-            series = {c: serie(g[g["categoria"] == c], omitir_zeros=True) for c in categorias}
+            series = {c: serie(g[g["categoria"] == c], omitir_zeros=not min_den, min_den=min_den)
+                      for c in categorias}
             if any(series.values()):
                 municipios.append({**base, "series": series})
         else:

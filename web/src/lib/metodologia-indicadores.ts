@@ -322,7 +322,7 @@ export const METODOLOGIA_INDICADORES: IndicadorMetodologia[] = [
     resumo:
       "Classifica os partos em 10 grupos da Classificação de Robson — conforme paridade, idade gestacional, tipo de gestação e histórico de cesárea —, permitindo identificar em quais perfis de gestantes a cesárea é mais usada. É a ferramenta padrão internacional para monitorar e reduzir cesáreas desnecessárias.",
     fonte: "SINASC (nascidos vivos, classificados conforme os critérios de cada grupo de Robson).",
-    filtros: "Grupos 1 a 10; partos sem os dados necessários à classificação aparecem em \"Não classificado\". Por limite de tamanho, o site mostra Brasil, regiões e UFs (sem municípios).",
+    filtros: "Grupos 1 a 10; partos sem os dados necessários à classificação aparecem em \"Não classificado\". Nos municípios, só são exibidos os grupos com pelo menos 30 nascidos vivos no ano (abaixo disso a taxa é instável); Brasil, regiões e UFs usam todos os partos.",
     calculo: "Número de partos cesáreos dividido pelo total de nascidos vivos de cada grupo de Robson, ×100 — a proporção de cesáreas dentro de cada grupo (as barras não somam 100%).",
   },
   {

@@ -228,9 +228,10 @@ BRUTOS = {
         unidade="% dos estabelecimentos com nascimentos", fator=100,
     ),
     # 11 categorias que NÃO somam um todo (taxa de cesárea dentro de cada
-    # grupo): gráfico sem empilhar. Sem série municipal (peso do JSON).
+    # grupo): gráfico sem empilhar. Pontos municipais só com >= 30 nascidos
+    # vivos no grupo/ano (taxa instável abaixo disso; limita o peso do JSON).
     "cesareas_grupo_robson": dict(
-        carregar=_robson, gzip=True, empilhado=False, sem_municipios=True,
+        carregar=_robson, gzip=True, empilhado=False, min_den_municipal=30,
         ordem=[f"Grupo {i}" for i in range(1, 11)] + ["Não classificado"],
         nome="Proporção de Cesáreas por Grupo de Robson",
         grupo="Grupo 2 - Parto", direcao="neutro", formato="{:.1f}%",
