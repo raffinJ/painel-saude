@@ -231,7 +231,22 @@ python scripts/export_indicadores_frontend.py proporcao_cesareas   # -> web/publ
   mostra "X de Y".
 - Regra de cada indicador fica em `BRUTOS` (`scripts/agregar_brutos.py`).
   Códigos `xx0000` (município não informado) são sempre descartados.
-- Migrados: `cobertura_sisab` (novo; numerador = SISAB `Total Gestantes`
+- Migrados sem documento de validação (regras da seção "Fontes" do
+  `detalhamento_indicadores.md`; ver limitações no relatório de cada um):
+  `cobertura_triagem_neonatal` (exames/NV; série consistente só de 2017 em
+  diante), `consultas_puerperio` (consultas por município de ocorrência / NV),
+  `vacinacao_bcg` e `vacinacao_hepatite_b` (doses/NV; 2019 sem dado),
+  `proporcao_alojamento_conjunto` (soma mensal de CNES com AC / CNES com
+  nascimentos; Brasil 2017 = 48,1% e 2023 = 46,5% contra 48,4% e 46,5% no
+  texto da equipe) e `cesareas_grupo_robson` (taxa de cesárea dentro de cada
+  grupo; 11 categorias não empilhadas; sem série municipal; CSV em `.csv.gz`).
+- Migrados: `coef_obito_neonatal_causa` (multi-categoria Nível 1; validado:
+  399.692 óbitos, 307.227 evitáveis, 45.480.337 NV; o denominador é o NV
+  total em todas as categorias — a versão antiga dividia pelo NV só dos
+  municípios com óbito da causa e superestimava UF/Brasil),
+  `taxa_leitos_uti_adulto` (tipo "soma": estimativa de leitos = população ×
+  0,75 × 0,28/1000 × 0,06; Brasil/UF/regiões a partir da população por UF,
+  como no documento), `cobertura_sisab` (novo; numerador = SISAB `Total Gestantes`
   somado por mês; denominador = nascidos vivos + nascidos mortos; série
   2017-2023; validado contra o documento "Cobertura do SISAB": numerador
   11.506.153 e denominadores anuais idênticos; metadados em `BRUTOS`),

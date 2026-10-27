@@ -18,16 +18,16 @@ export const METODOLOGIA_INDICADORES: IndicadorMetodologia[] = [
     resumo:
       "Mede o acesso das crianças aos exames de triagem neonatal (teste do pezinho, da orelhinha e do coraçãozinho) logo após o nascimento — indicador de acesso à atenção básica no início da vida.",
     fonte: "SINASC (nascidos vivos) e SIH/SIASUS (atendimentos ambulatoriais registrados no SUS).",
-    filtros: "Apenas os procedimentos de triagem neonatal (teste do pezinho, da orelhinha e do coraçãozinho).",
-    calculo: "Número de atendimentos de triagem neonatal dividido pelo número de nascidos vivos, no mesmo período e local.",
+    filtros: "Apenas os procedimentos de triagem neonatal (teste do pezinho, da orelhinha e do coraçãozinho). Conta exames realizados, e não crianças: uma mesma criança pode fazer vários exames, então o valor pode ultrapassar 100%. Os registros ambulatoriais só aparecem de forma consistente a partir de 2017.",
+    calculo: "Número de exames de triagem neonatal dividido pelo número de nascidos vivos do mesmo local e ano, ×100.",
   },
   {
     titulo: "Proporção de puérperas que tiveram consultas no puerpério",
     resumo:
       "Mede o acompanhamento da mulher após o parto, essencial para identificar complicações no pós-parto.",
     fonte: "SINASC (nascidos vivos) e SIH/SIASUS (consultas puerperais registradas no SUS).",
-    filtros: "Apenas o procedimento de consulta puerperal.",
-    calculo: "Número de consultas puerperais dividido pelo número de nascidos vivos, ×100.",
+    filtros: "Apenas o procedimento de consulta puerperal (03.01.01.012-9). Conta consultas, e não mulheres. A maior parte dos registros (BPA-C) não informa o município de residência; por isso as consultas são atribuídas ao município onde foram realizadas, enquanto os nascidos vivos são do município de residência da mãe.",
+    calculo: "Número de consultas puerperais dividido pelo número de nascidos vivos do mesmo local e ano, ×100.",
   },
   {
     titulo: "Proporção de gestantes que realizaram exames para toxoplasmose",
@@ -148,7 +148,7 @@ export const METODOLOGIA_INDICADORES: IndicadorMetodologia[] = [
       "Mede a cobertura vacinal de BCG e hepatite B em recém-nascidos, as primeiras vacinas do calendário nacional.",
     fonte: "PNI (doses de vacina aplicadas) e SINASC (nascidos vivos).",
     filtros: "Doses de BCG e de hepatite B aplicadas em recém-nascidos, conforme o esquema vacinal vigente em cada período.",
-    calculo: "Número de doses aplicadas dividido pelo número de nascidos vivos, ×100 — calculado separadamente para cada vacina.",
+    calculo: "Número de doses aplicadas dividido pelo número de nascidos vivos, ×100 — calculado separadamente para cada vacina (BCG e hepatite B, no site como dois indicadores, pois as doses não devem ser somadas). 2019 não tem dados na fonte e fica sem valor.",
   },
   {
     titulo: "Coeficiente de óbitos neonatais conforme causa",
@@ -156,7 +156,7 @@ export const METODOLOGIA_INDICADORES: IndicadorMetodologia[] = [
       "Classifica os óbitos neonatais em evitáveis (por atenção à gestação, ao parto, ao recém-nascido, imunoprevenção ou promoção da saúde), não evitáveis e mal definidos — ajuda a priorizar onde investir para reduzir mortes.",
     fonte: "SIM (óbitos neonatais, classificados por causa) e SINASC (nascidos vivos).",
     filtros: "Causas de óbito agrupadas conforme a lista oficial de causas evitáveis do Ministério da Saúde.",
-    calculo: "Número de óbitos neonatais em cada categoria de evitabilidade dividido pelo número de nascidos vivos, ×1.000.",
+    calculo: "Número de óbitos neonatais (0 a 27 dias) em cada categoria de evitabilidade dividido pelo total de nascidos vivos do mesmo local e ano, ×1.000. O denominador é o mesmo para todas as categorias, de modo que elas somam o coeficiente de mortalidade neonatal.",
   },
   {
     titulo: "Coeficiente de óbitos de recém-nascidos nas primeiras 24 horas de vida",
@@ -219,15 +219,16 @@ export const METODOLOGIA_INDICADORES: IndicadorMetodologia[] = [
     resumo:
       "Mede quantas maternidades oferecem alojamento conjunto — mãe e bebê no mesmo ambiente após o parto —, prática que favorece o vínculo afetivo e o aleitamento materno.",
     fonte: "SINASC (estabelecimentos com nascidos vivos) e CNES (leitos de alojamento conjunto cadastrados).",
-    filtros: "Leitos cadastrados como alojamento conjunto.",
-    calculo: "Média mensal de instituições com alojamento conjunto dividida pelo total de instituições com nascimentos no mesmo período e local, ×100.",
+    filtros: "Estabelecimentos com ao menos um leito de alojamento conjunto (QTLEIT40) entre os estabelecimentos com nascimentos no mês.",
+    calculo: "Soma mensal de estabelecimentos com alojamento conjunto dividida pela soma mensal de estabelecimentos com nascimentos, no mesmo local e ano, ×100 (equivale à média ponderada das proporções mensais). Os números \"X de Y\" do site são estabelecimentos-mês.",
   },
   {
     titulo: "Número de leitos de UTI adulto necessários para a atenção materna",
     resumo:
       "Estima quantos leitos de UTI adulto seriam necessários para atender gestantes e puérperas em complicações graves, com base no parâmetro da Rede Cegonha de que os leitos de UTI adulto devem corresponder a cerca de 6% dos leitos obstétricos.",
     fonte: "IBGE (população, usada para estimar os leitos obstétricos necessários).",
-    calculo: "Número de leitos obstétricos estimados (0,28 por 1.000 habitantes dependentes do SUS) multiplicado por 6%.",
+    filtros: "Considera 75% da população como usuária do SUS (Portaria SAS/MS nº 650/2011). Os totais de UF, região e Brasil usam a população oficial por UF (projeção do IBGE); por isso não coincidem exatamente com a soma das estimativas municipais.",
+    calculo: "Leitos obstétricos estimados (0,28 por 1.000 usuários do SUS) multiplicados por 6%. Resultado em número de leitos.",
   },
   {
     titulo: "Taxa de leitos obstétricos",
@@ -321,7 +322,8 @@ export const METODOLOGIA_INDICADORES: IndicadorMetodologia[] = [
     resumo:
       "Classifica os partos em 10 grupos da Classificação de Robson — conforme paridade, idade gestacional, tipo de gestação e histórico de cesárea —, permitindo identificar em quais perfis de gestantes a cesárea é mais usada. É a ferramenta padrão internacional para monitorar e reduzir cesáreas desnecessárias.",
     fonte: "SINASC (nascidos vivos, classificados conforme os critérios de cada grupo de Robson).",
-    calculo: "Distribuição percentual de partos vaginais e cesáreos dentro de cada um dos 10 grupos de Robson.",
+    filtros: "Grupos 1 a 10; partos sem os dados necessários à classificação aparecem em \"Não classificado\". Por limite de tamanho, o site mostra Brasil, regiões e UFs (sem municípios).",
+    calculo: "Número de partos cesáreos dividido pelo total de nascidos vivos de cada grupo de Robson, ×100 — a proporção de cesáreas dentro de cada grupo (as barras não somam 100%).",
   },
   {
     titulo: "Proporção de gestantes com o pré-natal adequado",
@@ -338,6 +340,12 @@ export const METODOLOGIA_INDICADORES: IndicadorMetodologia[] = [
 const TITULO_POR_CHAVE: Record<string, string> = {
   cobertura_estabelecimentos_saude: "Densidade de Unidades Básicas de Saúde",
   cobertura_sisab: "Taxa de cobertura do SISAB",
+  cobertura_triagem_neonatal: "Taxa de cobertura neonatal ambulatorial",
+  consultas_puerperio: "Proporção de puérperas que tiveram consultas no puerpério",
+  vacinacao_bcg: "Proporção de neonatos vacinados",
+  vacinacao_hepatite_b: "Proporção de neonatos vacinados",
+  proporcao_alojamento_conjunto: "Proporção de instituições com existência de alojamento conjunto",
+  cesareas_grupo_robson: "Proporção de tipo de parto por grupo de Robson",
   taxa_hiv_gestantes: "Taxa de HIV positivo em gestantes",
   coef_obitos_fetais: "Taxa de óbitos fetais",
   proporcao_pre_natal_adequado: "Proporção de gestantes com o pré-natal adequado",

@@ -15,6 +15,7 @@ type Props = {
   anos: number[];
   formato: string;
   unidade: string;
+  empilhado?: boolean;
 };
 
 const CORES = [
@@ -36,6 +37,7 @@ export function IndicatorCategoryChart({
   anos,
   formato,
   unidade,
+  empilhado = true,
 }: Props) {
   const catKeys = categorias.map((_, i) => `cat${i}`);
 
@@ -111,7 +113,7 @@ export function IndicatorCategoryChart({
               key={key}
               dataKey={key}
               name={categorias[i]}
-              stackId="categorias"
+              stackId={empilhado ? "categorias" : undefined}
               fill={`var(--color-${key})`}
             />
           ))}

@@ -117,41 +117,69 @@ def serie_municipios_por_categoria(
 
 def exportar_indicador_bruto(chave: str) -> dict:
     """Indicador cuja fonte e' data/brutos/<chave>.csv (numerador e
-    denominador por municipio x ano). Todos os niveis (municipio, UF,
-    regiao, Brasil) saem de soma(numerador)/soma(denominador) * fator, e cada
-    ponto leva `num` e `den` para o site mostrar "X de Y"."""
-    fator = BRUTOS[chave]["fator"]
+    denominador por municipio x ano [x categoria]). Todos os niveis
+    (municipio, UF, regiao, Brasil) saem de soma(numerador)/soma(denominador)
+    * fator, e cada ponto leva `num` e `den` para o site mostrar "X de Y".
+
+    Indicador "soma" (cfg soma=True): o valor e' a propria soma do numerador
+    (estimativa de leitos), sem razao e sem num/den nos pontos; UF, regiao e
+    Brasil saem de <chave>_uf.csv (populacao oficial por UF)."""
+    cfg = BRUTOS[chave]
+    fator = cfg["fator"]
+    soma = cfg.get("soma", False)
     mun = pd.read_csv(BRUTOS_DIR / "_municipios.csv", dtype={"codibge": str})
-    df = pd.read_csv(BRUTOS_DIR / f"{chave}.csv", dtype={"codibge": str})
+    arq = BRUTOS_DIR / f"{chave}.csv"
+    df = pd.read_csv(arq if arq.exists() else arq.with_suffix(".csv.gz"), dtype={"codibge": str})
     df = df.merge(mun, on="codibge", how="left")
     if df["uf"].isna().any():
         sys.exit(f"{chave}: municipios sem cadastro em _municipios.csv: "
                  f"{sorted(df[df['uf'].isna()]['codibge'].unique())[:10]}")
+    multi = "categoria" in df.columns
+    categorias = (cfg.get("ordem") or sorted(df["categoria"].unique())) if multi else []
 
-    def serie(sub: pd.DataFrame) -> list[dict]:
+    # nivel agregado: por UF oficial (soma) ou pelos proprios municipios
+    agg = df
+    if soma and (BRUTOS_DIR / f"{chave}_uf.csv").exists():
+        ufs_csv = pd.read_csv(BRUTOS_DIR / f"{chave}_uf.csv", dtype={"codigo_uf": str})
+        ref = mun.assign(codigo_uf=mun["codibge"].str[:2])[["codigo_uf", "uf", "regiao"]].drop_duplicates()
+        agg = ufs_csv.merge(ref, on="codigo_uf", how="left")
+
+    def serie(sub: pd.DataFrame, omitir_zeros: bool = False) -> list[dict]:
         g = sub.groupby("ano")[["numerador", "denominador"]].sum()
-        return [
-            {
-                "ano": int(ano),
-                "valor": round(float(r.numerador / r.denominador * fator), 4),
-                "num": int(r.numerador),
-                "den": int(r.denominador),
-            }
-            for ano, r in g.iterrows()
-            if r.denominador > 0
-        ]
+        pts = []
+        for ano, r in g.iterrows():
+            if r.denominador <= 0 or (omitir_zeros and r.numerador == 0):
+                continue
+            if soma:
+                pts.append({"ano": int(ano), "valor": round(float(r.numerador), 4)})
+            else:
+                pts.append({"ano": int(ano), "valor": round(float(r.numerador / r.denominador * fator), 4),
+                            "num": int(r.numerador), "den": int(r.denominador)})
+        return pts
 
-    municipios = [
-        {"codibge": cod, "nome": g["nome"].iat[0], "uf": g["uf"].iat[0],
-         "regiao": g["regiao"].iat[0], "serie": serie(g)}
-        for cod, g in df.groupby("codibge")
-    ]
+    def nivel(sub: pd.DataFrame):
+        if not multi:
+            return serie(sub)
+        return {c: serie(sub[sub["categoria"] == c]) for c in categorias}
+
+    municipios = []
+    for cod, g in ([] if cfg.get("sem_municipios") else df.groupby("codibge")):
+        base = {"codibge": cod, "nome": g["nome"].iat[0], "uf": g["uf"].iat[0], "regiao": g["regiao"].iat[0]}
+        if multi:
+            series = {c: serie(g[g["categoria"] == c], omitir_zeros=True) for c in categorias}
+            if any(series.values()):
+                municipios.append({**base, "series": series})
+        else:
+            municipios.append({**base, "serie": serie(g)})
     return {
         "anos": sorted(int(a) for a in df["ano"].unique()),
-        "brasil": serie(df),
-        "regioes": {r: serie(df[df["regiao"] == r]) for r in REGIOES_ORDEM},
-        "ufs": {uf: serie(df[df["uf"] == uf]) for uf in sorted(df["uf"].unique())},
+        "multi_categoria": multi,
+        "categorias": categorias,
+        "brasil": nivel(agg),
+        "regioes": {r: nivel(agg[agg["regiao"] == r]) for r in REGIOES_ORDEM},
+        "ufs": {uf: nivel(agg[agg["uf"] == uf]) for uf in sorted(agg["uf"].dropna().unique())},
         "municipios": municipios,
+        **({"empilhado": False} if cfg.get("empilhado") is False else {}),
     }
 
 
@@ -162,7 +190,7 @@ def exportar_indicador(chave: str, row, anos: list[int], ufs: list[str], dim_mun
         return {
             "chave": chave, "nome": row["indicador_nome"], "grupo": row["grupo"],
             "direcao": row["direcao"], "formato": row["formato"], "unidade": row["unidade"],
-            "multi_categoria": False, "categorias": [], "anos": anos, **extra,
+            "anos": anos, **extra,
         }
 
     categorias = listar_categorias(chave)
@@ -216,10 +244,10 @@ def main_brutos(chaves: list[str]):
             row["indicador_nome"] = antigo["nome"]
         payload = exportar_indicador(chave, row, [], [], None)
         (OUT_DIR / f"{chave}.json").write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
-        if chave not in meta:
+        if chave not in meta or "nome" in cfg:
             meta[chave] = {"chave": chave, "nome": row["indicador_nome"], "grupo": row["grupo"],
                            "direcao": row["direcao"], "formato": row["formato"],
-                           "unidade": row["unidade"], "multi_categoria": False}
+                           "unidade": row["unidade"], "multi_categoria": payload["multi_categoria"]}
             (OUT_DIR / "_index.json").write_text(json.dumps(list(meta.values()), ensure_ascii=False), encoding="utf-8")
         print(f"-> '{chave}' exportado a partir de data/brutos/")
 

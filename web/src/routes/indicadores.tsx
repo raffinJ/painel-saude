@@ -328,6 +328,7 @@ function IndicadoresPage() {
                     anos={data.anos}
                     formato={data.formato}
                     unidade={data.unidade}
+                    empilhado={data.empilhado}
                   />
                 </div>
               </section>

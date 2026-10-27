@@ -8,6 +8,8 @@ export type IndicadorMeta = {
   formato: string;
   unidade: string;
   multi_categoria?: boolean;
+  /** false: as categorias não somam um todo (ex.: taxas por grupo de Robson); o gráfico não empilha as barras. */
+  empilhado?: boolean;
 };
 
 /** num/den: numerador e denominador brutos (ex.: cesáreas e partos totais),
