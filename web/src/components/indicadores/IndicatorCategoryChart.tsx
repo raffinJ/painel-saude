@@ -26,6 +26,15 @@ const CORES = [
   "var(--color-chart-5)",
 ];
 
+/** Categorias que somam um todo usam as cores de categoria do tema. Quando não
+ * empilham (ex.: grupos de Robson, ordenados), a cor percorre a mesma escala
+ * dos mapas (marca -> destaque quente) em vez de repetir 5 cores. */
+function corDaCategoria(i: number, total: number, empilhado: boolean): string {
+  if (empilhado || total <= CORES.length) return CORES[i % CORES.length];
+  const pct = Math.round((1 - i / (total - 1)) * 100);
+  return `color-mix(in oklch, var(--color-brand) ${pct}%, var(--color-accent-warm) ${100 - pct}%)`;
+}
+
 // Nomes de categoria vêm dos dados brutos (podem ter espaço, acento, "/",
 // "." — ex. "Enfermeira/Obstetriz", "1. Causas evitáveis") e não são
 // identificadores CSS válidos para as variáveis --color-<key> que o
@@ -44,7 +53,7 @@ export function IndicatorCategoryChart({
   const config = Object.fromEntries(
     catKeys.map((key, i) => [
       key,
-      { label: categorias[i], color: CORES[i % CORES.length] },
+      { label: categorias[i], color: corDaCategoria(i, categorias.length, empilhado) },
     ]),
   ) satisfies ChartConfig;
 

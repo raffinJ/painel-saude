@@ -29,11 +29,11 @@ export function colorForValue(
   max: number,
   direcao: Direcao,
 ): string {
-  if (direcao === "neutro") {
-    const pct = Math.round(normalize(valor, min, max) * 100);
-    return `color-mix(in oklch, var(--color-brand-dark) ${pct}%, var(--color-brand-soft) ${100 - pct}%)`;
-  }
-  const pct = colorScalePercent(valor, min, max, direcao);
+  // Todos os indicadores usam a mesma escala (marca <-> destaque quente). Em
+  // "neutro" não há melhor/pior, mas a cor segue a mesma orientação de
+  // "menor_melhor": menor valor = cor da marca, maior valor = destaque quente
+  // (a legenda mostra Menor -> Maior, da esquerda para a direita).
+  const pct = colorScalePercent(valor, min, max, direcao === "neutro" ? "menor_melhor" : direcao);
   return `color-mix(in oklch, var(--color-brand) ${pct}%, var(--color-accent-warm) ${100 - pct}%)`;
 }
 
