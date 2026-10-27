@@ -230,8 +230,9 @@ BRUTOS = {
     # 11 categorias que NÃO somam um todo (taxa de cesárea dentro de cada
     # grupo): gráfico sem empilhar. Pontos municipais só com >= 30 nascidos
     # vivos no grupo/ano (taxa instável abaixo disso; limita o peso do JSON).
+    # Série a partir de 2010: em 2008-2009 a fonte não classifica os grupos.
     "cesareas_grupo_robson": dict(
-        carregar=_robson, gzip=True, empilhado=False, min_den_municipal=30,
+        carregar=_robson, gzip=True, empilhado=False, min_den_municipal=30, ano_min=2010,
         ordem=[f"Grupo {i}" for i in range(1, 11)] + ["Não classificado"],
         nome="Proporção de Cesáreas por Grupo de Robson",
         grupo="Grupo 2 - Parto", direcao="neutro", formato="{:.1f}%",
@@ -303,6 +304,7 @@ def agregar(chave: str) -> Path:
               f"({sorted(fora['codibge'].unique())[:5]}): numerador={fora['numerador'].sum():,.0f}, "
               f"denominador={fora['denominador'].sum():,.0f}".replace(",", "."))
     out = out[out["codibge"].isin(validos)]
+    out = out[out["ano"] >= cfg.get("ano_min", 0)]
     chaves = [c for c in ("codibge", "ano", "categoria") if c in out.columns]
     out = out.groupby(chaves, as_index=False)[["numerador", "denominador"]].sum()
     if cfg.get("soma"):  # estimativas fracionárias

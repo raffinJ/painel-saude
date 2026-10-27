@@ -239,7 +239,7 @@ python scripts/export_indicadores_frontend.py proporcao_cesareas   # -> web/publ
   `proporcao_alojamento_conjunto` (soma mensal de CNES com AC / CNES com
   nascimentos; Brasil 2017 = 48,1% e 2023 = 46,5% contra 48,4% e 46,5% no
   texto da equipe) e `cesareas_grupo_robson` (taxa de cesárea dentro de cada
-  grupo; 11 categorias não empilhadas; pontos municipais só com ≥ 30 nascidos vivos no grupo/ano (`min_den_municipal`); CSV em `.csv.gz`).
+  grupo; 11 categorias não empilhadas; série a partir de 2010 (`ano_min`); pontos municipais só com ≥ 30 nascidos vivos no grupo/ano (`min_den_municipal`); CSV em `.csv.gz`).
 - Migrados: `coef_obito_neonatal_causa` (multi-categoria Nível 1; validado:
   399.692 óbitos, 307.227 evitáveis, 45.480.337 NV; o denominador é o NV
   total em todas as categorias — a versão antiga dividia pelo NV só dos

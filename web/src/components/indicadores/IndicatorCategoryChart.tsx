@@ -26,13 +26,29 @@ const CORES = [
   "var(--color-chart-5)",
 ];
 
+// Paleta categórica própria para gráficos com muitas categorias que não
+// empilham (ex.: grupos de Robson): cores bem distintas entre si, para
+// identificar a categoria de cada barra. A última (cinza) fica para a
+// categoria residual ("Não classificado").
+const CORES_DISTINTAS = [
+  "#1f77b4", // azul
+  "#ff7f0e", // laranja
+  "#2ca02c", // verde
+  "#d62728", // vermelho
+  "#9467bd", // roxo
+  "#8c564b", // marrom
+  "#e377c2", // rosa
+  "#17becf", // ciano
+  "#bcbd22", // oliva
+  "#393b79", // índigo
+  "#7f7f7f", // cinza
+];
+
 /** Categorias que somam um todo usam as cores de categoria do tema. Quando não
- * empilham (ex.: grupos de Robson, ordenados), a cor percorre a mesma escala
- * dos mapas (marca -> destaque quente) em vez de repetir 5 cores. */
+ * empilham e são muitas (> 5), usam a paleta distintiva acima. */
 function corDaCategoria(i: number, total: number, empilhado: boolean): string {
   if (empilhado || total <= CORES.length) return CORES[i % CORES.length];
-  const pct = Math.round((1 - i / (total - 1)) * 100);
-  return `color-mix(in oklch, var(--color-brand) ${pct}%, var(--color-accent-warm) ${100 - pct}%)`;
+  return i === total - 1 ? CORES_DISTINTAS[CORES_DISTINTAS.length - 1] : CORES_DISTINTAS[i % (CORES_DISTINTAS.length - 1)];
 }
 
 // Nomes de categoria vêm dos dados brutos (podem ter espaço, acento, "/",
