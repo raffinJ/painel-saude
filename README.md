@@ -14,7 +14,7 @@ Site de indicadores em saúde com duas partes:
 > Comparar, Mapa — que ainda não têm equivalente completo no React). Ver
 > [docs/07-decisoes-tecnicas.md](docs/07-decisoes-tecnicas.md#adr-004).
 
-Já vem com **26 indicadores reais** processados (ver
+Já vem com **35 indicadores reais** processados (ver
 [docs/03-catalogo-e-metodologia-indicadores.md](docs/03-catalogo-e-metodologia-indicadores.md)
 para a lista completa), todos disponíveis na aba Indicadores do
 frontend. A página de Ranking, por enquanto, usa só o Indicador Composto.

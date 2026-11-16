@@ -240,6 +240,16 @@ python scripts/export_indicadores_frontend.py proporcao_cesareas   # -> web/publ
   nascimentos; Brasil 2017 = 48,1% e 2023 = 46,5% contra 48,4% e 46,5% no
   texto da equipe) e `cesareas_grupo_robson` (taxa de cesárea dentro de cada
   grupo; 11 categorias não empilhadas; série a partir de 2010 (`ano_min`); pontos municipais só com ≥ 30 nascidos vivos no grupo/ano (`min_den_municipal`); CSV em `.csv.gz`).
+- Novos (2026-11-16): `proporcao_obitos_maternos_local` e
+  `proporcao_obitos_maternos_periodo` (SIM; multi-categoria empilhada;
+  numerador = óbitos da categoria, denominador = total de óbitos do município
+  e ano; período a partir de 2009). Fonte:
+  `/Volumes/HD JULIA/QualiPreNeo/indicadores/obito_mat_local/` e
+  `obito_mat_periodo/`. Validado contra o documento: 27.907 óbitos (2008-2023),
+  91,25% em hospital, 26.226 óbitos de 2009 a 2023 (no site, 27.893 e 26.213: os
+  códigos fora do IBGE são descartados). Os arquivos `*_res.csv` de
+  `dados_qualineopre/obito_mat_evitavel_local_periodo_rmm/` foram descartados:
+  somavam 51.015 óbitos, com faixas etárias de 0-9 e 60+ (sem filtro de óbito materno).
 - Migrados: `coef_obito_neonatal_causa` (multi-categoria Nível 1; validado:
   399.692 óbitos, 307.227 evitáveis, 45.480.337 NV; o denominador é o NV
   total em todas as categorias — a versão antiga dividia pelo NV só dos

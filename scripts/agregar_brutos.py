@@ -23,6 +23,8 @@ import pandas as pd
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 HD_DIR = Path("/Volumes/HD JULIA/dados_qualineopre")
+# Arquivos de óbitos maternos por local/período (versão que bate com o documento)
+HD_INDICADORES_DIR = Path("/Volumes/HD JULIA/QualiPreNeo/indicadores")
 OUT_DIR = BASE_DIR / "data" / "brutos"
 
 # fator: escala do indicador (valor = numerador / denominador * fator)
@@ -195,7 +197,58 @@ def _uti_adulto_uf() -> pd.DataFrame:
     return _uti_populacao(("UF",))
 
 
+def _obitos_maternos_por(pasta: str, arquivo: str, coluna: str):
+    """Óbitos maternos (SIM) por município e ano, divididos por categoria
+    (local ou período do óbito). Numerador = óbitos da categoria;
+    denominador = total de óbitos do município e ano (soma de todas as
+    categorias). Formato longo, com zeros preenchidos."""
+    def carregar() -> pd.DataFrame:
+        o = pd.read_csv(HD_INDICADORES_DIR / pasta / arquivo,
+                        usecols=["year", "codibge", coluna, "contador"], dtype={"codibge": str})
+        o = o.rename(columns={"year": "ano", coluna: "categoria", "contador": "numerador"})
+        # tira o prefixo numérico do código ("1 - hospital" -> "hospital")
+        o["categoria"] = o["categoria"].str.replace(r"^\d\s*-\s*", "", regex=True).str.strip()
+        o["categoria"] = o["categoria"].str[0].str.upper() + o["categoria"].str[1:]
+        num = o.groupby(["codibge", "ano", "categoria"], as_index=False)["numerador"].sum()
+        den = (num.groupby(["codibge", "ano"], as_index=False)["numerador"].sum()
+                  .rename(columns={"numerador": "denominador"}))
+        cats = pd.DataFrame({"categoria": sorted(num["categoria"].unique())})
+        base = den.merge(cats, how="cross")
+        out = base.merge(num, on=["codibge", "ano", "categoria"], how="left")
+        out["numerador"] = out["numerador"].fillna(0)
+        return out
+    return carregar
+
+
 BRUTOS = {
+    # Óbitos maternos por local / período do óbito. Validado contra o documento:
+    # 27.907 óbitos (2008-2023), 91,25% em hospital; 26.226 óbitos de 2009 a 2023.
+    # (Os arquivos *_res.csv de dados_qualineopre somavam 51.015 — sem filtro de
+    # óbito materno, com faixas etárias de 0-9 e 60+ — e foram descartados.)
+    "proporcao_obitos_maternos_local": dict(
+        carregar=_obitos_maternos_por("obito_mat_local", "obitos_maternos_local.csv", "local_ocorrencia"),
+        ordem=["Hospital", "Outros estabelecimentos de saúde", "Domicílio", "Via pública",
+               "Outros", "Aldeia indígena", "Ignorado"],
+        nome="Proporção de Óbitos Maternos por Local do Óbito",
+        grupo="Grupo 4 - Puerpério", direcao="neutro", formato="{:.1f}%",
+        unidade="% dos óbitos maternos", fator=100,
+    ),
+    # Período do óbito só é notificado a partir de 2009.
+    "proporcao_obitos_maternos_periodo": dict(
+        carregar=_obitos_maternos_por("obito_mat_periodo", "obitos_maternos_periodo.csv", "TPOBITOCOR"),
+        ano_min=2009,
+        ordem=["Durante a gestação", "Durante abortamento", "Após abortamento",
+               "No parto ou até 1 hora após o parto",
+               "No puerpério (até 42 dias do término da gestação)",
+               "Entre o 43º dia e até um ano após o término da gestação",
+               "Investigação não identificou o momento do óbito",
+               "Mais de 1 ano após o parto",
+               "O óbito não ocorreu em nenhuma das circunstâncias acima mencionadas.",
+               "Não informado"],
+        nome="Proporção de Óbitos Maternos por Período do Óbito",
+        grupo="Grupo 4 - Puerpério", direcao="neutro", formato="{:.1f}%",
+        unidade="% dos óbitos maternos", fator=100,
+    ),
     # --- Indicadores novos (sem validação contra documento; ver docs/04 §4.10) ---
     "cobertura_triagem_neonatal": dict(
         carregar=_triagem_neonatal,

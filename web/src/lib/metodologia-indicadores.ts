@@ -179,16 +179,16 @@ export const METODOLOGIA_INDICADORES: IndicadorMetodologia[] = [
     resumo:
       "Mostra onde as mortes maternas ocorrem — hospital, domicílio ou outros serviços — informação importante para direcionar investimentos em infraestrutura de saúde.",
     fonte: "SIM (óbitos maternos).",
-    filtros: "Óbitos de mulheres com causa relacionada à gestação, ao parto ou ao puerpério.",
-    calculo: "Número de óbitos maternos em cada local dividido pelo total de óbitos maternos, ×100.",
+    filtros: "Óbitos maternos (27.907 entre 2008 e 2023). O local é o de ocorrência do óbito.",
+    calculo: "Número de óbitos maternos em cada local dividido pelo total de óbitos maternos do mesmo município e ano, ×100.",
   },
   {
     titulo: "Proporção de óbitos maternos por período do óbito",
     resumo:
       "Mostra em que momento do ciclo gravídico-puerperal — gestação, parto ou puerpério — se concentram as mortes maternas, ajudando a identificar a fase mais crítica da assistência.",
     fonte: "SIM (óbitos maternos).",
-    filtros: "Óbitos de mulheres com período do óbito informado (disponível a partir de 2009).",
-    calculo: "Número de óbitos maternos em cada período dividido pelo total de óbitos maternos com período informado, ×100.",
+    filtros: "Óbitos maternos a partir de 2009 (ano em que o período do óbito passou a ser notificado). A categoria \"Não informado\" está incluída no total.",
+    calculo: "Número de óbitos maternos em cada período dividido pelo total de óbitos maternos do mesmo município e ano, ×100.",
   },
   {
     titulo: "Razão de mortalidade materna",
@@ -368,6 +368,8 @@ const TITULO_POR_CHAVE: Record<string, string> = {
   razao_desfecho_materno_grave: "Razão de desfecho materno grave",
   razao_mortalidade_materna: "Razão de mortalidade materna",
   proporcao_obitos_maternos_evitaveis: "Proporção de óbitos maternos evitáveis",
+  proporcao_obitos_maternos_local: "Proporção de óbitos maternos por local de óbito",
+  proporcao_obitos_maternos_periodo: "Proporção de óbitos maternos por período do óbito",
   coef_mortalidade_perinatal: "Coeficiente de mortalidade perinatal",
   taxa_baixo_peso_nascer: "Taxa de baixo peso ao nascer",
 };
